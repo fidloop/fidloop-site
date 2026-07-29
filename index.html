@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte de fidélité Pil'Vite</title>
+<style>
+  :root {
+    --ink: #201d18;
+    --ink-dim: #6b665c;
+    --paper: #ffffff;
+    --paper-dim: #f4f2ee;
+    --yellow: #ffde2d;
+    --yellow-deep: #f0c800;
+    --green: #4faa38;
+    --border: #e6e2da;
+    --error: #c94a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--paper-dim);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .wrap {
+    width: 100%; max-width: 460px;
+    padding-bottom: 48px;
+    background: var(--paper);
+    min-height: 100vh;
+    border: 3px solid var(--green);
+    box-shadow: 0 0 40px rgba(0,0,0,0.06);
+  }
+
+  /* --- Bandeau haut : vraie texture bois de la carte + logo --- */
+  .banner {
+    background-image:
+      linear-gradient(180deg, rgba(20,17,12,0.35) 0%, rgba(20,17,12,0.55) 100%),
+      url('https://xreqpkzovokiheichauf.supabase.co/storage/v1/object/public/logos-cartes/pilvite-hero-v8-final.png');
+    background-size: cover;
+    background-position: center;
+    padding: 40px 24px 30px;
+    text-align: center;
+    position: relative;
+  }
+  .banner .eyebrow {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    font-weight: 700;
+  }
+  .banner h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+  .banner p {
+    color: rgba(255,255,255,0.85);
+    font-size: 14.5px;
+    margin-top: 6px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+  }
+
+  /* --- Cadran / signature visuelle : anneau de progression --- */
+  .dial {
+    width: 84px; height: 84px;
+    margin: 20px auto 0;
+    position: relative;
+  }
+  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .dial .track { stroke: rgba(255,255,255,0.3); }
+  .dial .fill { stroke: var(--yellow); stroke-linecap: round; }
+  .dial .center {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .dial .center .n { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; }
+  .dial .center .l { font-size: 9px; color: rgba(255,255,255,0.75); letter-spacing: 1px; }
+
+  /* --- Corps --- */
+  .body { padding: 28px 24px; }
+
+  .tiers {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--ink-dim);
+    font-weight: 600;
+  }
+  .tiers .tier { display: flex; align-items: center; gap: 6px; }
+  .tiers .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .tiers .dot.gold { background: var(--yellow-deep); }
+  .tiers .dot.dark { background: var(--green); }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 7px;
+    margin-top: 20px;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], input[type="tel"], select {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--paper-dim);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    color: var(--ink);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input::placeholder { color: #a19c8f; }
+  input:focus, select:focus { border-color: var(--green); }
+  select { appearance: none; -webkit-appearance: none; }
+  select option { background: var(--paper); color: var(--ink); }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: "▾";
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--green); pointer-events: none; font-size: 13px;
+  }
+
+  .consent {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 24px;
+    padding: 14px;
+    background: var(--paper-dim);
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .consent input {
+    margin-top: 3px;
+    width: 18px; height: 18px;
+    accent-color: var(--green);
+    flex-shrink: 0;
+  }
+  .consent span { font-size: 13.5px; color: var(--ink-dim); line-height: 1.5; }
+
+  .legal {
+    font-size: 11.5px;
+    color: #9b9587;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 26px;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.1s, opacity 0.15s;
+    box-shadow: 0 4px 14px rgba(240,200,0,0.35);
+  }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .error-msg {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(201,74,58,0.08);
+    border: 1px solid rgba(201,74,58,0.3);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--error);
+  }
+
+  /* --- Écran de succès --- */
+  .success { display: none; padding: 48px 24px; text-align: center; }
+  .success .check {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(79,170,56,0.12);
+    border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    color: var(--green);
+  }
+  .success h2 { font-family: Georgia, serif; font-size: 22px; margin-bottom: 10px; color: var(--ink); }
+  .success p { color: var(--ink-dim); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px; }
+  .success a.wallet-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--yellow);
+    color: var(--ink); text-decoration: none;
+    padding: 15px 26px; border-radius: 12px; font-weight: 700; font-size: 15px;
+    box-shadow: 0 4px 14px rgba(240,200,0,0.35);
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Écran formulaire -->
+  <div id="form-screen">
+    <div class="banner">
+      <div class="eyebrow">Réseau Pil'Vite</div>
+      <h1>Votre carte de fidélité</h1>
+      <p>Ajoutez-la à votre téléphone en 30&nbsp;secondes</p>
+
+      <div class="dial">
+        <svg viewBox="0 0 84 84">
+          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="6"/>
+          <circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="6"
+                  stroke-dasharray="226" stroke-dashoffset="226"/>
+        </svg>
+        <div class="center">
+          <div class="n">0/6</div>
+          <div class="l">POINTS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="tiers">
+        <div class="tier"><span class="dot gold"></span> 6 passages = −10%</div>
+        <div class="tier"><span class="dot dark"></span> 10 passages = −15%</div>
+      </div>
+
+      <form id="signup-form">
+        <label for="prenom">Prénom</label>
+        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required autocomplete="given-name">
+
+        <label for="telephone">Téléphone</label>
+        <input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78" required autocomplete="tel">
+
+        <label for="boutique">Votre boutique</label>
+        <div class="select-wrap">
+          <select id="boutique" name="boutique" required>
+            <option value="" disabled selected>Choisir une boutique</option>
+          </select>
+        </div>
+
+        <label class="consent" for="consentement_sms" style="text-transform:none; letter-spacing:normal; font-weight:400;">
+          <input type="checkbox" id="consentement_sms" name="consentement_sms">
+          <span>J'accepte de recevoir des offres et actualités Pil'Vite par SMS. Vous pouvez vous désinscrire à tout moment.</span>
+        </label>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <button type="submit" id="submit-btn">Ajouter à Google Wallet</button>
+      </form>
+
+      <p class="legal">
+        En vous inscrivant, vos données (prénom, téléphone) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
+        Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique.
+      </p>
+    </div>
+  </div>
+
+  <!-- Écran de succès -->
+  <div class="success" id="success-screen">
+    <div class="check">✓</div>
+    <h2>Votre carte est prête</h2>
+    <p>Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.</p>
+    <a href="#" class="wallet-btn" id="wallet-link" target="_blank">Ajouter à Google Wallet</a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // --- Configuration : à adapter avec vos vraies clés ---
+  const SUPABASE_URL = "https://xreqpkzovokiheichauf.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_ur4bRIDpnPAyaLffnN2xIg_ZnfNLNRn";
+  const EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/hyper-api";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const boutiqueSelect = document.getElementById("boutique");
+  const form = document.getElementById("signup-form");
+  const submitBtn = document.getElementById("submit-btn");
+  const errorMsg = document.getElementById("error-msg");
+
+  // Pré-sélection via QR code : ?boutique=<id>
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedBoutique = urlParams.get("boutique");
+
+  async function loadBoutiques() {
+    const { data, error } = await supabaseClient
+      .from("boutiques")
+      .select("id, nom")
+      .eq("actif", true)
+      .order("nom");
+
+    if (error || !data) {
+      errorMsg.textContent = "Impossible de charger la liste des boutiques. Réessayez dans un instant.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    data.forEach((b) => {
+      const opt = document.createElement("option");
+      opt.value = b.id;
+      opt.textContent = b.nom;
+      if (preselectedBoutique === b.id) opt.selected = true;
+      boutiqueSelect.appendChild(opt);
+    });
+  }
+  loadBoutiques();
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = "none";
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Création de votre carte...";
+
+    const payload = {
+      prenom: document.getElementById("prenom").value.trim(),
+      telephone: document.getElementById("telephone").value.trim(),
+      boutique_id: boutiqueSelect.value,
+      consentement_sms: document.getElementById("consentement_sms").checked,
+    };
+
+    try {
+      const res = await fetch(EDGE_FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.saveUrl) {
+        throw new Error(result.error || "Une erreur est survenue.");
+      }
+
+      document.getElementById("wallet-link").href = result.saveUrl;
+      document.getElementById("form-screen").style.display = "none";
+      document.getElementById("success-screen").style.display = "block";
+    } catch (err) {
+      errorMsg.textContent = "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.";
+      errorMsg.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Ajouter à Google Wallet";
+    }
+  });
+</script>
+</body>
+</html>
