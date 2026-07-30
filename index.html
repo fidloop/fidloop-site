@@ -301,9 +301,23 @@
     <p id="checkin-text">Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.</p>
     <button id="checkin-btn" style="max-width:280px; margin:0 auto;">J'ai fait un achat, +1 point</button>
     <div class="error-msg" id="checkin-error" style="max-width:280px; margin:14px auto 0;"></div>
-    <div class="reward-banner" id="checkin-reward" style="display:none; margin-top:20px; padding:16px; border-radius:12px; background:rgba(79,170,56,0.08); border:2px solid var(--green); text-align:left; max-width:320px; margin-left:auto; margin-right:auto;">
-      <div style="font-weight:800; color:var(--green); font-size:15px; margin-bottom:4px;" id="checkin-reward-title"></div>
-      <div style="font-family:monospace; font-size:16px; font-weight:700;" id="checkin-reward-code"></div>
+    <div class="reward-banner" id="checkin-reward" style="display:none;"></div>
+
+    <!-- Overlay plein écran, affiché uniquement quand un palier vient d'être débloqué -->
+    <div id="reward-overlay" style="display:none; position:fixed; inset:0; z-index:999; background:rgba(32,29,24,0.94); flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center;">
+      <div style="font-size:64px; margin-bottom:8px;">🎉</div>
+      <div style="color:var(--yellow); font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Récompense débloquée</div>
+      <div id="reward-overlay-pct" style="color:#ffffff; font-size:56px; font-weight:800; margin-bottom:20px;"></div>
+      <div style="background:#ffffff; border-radius:14px; padding:18px 28px; margin-bottom:28px;">
+        <div style="font-size:12px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Montrez ce code en caisse</div>
+        <div id="reward-overlay-code" style="font-family:monospace; font-size:26px; font-weight:800; color:var(--ink);"></div>
+      </div>
+      <div style="color:rgba(255,255,255,0.65); font-size:13.5px; max-width:280px; line-height:1.5; margin-bottom:28px;">
+        Valable 30 jours. Ce code n'apparaîtra plus une fois que vous aurez rescanné le QR de la boutique.
+      </div>
+      <button id="reward-overlay-close" style="background:var(--yellow); color:var(--ink); border:none; padding:14px 32px; border-radius:12px; font-weight:700; font-size:15px;">
+        J'ai compris
+      </button>
     </div>
 
     <div id="review-invite" style="display:none; margin-top:20px; padding:18px; border-radius:12px; background:var(--paper-dim); border:2px solid var(--border); max-width:320px; margin-left:auto; margin-right:auto; text-align:center;">
@@ -433,6 +447,7 @@
     showScreen("checkin-screen");
     document.getElementById("checkin-error").style.display = "none";
     document.getElementById("checkin-reward").style.display = "none";
+    document.getElementById("reward-overlay").style.display = "none";
     document.getElementById("review-invite").style.display = "none";
 
     const { data: client } = await supabaseClient
@@ -498,10 +513,9 @@
       btn.style.display = "none";
 
       if (result.remise) {
-        document.getElementById("checkin-reward-title").textContent =
-          "Récompense débloquée : -" + result.remise.pourcentage + "% !";
-        document.getElementById("checkin-reward-code").textContent = result.remise.code_promo;
-        document.getElementById("checkin-reward").style.display = "block";
+        document.getElementById("reward-overlay-pct").textContent = "−" + result.remise.pourcentage + "%";
+        document.getElementById("reward-overlay-code").textContent = result.remise.code_promo;
+        document.getElementById("reward-overlay").style.display = "flex";
       }
 
       // Invitation à laisser un avis Google, affichée dès le 1er point ajouté
@@ -523,7 +537,9 @@
       btn.disabled = false;
       btn.textContent = "J'ai fait un achat, +1 point";
     }
-  }
+  }  document.getElementById("reward-overlay-close").addEventListener("click", () => {
+    document.getElementById("reward-overlay").style.display = "none";
+  });
 </script>
 </body>
 </html>
