@@ -118,7 +118,7 @@
   }
   label:first-of-type { margin-top: 0; }
 
-  input[type="text"], input[type="tel"], select {
+  input[type="text"], input[type="tel"], input[type="email"], select {
     width: 100%;
     padding: 14px 16px;
     background: var(--paper-dim);
@@ -260,6 +260,9 @@
         <label for="telephone">Téléphone</label>
         <input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78" required autocomplete="tel">
 
+        <label for="email">Email (facultatif)</label>
+        <input type="email" id="email" name="email" placeholder="vous@exemple.fr" autocomplete="email">
+
         <label for="boutique">Votre boutique</label>
         <div class="select-wrap">
           <select id="boutique" name="boutique" required>
@@ -278,7 +281,7 @@
       </form>
 
       <p class="legal">
-        En vous inscrivant, vos données (prénom, téléphone) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
+        En vous inscrivant, vos données (prénom, téléphone, email le cas échéant) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
         Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique.
       </p>
     </div>
@@ -428,6 +431,7 @@
     const payload = {
       prenom: document.getElementById("prenom").value.trim(),
       telephone: document.getElementById("telephone").value.trim(),
+      email: document.getElementById("email").value.trim() || null,
       boutique_id: boutiqueSelect.value,
       consentement_sms: document.getElementById("consentement_sms").checked,
     };
@@ -578,7 +582,9 @@
       btn.disabled = false;
       btn.textContent = "J'ai fait un achat, +1 point";
     }
-  }  document.getElementById("reward-overlay-close").addEventListener("click", () => {
+  }
+
+  document.getElementById("reward-overlay-close").addEventListener("click", () => {
     document.getElementById("reward-overlay").style.display = "none";
   });
 </script>
