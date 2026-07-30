@@ -518,8 +518,12 @@
         document.getElementById("reward-overlay").style.display = "flex";
       }
 
-      // Invitation à laisser un avis Google, affichée dès le 1er point ajouté
-      {
+      // Invitation à laisser un avis Google : uniquement au tout premier point,
+      // puis à chaque palier atteint (6e et 10e passage du cycle)
+      const estLePremierPoint = result.client.nb_passages_total === 1;
+      const vientDeDebloquerUnPalier = !!result.remise;
+
+      if (estLePremierPoint || vientDeDebloquerUnPalier) {
         const { data: boutique } = await supabaseClient
           .from("boutiques")
           .select("lien_avis_google")
