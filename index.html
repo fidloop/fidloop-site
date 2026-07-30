@@ -328,6 +328,13 @@
     </div>
   </div>
 
+  <!-- Écran affiché si le programme est temporairement désactivé (interrupteur) -->
+  <div class="success" id="unavailable-screen" style="display:none;">
+    <div style="font-size:48px; margin-bottom:16px;">🔧</div>
+    <h2>Programme temporairement indisponible</h2>
+    <p>Merci de repasser un peu plus tard, ou demandez à l'équipe en boutique.</p>
+  </div>
+
   <!-- Écran de succès -->
   <div class="success" id="success-screen">
     <div class="check">✓</div>
@@ -358,7 +365,7 @@
   const preselectedBoutique = urlParams.get("boutique");
 
   function showScreen(id) {
-    ["form-screen", "checkin-screen", "success-screen"].forEach((s) => {
+    ["form-screen", "checkin-screen", "success-screen", "unavailable-screen"].forEach((s) => {
       document.getElementById(s).style.display = s === id ? "block" : "none";
     });
   }
@@ -386,7 +393,21 @@
   }
 
   // --- Point d'entrée : ce téléphone est-il déjà reconnu ? ---
-  function init() {
+  // --- Point d'entrée : le programme de cette boutique est-il actif ? ---
+  async function init() {
+    if (preselectedBoutique) {
+      const { data: boutique } = await supabaseClient
+        .from("boutiques")
+        .select("actif")
+        .eq("id", preselectedBoutique)
+        .maybeSingle();
+
+      if (boutique && boutique.actif === false) {
+        showScreen("unavailable-screen");
+        return;
+      }
+    }
+
     const savedClientId = localStorage.getItem("fidloop_client_id");
     if (savedClientId && preselectedBoutique) {
       showCheckinScreen(savedClientId, preselectedBoutique);
