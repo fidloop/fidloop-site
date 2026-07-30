@@ -504,8 +504,8 @@
         document.getElementById("checkin-reward").style.display = "block";
       }
 
-      // Invitation à laisser un avis Google, réservée aux clients réguliers (3+ passages)
-      if (result.client.nb_passages_total >= 3) {
+      // Invitation à laisser un avis Google, affichée dès le 1er point ajouté
+      {
         const { data: boutique } = await supabaseClient
           .from("boutiques")
           .select("lien_avis_google")
