@@ -256,6 +256,41 @@
   #scene-review { align-items: center; justify-content: center; padding: 28px; }
   .demo-review-card { background: var(--d-paper-dim); border: 2px solid var(--d-ink); border-radius: 12px; padding: 20px; text-align: center; width: 100%; }
   .demo-review-title { font-size: 13px; color: var(--d-ink-dim); margin-bottom: 14px; }
+
+  /* --- Tarifs --- */
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+  .plan {
+    background: var(--paper); border: 1px solid var(--line-paper); border-radius: 16px;
+    padding: 30px 26px; display: flex; flex-direction: column; position: relative;
+  }
+  .plan.featured { border: 2px solid var(--mint); padding-top: 36px; }
+  .plan-badge {
+    position: absolute; top: -11px; left: 26px;
+    background: var(--mint); color: #fff; font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; letter-spacing: 0.04em; padding: 5px 12px; border-radius: 100px;
+  }
+  .plan-name { font-family: "Space Grotesk", sans-serif; font-size: 20px; font-weight: 600; }
+  .plan-target { font-size: 13px; color: var(--muted-on-paper); margin-top: 4px; }
+  .plan-price { margin: 22px 0 24px; display: flex; align-items: baseline; gap: 4px; }
+  .plan-price .amount { font-family: "Space Grotesk", sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -0.03em; }
+  .plan-price .period { font-size: 14px; color: var(--muted-on-paper); }
+  .plan-features { list-style: none; margin: 0 0 26px; flex: 1; }
+  .plan-features li {
+    font-size: 13.5px; color: var(--ink-text); line-height: 1.5;
+    padding: 8px 0 8px 22px; position: relative; border-top: 1px solid var(--line-paper);
+  }
+  .plan-features li:first-child { border-top: none; }
+  .plan-features li::before {
+    content: "→"; position: absolute; left: 0; color: var(--mint);
+    font-family: "IBM Plex Mono", monospace; font-size: 12px;
+  }
+  .plan-cta {
+    display: block; text-align: center; text-decoration: none;
+    border: 1px solid var(--ink-text); color: var(--ink-text);
+    font-weight: 600; font-size: 14.5px; padding: 13px; border-radius: 9px;
+  }
+  .plan-cta.primary { background: var(--mint); border-color: var(--mint); color: #fff; }
+  @media (max-width: 860px) { .plans { grid-template-columns: 1fr; } .plan.featured { margin-top: 12px; } }
 </style>
 </head>
 <body>
@@ -266,6 +301,7 @@
     <div class="links">
       <a href="#comment">Comment ça marche</a>
       <a href="#pourquoi">Pourquoi FidLoop</a>
+      <a href="#tarifs">Tarifs</a>
       <a href="#contact">Contact</a>
     </div>
     <a class="cta" href="#contact">Demander une démo</a>
@@ -463,6 +499,60 @@
         <div class="glyph">🧾</div>
         <h3>Zéro matériel en caisse</h3>
         <p>Aucun boîtier, aucune tablette, aucun terminal à installer. Le système fonctionne en pur auto-service.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-light" id="tarifs">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Tarifs</span>
+      <h2>Un prix par taille de commerce</h2>
+      <p>Sans frais d'installation, sans engagement. Résiliable à tout moment.</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Boutique</div>
+        <div class="plan-target">1 point de vente</div>
+        <div class="plan-price"><span class="amount">39€</span><span class="period">/mois</span></div>
+        <ul class="plan-features">
+          <li>Programme de fidélité complet</li>
+          <li>QR code personnalisé, prêt à imprimer</li>
+          <li>Paliers de récompense paramétrables</li>
+          <li>Invitation aux avis Google</li>
+          <li>Export de votre fichier clients</li>
+        </ul>
+        <a class="plan-cta" href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g">S'abonner</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-badge">Le plus choisi</div>
+        <div class="plan-name">Réseau</div>
+        <div class="plan-target">Jusqu'à 6 points de vente</div>
+        <div class="plan-price"><span class="amount">199€</span><span class="period">/mois</span></div>
+        <ul class="plan-features">
+          <li>Tout ce qui est inclus dans Boutique</li>
+          <li>Un compteur indépendant par boutique</li>
+          <li>Tableau de bord réseau consolidé</li>
+          <li>Une affiche QR par point de vente</li>
+          <li>33€ par boutique au lieu de 39€</li>
+        </ul>
+        <a class="plan-cta primary" href="https://buy.stripe.com/dRm28r1ak0ls7bzgUy6g80h">S'abonner</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Grand réseau</div>
+        <div class="plan-target">7 points de vente et plus</div>
+        <div class="plan-price"><span class="amount">Sur devis</span></div>
+        <ul class="plan-features">
+          <li>Tout ce qui est inclus dans Réseau</li>
+          <li>Tarif dégressif selon le volume</li>
+          <li>Accompagnement au déploiement</li>
+          <li>Paramétrage sur mesure</li>
+        </ul>
+        <a class="plan-cta" href="#contact">Nous contacter</a>
       </div>
     </div>
   </div>
