@@ -304,16 +304,19 @@
 
     const rows = adhesionsList.map((a) => {
       const c = clientsById[a.client_id] || {};
-      return [
+      const telephoneTexte = c.telephone ? `="${c.telephone}"` : "";
+      const otherFields = [
         c.prenom || "",
-        c.telephone || "",
         c.email || "",
         boutiqueNomById[a.boutique_id] || "",
         a.nb_passages_total || 0,
         a.nb_passages_cycle_actuel || 0,
         a.date_inscription ? new Date(a.date_inscription).toLocaleDateString("fr-FR") : "",
         c.consentement_sms ? "Oui" : "Non",
-      ].map(csvEscape).join(";");
+      ].map(csvEscape);
+      // Le téléphone est inséré tel quel (format formule Excel ="0612345678"),
+      // il ne doit pas passer par csvEscape qui casserait la syntaxe.
+      return [otherFields[0], telephoneTexte, ...otherFields.slice(1)].join(";");
     });
 
     const csvContent = "\uFEFF" + [headers.join(";"), ...rows].join("\n");
