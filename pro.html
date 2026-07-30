@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FidLoop — La fidélité qui vit dans le téléphone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1b2e;
+    --ink2: #16283f;
+    --paper: #f5f3ee;
+    --paper2: #eae7dd;
+    --mint: #2bb673;
+    --mint-soft: rgba(43,182,115,0.14);
+    --gold: #f5b942;
+    --gold-soft: rgba(245,185,66,0.16);
+    --ink-text: #0d1b2e;
+    --muted: #8b95a8;
+    --muted-on-paper: #6b7280;
+    --line: rgba(255,255,255,0.10);
+    --line-paper: rgba(13,27,46,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Inter", -apple-system, sans-serif;
+    background: var(--ink);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .display {
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", monospace;
+    letter-spacing: 0.02em;
+  }
+
+  a { color: inherit; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* --- Nav --- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,27,46,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 9px; font-family: "Space Grotesk"; font-weight: 700; font-size: 18px; }
+  .logo .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px var(--mint-soft); }
+  nav .links { display: flex; gap: 32px; font-size: 14px; color: var(--muted); }
+  nav .links a:hover { color: #fff; }
+  nav .cta {
+    background: var(--mint); color: var(--ink); font-weight: 600; font-size: 13.5px;
+    padding: 9px 18px; border-radius: 8px; text-decoration: none;
+  }
+  @media (max-width: 720px) { nav .links { display: none; } }
+
+  /* --- Hero --- */
+  .hero { padding: 88px 0 72px; position: relative; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; top: -200px; right: -160px;
+    width: 480px; height: 480px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,182,115,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: "IBM Plex Mono"; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--mint); background: var(--mint-soft); border: 1px solid rgba(43,182,115,0.3);
+    padding: 6px 12px; border-radius: 100px; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(34px, 5.2vw, 58px); font-weight: 700; line-height: 1.05;
+    max-width: 780px; color: #fff;
+  }
+  .hero h1 em { font-style: normal; color: var(--mint); }
+  .hero .sub {
+    font-size: 17px; color: var(--muted); max-width: 540px; margin-top: 22px; line-height: 1.65;
+  }
+  .hero .actions { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--mint); color: var(--ink); font-weight: 600; font-size: 14.5px;
+    padding: 14px 26px; border-radius: 9px; text-decoration: none;
+    box-shadow: 0 8px 24px rgba(43,182,115,0.25);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line); color: #fff; font-weight: 600; font-size: 14.5px;
+    padding: 14px 26px; border-radius: 9px; text-decoration: none;
+  }
+
+  /* --- Signature : rangée de tampons --- */
+  .stampcard {
+    margin-top: 64px; background: var(--ink2); border: 1px solid var(--line);
+    border-radius: 18px; padding: 30px 26px;
+  }
+  .stampcard .head {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .stampcard .head .label { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stampcard .head .tiers { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); }
+  .stampcard .head .tiers b { color: var(--gold); }
+  .stamps { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stamp {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1.5px dashed rgba(255,255,255,0.22);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono"; font-size: 13px; color: var(--muted);
+    flex-shrink: 0; transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .stamp.filled {
+    border-style: solid; border-color: var(--mint); background: var(--mint-soft); color: var(--mint);
+    transform: scale(1.04);
+  }
+  .stamp.reward {
+    border-color: var(--gold); background: var(--gold-soft); color: var(--gold);
+  }
+  .stampcard .result {
+    margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateY(6px); transition: all 0.5s ease 0.3s;
+  }
+  .stampcard .result.show { opacity: 1; transform: translateY(0); }
+  .stampcard .result b { color: var(--gold); font-family: "IBM Plex Mono"; }
+
+  /* --- Sections claires --- */
+  .section-light { background: var(--paper); color: var(--ink-text); padding: 88px 0; }
+  .section-light + .section-light { padding-top: 0; }
+  .section-head { max-width: 560px; margin-bottom: 52px; }
+  .section-head .tag {
+    font-family: "IBM Plex Mono"; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--mint); margin-bottom: 12px; display: block;
+  }
+  .section-head h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 700; line-height: 1.15; }
+  .section-head p { color: var(--muted-on-paper); margin-top: 14px; font-size: 15.5px; line-height: 1.6; }
+
+  /* --- Steps --- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--line-paper); border-radius: 16px; overflow: hidden; }
+  .step { background: var(--paper); padding: 32px 26px; }
+  .step .num { font-family: "IBM Plex Mono"; font-size: 13px; color: var(--mint); margin-bottom: 18px; }
+  .step h3 { font-size: 18px; margin-bottom: 10px; }
+  .step p { font-size: 14px; color: var(--muted-on-paper); line-height: 1.55; }
+  @media (max-width: 720px) { .steps { grid-template-columns: 1fr; } }
+
+  /* --- Bénéfices --- */
+  .section-dark { background: var(--ink); padding: 88px 0; }
+  .benefits { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .benefit {
+    border: 1px solid var(--line); border-radius: 14px; padding: 26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+  .benefit .glyph { font-size: 20px; margin-bottom: 14px; }
+  .benefit h3 { font-size: 16px; margin-bottom: 8px; color: #fff; }
+  .benefit p { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  @media (max-width: 720px) { .benefits { grid-template-columns: 1fr; } }
+
+  /* --- Statut pilote --- */
+  .status-band {
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid rgba(245,185,66,0.3); background: var(--gold-soft);
+    border-radius: 12px; padding: 16px 20px; margin-top: 56px;
+    font-size: 13.5px; color: #f2d9a0;
+  }
+  .status-band .pulse {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0;
+    box-shadow: 0 0 0 4px var(--gold-soft);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* --- Contact --- */
+  .contact { background: var(--ink2); border: 1px solid var(--line); border-radius: 20px; padding: 48px 40px; text-align: center; }
+  .contact h2 { font-size: clamp(24px, 3.2vw, 32px); margin-bottom: 14px; color: #fff; }
+  .contact p { color: var(--muted); font-size: 15px; max-width: 440px; margin: 0 auto 30px; line-height: 1.6; }
+  .contact .btn-primary { display: inline-flex; }
+
+  footer { padding: 40px 0 60px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  footer .logo { font-size: 15px; }
+  footer .meta { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>FidLoop</div>
+    <div class="links">
+      <a href="#comment">Comment ça marche</a>
+      <a href="#pourquoi">Pourquoi FidLoop</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a class="cta" href="#contact">Demander une démo</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Fidélité dématérialisée · pour réseaux de commerces</div>
+    <h1>La carte de fidélité qui vit dans le <em>téléphone</em>, pas dans le tiroir</h1>
+    <p class="sub">
+      FidLoop transforme la fidélité de vos boutiques en carte Google &amp; Apple Wallet.
+      Aucune appli à installer, aucune carte plastique à imprimer, aucun boîtier en caisse.
+      Le client scanne, sa carte se met à jour en direct.
+    </p>
+    <div class="actions">
+      <a class="btn-primary" href="#contact">Demander une démo</a>
+      <a class="btn-ghost" href="#comment">Voir comment ça marche</a>
+    </div>
+
+    <div class="stampcard" id="stampcard">
+      <div class="head">
+        <span class="label">Aperçu du mécanisme</span>
+        <span class="tiers">6 passages = <b>−10%</b> · 10 passages = <b>−15%</b></span>
+      </div>
+      <div class="stamps" id="stamps"></div>
+      <div class="result" id="stamp-result">
+        <span class="mono">✓</span> Récompense débloquée automatiquement — le client la voit dans son Wallet, en caisse.
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section-light" id="comment">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Le parcours</span>
+      <h2>Trois étapes, zéro friction</h2>
+      <p>Pensé pour fonctionner sans matériel en caisse — juste le téléphone du client.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num mono">01</div>
+        <h3>Scan du QR en caisse</h3>
+        <p>Un QR fixe, imprimé, affiché à l'accueil. Le client scanne avec son propre téléphone — aucune appli à télécharger.</p>
+      </div>
+      <div class="step">
+        <div class="num mono">02</div>
+        <h3>Carte ajoutée au Wallet</h3>
+        <p>30 secondes d'inscription, puis la carte rejoint Google Wallet ou Apple Wallet. Elle se met à jour à chaque passage.</p>
+      </div>
+      <div class="step">
+        <div class="num mono">03</div>
+        <h3>Récompense automatique</h3>
+        <p>Aux paliers, le code promo s'affiche directement sur la carte. Rien à calculer, rien à vérifier manuellement en caisse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-dark" id="pourquoi">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Pourquoi FidLoop</span>
+      <h2 style="color:#fff;">Conçu pour un réseau de boutiques, pas pour une seule caisse</h2>
+      <p style="color:var(--muted);">Chaque brique a été pensée pour un commerce de proximité, sans équipe technique dédiée.</p>
+    </div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="glyph">🔗</div>
+        <h3>Fidélité inter-boutiques</h3>
+        <p>Un client peut cumuler des points dans plusieurs boutiques du même réseau, chacune avec son propre compteur indépendant.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">📱</div>
+        <h3>Zéro appli à installer</h3>
+        <p>Google Wallet et Apple Wallet sont déjà sur le téléphone du client. Pas de téléchargement, pas de compte à créer.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">🖨️</div>
+        <h3>Zéro carte plastique</h3>
+        <p>Fini les cartes cartonnées perdues au fond d'un tiroir. Un seul QR imprimé suffit à lancer tout le programme.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">🧾</div>
+        <h3>Zéro matériel en caisse</h3>
+        <p>Aucun boîtier, aucune tablette, aucun terminal à installer. Le système fonctionne en pur auto-service.</p>
+      </div>
+    </div>
+
+    <div class="status-band">
+      <span class="pulse"></span>
+      Actuellement testé en conditions réelles dans une boutique du réseau Pil'Vite — résultats disponibles prochainement.
+    </div>
+  </div>
+</section>
+
+<section class="section-light" id="contact">
+  <div class="wrap">
+    <div class="contact">
+      <h2 style="color:#fff;">Voir FidLoop tourner dans votre réseau</h2>
+      <p>Une démo rapide, sur votre téléphone, avec le vrai système — pas une maquette.</p>
+      <a class="btn-primary" href="mailto:contact@fidloop.fr?subject=Demande%20de%20d%C3%A9mo%20FidLoop">Demander une démo</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>FidLoop</div>
+    <div class="meta">fidloop.fr</div>
+  </div>
+</footer>
+
+<script>
+  const TOTAL_STAMPS = 10;
+  const TIER_1 = 6;
+  const TIER_2 = 10;
+  const stampsEl = document.getElementById("stamps");
+
+  for (let i = 1; i <= TOTAL_STAMPS; i++) {
+    const el = document.createElement("div");
+    el.className = "stamp";
+    el.dataset.index = i;
+    el.textContent = i === TIER_1 || i === TIER_2 ? "%" : "";
+    stampsEl.appendChild(el);
+  }
+
+  let animated = false;
+  function animateStamps() {
+    if (animated) return;
+    animated = true;
+    const stamps = stampsEl.querySelectorAll(".stamp");
+    stamps.forEach((el, idx) => {
+      const n = idx + 1;
+      setTimeout(() => {
+        el.classList.add("filled");
+        if (n === TIER_1 || n === TIER_2) el.classList.add("reward");
+      }, n * 130);
+    });
+    setTimeout(() => {
+      document.getElementById("stamp-result").classList.add("show");
+    }, TOTAL_STAMPS * 130 + 200);
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) animateStamps();
+    });
+  }, { threshold: 0.4 });
+  observer.observe(document.getElementById("stampcard"));
+</script>
+
+</body>
+</html>
