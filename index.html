@@ -452,7 +452,7 @@
 
     const { data: client } = await supabaseClient
       .from("clients_fidelite")
-      .select("prenom, nb_passages_cycle_actuel")
+      .select("prenom")
       .eq("id", clientId)
       .single();
 
@@ -464,8 +464,24 @@
       return;
     }
 
+    // Le compteur de points est spécifique à CETTE boutique (table clients_boutiques_fidelite)
+    const { data: adhesion } = await supabaseClient
+      .from("clients_boutiques_fidelite")
+      .select("nb_passages_cycle_actuel")
+      .eq("client_id", clientId)
+      .eq("boutique_id", boutiqueId)
+      .maybeSingle();
+
+    if (!adhesion) {
+      // Ce client existe mais n'est pas encore inscrit dans CETTE boutique précise
+      // (cas : il a scanné le QR d'une autre boutique du réseau auparavant)
+      loadBoutiques();
+      showScreen("form-screen");
+      return;
+    }
+
     document.getElementById("checkin-title").textContent = `Content de vous revoir, ${client.prenom} !`;
-    updateCheckinDial(client.nb_passages_cycle_actuel);
+    updateCheckinDial(adhesion.nb_passages_cycle_actuel);
 
     const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
