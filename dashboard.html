@@ -62,7 +62,7 @@
 
   .totals {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 14px; margin-bottom: 36px;
+    gap: 14px; margin-bottom: 18px;
   }
   .totals .card {
     background: var(--paper); border: 2px solid var(--border); border-radius: 12px;
@@ -70,6 +70,19 @@
   }
   .totals .card .n { font-size: 28px; font-weight: 800; color: var(--green); }
   .totals .card .l { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  .export-all {
+    display: block; margin: 0 auto 36px; padding: 12px 22px;
+    background: var(--ink); color: #fff; border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .export-all:hover { opacity: 0.9; }
+  .shop-export {
+    margin-top: 12px; width: 100%; padding: 10px;
+    background: var(--paper-dim); color: var(--ink); border: 2px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .shop-export:hover { border-color: var(--green); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
   .shop-card {
@@ -124,6 +137,7 @@
   </div>
 
   <div class="totals" id="totals"></div>
+  <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
   <div class="grid" id="grid">
     <div class="loading">Chargement des données...</div>
   </div>
@@ -180,10 +194,14 @@
     if (clientIds.length > 0) {
       const { data: clients } = await supabaseClient
         .from("clients_fidelite")
-        .select("id, prenom")
+        .select("id, prenom, telephone, email, consentement_sms")
         .in("id", clientIds);
-      (clients || []).forEach((c) => { clientsById[c.id] = c.prenom; });
+      (clients || []).forEach((c) => { clientsById[c.id] = c; });
     }
+
+    // Export global : tous les clients, toutes boutiques confondues
+    document.getElementById("export-all-btn").onclick = () =>
+      exportCsv(adhesions, boutiques, clientsById, "fidloop_clients_reseau");
 
     // --- Totaux réseau ---
     const totalInscrits = adhesions.length;
@@ -238,24 +256,77 @@
                   .map(
                     (a) => `
             <div class="detail-row">
-              <span class="name">${clientsById[a.client_id] || "?"}</span>
+              <span class="name">${(clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?"}</span>
               <span class="cycle">${a.nb_passages_cycle_actuel}/6 · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
             </div>`
                   )
                   .join("")
               : '<div class="empty" style="padding:10px 0;">Aucun client inscrit.</div>'
           }
+          ${sortedList.length ? `<button class="shop-export" data-boutique-id="${boutique.id}">⬇ Exporter cette boutique (CSV)</button>` : ""}
         </div>
       `;
-      card.addEventListener("click", () => {
+      card.addEventListener("click", (e) => {
+        if (e.target.classList.contains("shop-export")) return;
         document.getElementById(`detail-${boutique.id}`).classList.toggle("open");
       });
+      const exportBtn = card.querySelector(".shop-export");
+      if (exportBtn) {
+        exportBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          exportCsv(shopAdhesions, [boutique], clientsById, `fidloop_clients_${boutique.nom}`);
+        });
+      }
       grid.appendChild(card);
     });
 
     if (boutiques.length === 0) {
       grid.innerHTML = '<div class="empty">Aucune boutique trouvée.</div>';
     }
+  }
+
+  function csvEscape(val) {
+    const s = (val === null || val === undefined) ? "" : String(val);
+    if (s.includes(";") || s.includes('"') || s.includes("\n")) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  function exportCsv(adhesionsList, boutiquesList, clientsById, filenamePrefix) {
+    const boutiqueNomById = {};
+    boutiquesList.forEach((b) => { boutiqueNomById[b.id] = b.nom; });
+
+    const headers = [
+      "Prenom", "Telephone", "Email", "Boutique",
+      "Passages total", "Cycle actuel", "Date inscription", "Consentement SMS",
+    ];
+
+    const rows = adhesionsList.map((a) => {
+      const c = clientsById[a.client_id] || {};
+      return [
+        c.prenom || "",
+        c.telephone || "",
+        c.email || "",
+        boutiqueNomById[a.boutique_id] || "",
+        a.nb_passages_total || 0,
+        a.nb_passages_cycle_actuel || 0,
+        a.date_inscription ? new Date(a.date_inscription).toLocaleDateString("fr-FR") : "",
+        c.consentement_sms ? "Oui" : "Non",
+      ].map(csvEscape).join(";");
+    });
+
+    const csvContent = "\uFEFF" + [headers.join(";"), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const date = new Date().toISOString().split("T")[0];
+    link.href = url;
+    link.download = `${filenamePrefix}_${date}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 </script>
 </body>
