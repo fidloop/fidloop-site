@@ -263,12 +263,6 @@
     background: var(--paper); border: 1px solid var(--line-paper); border-radius: 16px;
     padding: 30px 26px; display: flex; flex-direction: column; position: relative;
   }
-  .plan.featured { border: 2px solid var(--mint); padding-top: 36px; }
-  .plan-badge {
-    position: absolute; top: -11px; left: 26px;
-    background: var(--mint); color: #fff; font-family: "IBM Plex Mono", monospace;
-    font-size: 11px; letter-spacing: 0.04em; padding: 5px 12px; border-radius: 100px;
-  }
   .plan-name { font-family: "Space Grotesk", sans-serif; font-size: 20px; font-weight: 600; }
   .plan-target { font-size: 13px; color: var(--muted-on-paper); margin-top: 4px; }
   .plan-price { margin: 22px 0 24px; display: flex; align-items: baseline; gap: 4px; }
@@ -290,7 +284,7 @@
     font-weight: 600; font-size: 14.5px; padding: 13px; border-radius: 9px;
   }
   .plan-cta.primary { background: var(--mint); border-color: var(--mint); color: #fff; }
-  @media (max-width: 860px) { .plans { grid-template-columns: 1fr; } .plan.featured { margin-top: 12px; } }
+  @media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -527,8 +521,7 @@
         <a class="plan-cta" href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g">S'abonner</a>
       </div>
 
-      <div class="plan featured">
-        <div class="plan-badge">Le plus choisi</div>
+      <div class="plan">
         <div class="plan-name">Réseau</div>
         <div class="plan-target">Jusqu'à 6 points de vente</div>
         <div class="plan-price"><span class="amount">199€</span><span class="period">/mois</span></div>
