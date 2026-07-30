@@ -305,6 +305,13 @@
       <div style="font-weight:800; color:var(--green); font-size:15px; margin-bottom:4px;" id="checkin-reward-title"></div>
       <div style="font-family:monospace; font-size:16px; font-weight:700;" id="checkin-reward-code"></div>
     </div>
+
+    <div id="review-invite" style="display:none; margin-top:20px; padding:18px; border-radius:12px; background:var(--paper-dim); border:2px solid var(--border); max-width:320px; margin-left:auto; margin-right:auto; text-align:center;">
+      <div style="font-size:14px; color:var(--ink-dim); margin-bottom:12px;">Vous êtes satisfait de votre passage ?</div>
+      <a href="#" id="review-link" target="_blank" style="display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:var(--ink); text-decoration:none; padding:12px 20px; border-radius:10px; font-weight:700; font-size:14.5px;">
+        ⭐ Laisser un avis Google
+      </a>
+    </div>
   </div>
 
   <!-- Écran de succès -->
@@ -426,6 +433,7 @@
     showScreen("checkin-screen");
     document.getElementById("checkin-error").style.display = "none";
     document.getElementById("checkin-reward").style.display = "none";
+    document.getElementById("review-invite").style.display = "none";
 
     const { data: client } = await supabaseClient
       .from("clients_fidelite")
@@ -494,6 +502,20 @@
           "Récompense débloquée : -" + result.remise.pourcentage + "% !";
         document.getElementById("checkin-reward-code").textContent = result.remise.code_promo;
         document.getElementById("checkin-reward").style.display = "block";
+      }
+
+      // Invitation à laisser un avis Google, réservée aux clients réguliers (3+ passages)
+      if (result.client.nb_passages_total >= 3) {
+        const { data: boutique } = await supabaseClient
+          .from("boutiques")
+          .select("lien_avis_google")
+          .eq("id", boutiqueId)
+          .single();
+
+        if (boutique && boutique.lien_avis_google) {
+          document.getElementById("review-link").href = boutique.lien_avis_google;
+          document.getElementById("review-invite").style.display = "block";
+        }
       }
     } catch (err) {
       errEl.textContent = "Une erreur est survenue. Réessayez ou demandez à l'équipe en boutique.";
