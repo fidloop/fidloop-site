@@ -457,8 +457,9 @@
         localStorage.setItem("fidloop_client_id", result.clientId);
       }
 
-      document.getElementById("wallet-link").href = result.saveUrl;
-      showScreen("success-screen");
+      // On envoie directement le client sur son écran de points (le bouton Wallet
+      // est mis de côté : Google Wallet n'existe pas sur iPhone et l'erreur prêtait à confusion)
+      showCheckinScreen(result.clientId, boutiqueSelect.value, true);
     } catch (err) {
       errorMsg.textContent = "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.";
       errorMsg.style.display = "block";
@@ -468,7 +469,7 @@
   });
 
   // --- Parcours 2 : client déjà inscrit, ce téléphone est reconnu ---
-  async function showCheckinScreen(clientId, boutiqueId) {
+  async function showCheckinScreen(clientId, boutiqueId, estNouveau) {
     showScreen("checkin-screen");
     document.getElementById("checkin-error").style.display = "none";
     document.getElementById("checkin-reward").style.display = "none";
@@ -505,7 +506,12 @@
       return;
     }
 
-    document.getElementById("checkin-title").textContent = `Content de vous revoir, ${client.prenom} !`;
+    document.getElementById("checkin-title").textContent = estNouveau
+      ? `Bienvenue, ${client.prenom} !`
+      : `Content de vous revoir, ${client.prenom} !`;
+    document.getElementById("checkin-text").textContent = estNouveau
+      ? "Votre carte est créée. Vous venez de faire un achat ? Ajoutez votre premier point."
+      : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
     updateCheckinDial(adhesion.nb_passages_cycle_actuel);
 
     const btn = document.getElementById("checkin-btn");
