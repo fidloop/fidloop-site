@@ -515,9 +515,10 @@
   }
 
   function updateCheckinDial(cycle) {
-    document.getElementById("checkin-n").textContent = cycle + "/6";
+    const denom = cycle <= 6 ? 6 : 10;
+    document.getElementById("checkin-n").textContent = cycle + "/" + denom;
     const circumference = 226;
-    const pct = Math.min(cycle / 6, 1);
+    const pct = Math.min(cycle / denom, 1);
     document.getElementById("checkin-dial-fill").style.strokeDashoffset =
       circumference - circumference * pct;
   }
