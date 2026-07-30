@@ -1,379 +1,252 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carte de fidélité Pil'Vite</title>
-<style>
-  :root {
-    --ink: #201d18;
-    --ink-dim: #6b665c;
-    --paper: #ffffff;
-    --paper-dim: #f4f2ee;
-    --yellow: #ffde2d;
-    --yellow-deep: #f0c800;
-    --green: #4faa38;
-    --border: #e6e2da;
-    --error: #c94a3a;
+// Supabase Edge Function : add-passage
+// Appelée depuis l'interface boutique quand l'employé scanne un client et clique "+1 passage".
+// - Incrémente les compteurs du client
+// - Génère une remise si un palier est atteint (6 -> 10%, 10 -> 15%, puis le cycle repart)
+// - Met à jour la carte Google Wallet du client en temps réel (le solde affiché change instantanément)
+//
+// Déploiement : coller ce code dans une nouvelle fonction Supabase nommée "add-passage"
+// (mêmes secrets que hyper-api : GOOGLE_SERVICE_ACCOUNT_JSON déjà configuré, réutilisé ici)
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { create, Header, Payload } from "https://deno.land/x/djwt@v2.8/mod.ts";
+
+const ISSUER_ID = "BCR2DN6DTKFKJWQ3";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  try {
+    const { client_id, boutique_id, employe } = await req.json();
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--paper-dim);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .wrap {
-    width: 100%; max-width: 460px;
-    padding-bottom: 48px;
-    background: var(--paper);
-    min-height: 100vh;
-    border: 3px solid var(--green);
-    box-shadow: 0 0 40px rgba(0,0,0,0.06);
-  }
-
-  /* --- Bandeau haut : vraie texture bois de la carte + logo --- */
-  .banner {
-    background-image:
-      linear-gradient(180deg, rgba(20,17,12,0.35) 0%, rgba(20,17,12,0.55) 100%),
-      url('https://xreqpkzovokiheichauf.supabase.co/storage/v1/object/public/logos-cartes/pilvite-hero-v8-final.png');
-    background-size: cover;
-    background-position: center;
-    padding: 40px 24px 30px;
-    text-align: center;
-    position: relative;
-  }
-  .banner .eyebrow {
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--yellow);
-    font-weight: 700;
-  }
-  .banner h1 {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 28px;
-    font-weight: 700;
-    margin-top: 8px;
-    letter-spacing: 0.3px;
-    color: #ffffff;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
-  }
-  .banner p {
-    color: rgba(255,255,255,0.85);
-    font-size: 14.5px;
-    margin-top: 6px;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.35);
-  }
-
-  /* --- Cadran / signature visuelle : anneau de progression --- */
-  .dial {
-    width: 84px; height: 84px;
-    margin: 20px auto 0;
-    position: relative;
-  }
-  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .dial .track { stroke: rgba(255,255,255,0.3); }
-  .dial .fill { stroke: var(--yellow); stroke-linecap: round; }
-  .dial .center {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column;
-  }
-  .dial .center .n { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: #fff; }
-  .dial .center .l { font-size: 9px; color: rgba(255,255,255,0.75); letter-spacing: 1px; }
-
-  /* --- Corps --- */
-  .body { padding: 28px 24px; }
-
-  .tiers {
-    display: flex;
-    justify-content: center;
-    gap: 28px;
-    margin-bottom: 28px;
-    font-size: 13px;
-    color: var(--ink-dim);
-    font-weight: 600;
-  }
-  .tiers .tier { display: flex; align-items: center; gap: 6px; }
-  .tiers .dot { width: 9px; height: 9px; border-radius: 50%; }
-  .tiers .dot.gold { background: var(--yellow-deep); }
-  .tiers .dot.dark { background: var(--green); }
-
-  label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--green);
-    margin-bottom: 7px;
-    margin-top: 20px;
-  }
-  label:first-of-type { margin-top: 0; }
-
-  input[type="text"], input[type="tel"], select {
-    width: 100%;
-    padding: 14px 16px;
-    background: var(--paper-dim);
-    border: 2px solid var(--ink);
-    border-radius: 10px;
-    color: var(--ink);
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input::placeholder { color: #a19c8f; }
-  input:focus, select:focus { border-color: var(--green); }
-  select { appearance: none; -webkit-appearance: none; }
-  select option { background: var(--paper); color: var(--ink); }
-
-  .select-wrap { position: relative; }
-  .select-wrap::after {
-    content: "▾";
-    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-    color: var(--green); pointer-events: none; font-size: 13px;
-  }
-
-  .consent {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-top: 24px;
-    padding: 14px;
-    background: var(--paper-dim);
-    border: 2px solid var(--ink);
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  .consent input {
-    margin-top: 3px;
-    width: 18px; height: 18px;
-    accent-color: var(--green);
-    flex-shrink: 0;
-  }
-  .consent span { font-size: 13.5px; color: var(--ink-dim); line-height: 1.5; }
-
-  .legal {
-    font-size: 11.5px;
-    color: #9b9587;
-    margin-top: 14px;
-    line-height: 1.5;
-  }
-
-  button {
-    width: 100%;
-    margin-top: 26px;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    background: var(--yellow);
-    color: var(--ink);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: transform 0.1s, opacity 0.15s;
-    box-shadow: 0 4px 14px rgba(240,200,0,0.35);
-  }
-  button:active { transform: scale(0.98); }
-  button:disabled { opacity: 0.55; cursor: not-allowed; }
-
-  .error-msg {
-    display: none;
-    margin-top: 14px;
-    padding: 12px 14px;
-    background: rgba(201,74,58,0.08);
-    border: 1px solid rgba(201,74,58,0.3);
-    border-radius: 8px;
-    font-size: 13.5px;
-    color: var(--error);
-  }
-
-  /* --- Écran de succès --- */
-  .success { display: none; padding: 48px 24px; text-align: center; }
-  .success .check {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    background: rgba(79,170,56,0.12);
-    border: 2px solid var(--green);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 28px;
-    color: var(--green);
-  }
-  .success h2 { font-family: Georgia, serif; font-size: 22px; margin-bottom: 10px; color: var(--ink); }
-  .success p { color: var(--ink-dim); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px; }
-  .success a.wallet-btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: var(--yellow);
-    color: var(--ink); text-decoration: none;
-    padding: 15px 26px; border-radius: 12px; font-weight: 700; font-size: 15px;
-    box-shadow: 0 4px 14px rgba(240,200,0,0.35);
-  }
-
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <!-- Écran formulaire -->
-  <div id="form-screen">
-    <div class="banner">
-      <div class="eyebrow">Réseau Pil'Vite</div>
-      <h1>Votre carte de fidélité</h1>
-      <p>Ajoutez-la à votre téléphone en 30&nbsp;secondes</p>
-
-      <div class="dial">
-        <svg viewBox="0 0 84 84">
-          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="6"/>
-          <circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="6"
-                  stroke-dasharray="226" stroke-dashoffset="226"/>
-        </svg>
-        <div class="center">
-          <div class="n">0/6</div>
-          <div class="l">POINTS</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="body">
-      <div class="tiers">
-        <div class="tier"><span class="dot gold"></span> 6 passages = −10%</div>
-        <div class="tier"><span class="dot dark"></span> 10 passages = −15%</div>
-      </div>
-
-      <form id="signup-form">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required autocomplete="given-name">
-
-        <label for="telephone">Téléphone</label>
-        <input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78" required autocomplete="tel">
-
-        <label for="boutique">Votre boutique</label>
-        <div class="select-wrap">
-          <select id="boutique" name="boutique" required>
-            <option value="" disabled selected>Choisir une boutique</option>
-          </select>
-        </div>
-
-        <label class="consent" for="consentement_sms" style="text-transform:none; letter-spacing:normal; font-weight:400;">
-          <input type="checkbox" id="consentement_sms" name="consentement_sms">
-          <span>J'accepte de recevoir des offres et actualités Pil'Vite par SMS. Vous pouvez vous désinscrire à tout moment.</span>
-        </label>
-
-        <div class="error-msg" id="error-msg"></div>
-
-        <button type="submit" id="submit-btn">Ajouter à Google Wallet</button>
-      </form>
-
-      <p class="legal">
-        En vous inscrivant, vos données (prénom, téléphone) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
-        Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique.
-      </p>
-    </div>
-  </div>
-
-  <!-- Écran de succès -->
-  <div class="success" id="success-screen">
-    <div class="check">✓</div>
-    <h2>Votre carte est prête</h2>
-    <p>Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.</p>
-    <a href="#" class="wallet-btn" id="wallet-link" target="_blank">Ajouter à Google Wallet</a>
-  </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-  // --- Configuration : à adapter avec vos vraies clés ---
-  const SUPABASE_URL = "https://xreqpkzovokiheichauf.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_ur4bRIDpnPAyaLffnN2xIg_ZnfNLNRn";
-  const EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/hyper-api";
-
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const boutiqueSelect = document.getElementById("boutique");
-  const form = document.getElementById("signup-form");
-  const submitBtn = document.getElementById("submit-btn");
-  const errorMsg = document.getElementById("error-msg");
-
-  // Pré-sélection via QR code : ?boutique=<id>
-  const urlParams = new URLSearchParams(window.location.search);
-  const preselectedBoutique = urlParams.get("boutique");
-
-  async function loadBoutiques() {
-    const { data, error } = await supabaseClient
-      .from("boutiques")
-      .select("id, nom")
-      .eq("actif", true)
-      .order("nom");
-
-    if (error || !data) {
-      errorMsg.textContent = "Impossible de charger la liste des boutiques. Réessayez dans un instant.";
-      errorMsg.style.display = "block";
-      return;
+    if (!client_id || !boutique_id) {
+      return json({ error: "client_id et boutique_id sont requis" }, 400);
     }
 
-    data.forEach((b) => {
-      const opt = document.createElement("option");
-      opt.value = b.id;
-      opt.textContent = b.nom;
-      if (preselectedBoutique === b.id) opt.selected = true;
-      boutiqueSelect.appendChild(opt);
-    });
-  }
-  loadBoutiques();
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorMsg.style.display = "none";
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Création de votre carte...";
+    // 0. Anti-abus : un client ne peut gagner qu'un point toutes les 10 minutes
+    // (empêche de scanner plusieurs fois d'affilée le QR de la boutique sans achat réel)
+    const { data: dernierPassage } = await supabase
+      .from("historique_passages")
+      .select("date_passage")
+      .eq("client_id", client_id)
+      .order("date_passage", { ascending: false })
+      .limit(1)
+      .single();
 
-    const payload = {
-      prenom: document.getElementById("prenom").value.trim(),
-      telephone: document.getElementById("telephone").value.trim(),
-      boutique_id: boutiqueSelect.value,
-      consentement_sms: document.getElementById("consentement_sms").checked,
-    };
-
-    try {
-      const res = await fetch(EDGE_FUNCTION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok || !result.saveUrl) {
-        throw new Error(result.error || "Une erreur est survenue.");
+    if (dernierPassage) {
+      const minutesDepuisDernier =
+        (Date.now() - new Date(dernierPassage.date_passage).getTime()) / 60_000;
+      if (minutesDepuisDernier < 10) {
+        const minutesRestantes = Math.ceil(10 - minutesDepuisDernier);
+        return json(
+          {
+            error: "trop_tot",
+            message: `Vous avez déjà gagné un point récemment. Revenez dans ${minutesRestantes} min.`,
+          },
+          429
+        );
       }
-
-      document.getElementById("wallet-link").href = result.saveUrl;
-      document.getElementById("form-screen").style.display = "none";
-      document.getElementById("success-screen").style.display = "block";
-    } catch (err) {
-      errorMsg.textContent = "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.";
-      errorMsg.style.display = "block";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Ajouter à Google Wallet";
     }
+
+    // 1. Récupérer le client actuel
+    const { data: client, error: clientError } = await supabase
+      .from("clients_fidelite")
+      .select("*")
+      .eq("id", client_id)
+      .single();
+
+    if (clientError || !client) {
+      return json({ error: "Client introuvable. Vérifiez le QR code scanné." }, 404);
+    }
+
+    // 2. Enregistrer le passage dans l'historique
+    await supabase.from("historique_passages").insert({
+      client_id: client.id,
+      boutique_id: boutique_id,
+      employe: employe || null,
+    });
+
+    // 3. Incrémenter les compteurs
+    let nouveauCycle = client.nb_passages_cycle_actuel + 1;
+    const nouveauTotal = client.nb_passages_total + 1;
+
+    let remiseGeneree: { type: string; pourcentage: number; code_promo: string } | null = null;
+
+    // 4. Vérifier les paliers (6 -> 10%, 10 -> 15% puis le cycle repart à 0)
+    if (nouveauCycle === 6) {
+      const code = genererCodePromo("FIDELE10");
+      await supabase.from("remises").insert({
+        client_id: client.id,
+        type: "fidelite",
+        pourcentage: 10,
+        code_promo: code,
+        date_expiration: dansNJours(30),
+        statut: "active",
+      });
+      remiseGeneree = { type: "palier_6", pourcentage: 10, code_promo: code };
+    } else if (nouveauCycle >= 10) {
+      const code = genererCodePromo("FIDELE15");
+      await supabase.from("remises").insert({
+        client_id: client.id,
+        type: "fidelite",
+        pourcentage: 15,
+        code_promo: code,
+        date_expiration: dansNJours(30),
+        statut: "active",
+      });
+      remiseGeneree = { type: "palier_10", pourcentage: 15, code_promo: code };
+      nouveauCycle = 0; // le cycle repart pour la prochaine série de passages
+    }
+
+    // 5. Mettre à jour le client en base
+    const { data: updatedClient, error: updateError } = await supabase
+      .from("clients_fidelite")
+      .update({
+        nb_passages_cycle_actuel: nouveauCycle,
+        nb_passages_total: nouveauTotal,
+      })
+      .eq("id", client.id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // 6. Mettre à jour la carte Google Wallet du client (en temps réel)
+    let walletUpdated = false;
+    try {
+      await updateWalletObject(updatedClient, boutique_id, supabase);
+      walletUpdated = true;
+    } catch (walletErr) {
+      // On ne bloque pas la réponse si la mise à jour Wallet échoue :
+      // le passage est bien enregistré en base, seul l'affichage sur le tel du client peut avoir un délai.
+      console.error("Erreur mise à jour Wallet:", walletErr);
+    }
+
+    return json({
+      success: true,
+      client: {
+        prenom: updatedClient.prenom,
+        nb_passages_cycle_actuel: updatedClient.nb_passages_cycle_actuel,
+        nb_passages_total: updatedClient.nb_passages_total,
+      },
+      remise: remiseGeneree,
+      walletUpdated,
+    });
+  } catch (err) {
+    return json({ error: String(err) }, 500);
+  }
+});
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-</script>
-</body>
-</html>
+}
+
+function genererCodePromo(prefix: string): string {
+  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}-${suffix}`;
+}
+
+function dansNJours(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString();
+}
+
+async function updateWalletObject(client: any, boutiqueId: string, supabase: any) {
+  const { data: boutique } = await supabase
+    .from("boutiques")
+    .select("nom")
+    .eq("id", boutiqueId)
+    .single();
+
+  if (!boutique) return;
+
+  const classSuffix = "pilvite_" + boutique.nom
+    .toLowerCase()
+    .replace("pil'vite ", "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+
+  const classId = `${ISSUER_ID}.${classSuffix}`;
+  const objectId = `${ISSUER_ID}.client_${client.id}`;
+
+  const serviceAccount = JSON.parse(Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON")!);
+  const accessToken = await getGoogleAccessToken(serviceAccount);
+
+  const patchBody = {
+    loyaltyPoints: {
+      label: "Points de fidélité",
+      balance: { string: `${client.nb_passages_cycle_actuel} / 6` },
+    },
+  };
+
+  await fetch(
+    `https://walletobjects.googleapis.com/walletobjects/v1/loyaltyObject/${objectId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(patchBody),
+    }
+  );
+}
+
+async function getGoogleAccessToken(serviceAccount: any): Promise<string> {
+  const header: Header = { alg: "RS256", typ: "JWT" };
+  const now = Math.floor(Date.now() / 1000);
+  const payload: Payload = {
+    iss: serviceAccount.client_email,
+    scope: "https://www.googleapis.com/auth/wallet_object.issuer",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  };
+
+  const privateKey = await importPrivateKey(serviceAccount.private_key);
+  const assertion = await create(header, payload, privateKey);
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    }),
+  });
+
+  const data = await res.json();
+  return data.access_token;
+}
+
+async function importPrivateKey(pem: string): Promise<CryptoKey> {
+  const pemContents = pem
+    .replace("-----BEGIN PRIVATE KEY-----", "")
+    .replace("-----END PRIVATE KEY-----", "")
+    .replace(/\s/g, "");
+  const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
+  return crypto.subtle.importKey(
+    "pkcs8",
+    binaryDer,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+}
