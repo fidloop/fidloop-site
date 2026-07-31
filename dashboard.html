@@ -194,7 +194,7 @@
     if (clientIds.length > 0) {
       const { data: clients } = await supabaseClient
         .from("clients_fidelite")
-        .select("id, prenom, telephone, email, consentement_sms")
+        .select("id, prenom, telephone, email, consentement_marketing")
         .in("id", clientIds);
       (clients || []).forEach((c) => { clientsById[c.id] = c; });
     }
@@ -299,7 +299,7 @@
 
     const headers = [
       "Prenom", "Telephone", "Email", "Boutique",
-      "Passages total", "Cycle actuel", "Date inscription", "Consentement SMS",
+      "Passages total", "Cycle actuel", "Date inscription", "Consentement SMS/Email",
     ];
 
     const rows = adhesionsList.map((a) => {
@@ -312,7 +312,7 @@
         a.nb_passages_total || 0,
         a.nb_passages_cycle_actuel || 0,
         a.date_inscription ? new Date(a.date_inscription).toLocaleDateString("fr-FR") : "",
-        c.consentement_sms ? "Oui" : "Non",
+        c.consentement_marketing ? "Oui" : "Non",
       ].map(csvEscape);
       // Le téléphone est inséré tel quel (format formule Excel ="0612345678"),
       // il ne doit pas passer par csvEscape qui casserait la syntaxe.
