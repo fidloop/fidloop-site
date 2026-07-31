@@ -270,9 +270,9 @@
           </select>
         </div>
 
-        <label class="consent" for="consentement_sms" style="text-transform:none; letter-spacing:normal; font-weight:400;">
-          <input type="checkbox" id="consentement_sms" name="consentement_sms">
-          <span>J'accepte de recevoir des offres et actualités Pil'Vite par SMS. Vous pouvez vous désinscrire à tout moment.</span>
+        <label class="consent" for="consentement_marketing" style="text-transform:none; letter-spacing:normal; font-weight:400;">
+          <input type="checkbox" id="consentement_marketing" name="consentement_marketing">
+          <span>J'accepte de recevoir des offres et actualités Pil'Vite par SMS et/ou email. Vous pouvez vous désinscrire à tout moment.</span>
         </label>
 
         <div class="error-msg" id="error-msg"></div>
@@ -433,7 +433,7 @@
       telephone: document.getElementById("telephone").value.trim(),
       email: document.getElementById("email").value.trim() || null,
       boutique_id: boutiqueSelect.value,
-      consentement_sms: document.getElementById("consentement_sms").checked,
+      consentement_marketing: document.getElementById("consentement_marketing").checked,
     };
 
     try {
