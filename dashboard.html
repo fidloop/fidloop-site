@@ -149,54 +149,61 @@
   const SUPABASE_ANON_KEY = "sb_publishable_ur4bRIDpnPAyaLffnN2xIg_ZnfNLNRn";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ⚠️ Protection simple côté affichage uniquement (comme l'interrupteur du site client).
-  // Suffisant pour un usage interne en phase pilote, pas une vraie barrière de sécurité.
-  const DASHBOARD_PASSWORD = "PilVite2026";
+  const NETWORK_STATS_URL = SUPABASE_URL + "/functions/v1/network-stats";
+  // Le mot de passe n'est plus vérifié ici : il est envoyé au serveur, qui seul
+  // décide de renvoyer les données ou non. Même en lisant ce fichier, personne
+  // ne peut voir le mot de passe ni contourner la vérification.
 
   document.getElementById("pwd-btn").addEventListener("click", checkPassword);
   document.getElementById("pwd").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkPassword();
   });
 
-  function checkPassword() {
+  async function checkPassword() {
     const val = document.getElementById("pwd").value;
-    if (val === DASHBOARD_PASSWORD) {
+    const btn = document.getElementById("pwd-btn");
+    btn.disabled = true;
+    btn.textContent = "Vérification...";
+    document.getElementById("pwd-err").style.display = "none";
+
+    try {
+      const res = await fetch(NETWORK_STATS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ password: val }),
+      });
+
+      if (!res.ok) {
+        document.getElementById("pwd-err").style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Accéder";
+        return;
+      }
+
+      const data = await res.json();
       document.getElementById("gate").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      loadDashboard();
-    } else {
+      renderDashboard(data);
+    } catch (err) {
+      document.getElementById("pwd-err").textContent = "Erreur de connexion. Réessayez.";
       document.getElementById("pwd-err").style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Accéder";
     }
   }
 
-  async function loadDashboard() {
-    const { data: boutiques, error: boutiquesError } = await supabaseClient
-      .from("boutiques")
-      .select("id, nom")
-      .order("nom");
-
-    if (boutiquesError || !boutiques) {
-      document.getElementById("grid").innerHTML = '<div class="empty">Impossible de charger les boutiques.</div>';
-      return;
-    }
-
-    const { data: adhesions, error: adhesionsError } = await supabaseClient
-      .from("clients_boutiques_fidelite")
-      .select("client_id, boutique_id, nb_passages_cycle_actuel, nb_passages_total, date_inscription");
-
-    if (adhesionsError || !adhesions) {
-      document.getElementById("grid").innerHTML = '<div class="empty">Impossible de charger les adhésions.</div>';
-      return;
-    }
-
-    const clientIds = [...new Set(adhesions.map((a) => a.client_id))];
+  function renderDashboard(data) {
+    const boutiques = data.boutiques || [];
+    const adhesions = data.adhesions || [];
     let clientsById = {};
-    if (clientIds.length > 0) {
-      const { data: clients } = await supabaseClient
-        .from("clients_fidelite")
-        .select("id, prenom, telephone, email, consentement_marketing")
-        .in("id", clientIds);
-      (clients || []).forEach((c) => { clientsById[c.id] = c; });
+    (data.clients || []).forEach((c) => { clientsById[c.id] = c; });
+
+    if (boutiques.length === 0 && adhesions.length === 0) {
+      document.getElementById("grid").innerHTML = '<div class="empty">Impossible de charger les données.</div>';
+      return;
     }
 
     // Export global : tous les clients, toutes boutiques confondues
