@@ -357,6 +357,7 @@
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const ADD_PASSAGE_URL = SUPABASE_URL + "/functions/v1/quick-action";
+  const CLIENT_STATUS_URL = SUPABASE_URL + "/functions/v1/get-client-status";
 
   const boutiqueSelect = document.getElementById("boutique");
   const form = document.getElementById("signup-form");
@@ -476,43 +477,34 @@
     document.getElementById("reward-overlay").style.display = "none";
     document.getElementById("review-invite").style.display = "none";
 
-    const { data: client } = await supabaseClient
-      .from("clients_fidelite")
-      .select("prenom")
-      .eq("id", clientId)
-      .single();
+    const res = await fetch(CLIENT_STATUS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ client_id: clientId, boutique_id: boutiqueId }),
+    });
+    const result = await res.json();
 
-    if (!client) {
-      // Le client a été supprimé côté base ou l'id est invalide : on repart de zéro
-      localStorage.removeItem("fidloop_client_id");
-      loadBoutiques();
-      showScreen("form-screen");
-      return;
-    }
-
-    // Le compteur de points est spécifique à CETTE boutique (table clients_boutiques_fidelite)
-    const { data: adhesion } = await supabaseClient
-      .from("clients_boutiques_fidelite")
-      .select("nb_passages_cycle_actuel")
-      .eq("client_id", clientId)
-      .eq("boutique_id", boutiqueId)
-      .maybeSingle();
-
-    if (!adhesion) {
-      // Ce client existe mais n'est pas encore inscrit dans CETTE boutique précise
-      // (cas : il a scanné le QR d'une autre boutique du réseau auparavant)
+    if (!res.ok) {
+      // Client introuvable ou pas encore inscrit dans cette boutique précise :
+      // dans les deux cas, on repart sur le formulaire d'inscription.
+      if (result.error === "client_introuvable") {
+        localStorage.removeItem("fidloop_client_id");
+      }
       loadBoutiques();
       showScreen("form-screen");
       return;
     }
 
     document.getElementById("checkin-title").textContent = estNouveau
-      ? `Bienvenue, ${client.prenom} !`
-      : `Content de vous revoir, ${client.prenom} !`;
+      ? `Bienvenue, ${result.prenom} !`
+      : `Content de vous revoir, ${result.prenom} !`;
     document.getElementById("checkin-text").textContent = estNouveau
       ? "Votre carte est créée. Vous venez de faire un achat ? Ajoutez votre premier point."
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
-    updateCheckinDial(adhesion.nb_passages_cycle_actuel);
+    updateCheckinDial(result.nb_passages_cycle_actuel);
 
     const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
