@@ -208,7 +208,7 @@
 
     // Export global : tous les clients, toutes boutiques confondues
     document.getElementById("export-all-btn").onclick = () =>
-      exportCsv(adhesions, boutiques, clientsById, "fidloop_clients_reseau");
+      exportCsv(adhesions, boutiques, clientsById, "ancrimo_clients_reseau");
 
     // --- Totaux réseau ---
     const totalInscrits = adhesions.length;
@@ -281,7 +281,7 @@
       if (exportBtn) {
         exportBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          exportCsv(shopAdhesions, [boutique], clientsById, `fidloop_clients_${boutique.nom}`);
+          exportCsv(shopAdhesions, [boutique], clientsById, `ancrimo_clients_${boutique.nom}`);
         });
       }
       grid.appendChild(card);
