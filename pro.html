@@ -165,6 +165,14 @@
   .benefit p { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
   @media (max-width: 720px) { .benefits { grid-template-columns: 1fr; } }
 
+  /* Variante des cartes sur fond clair (section Fichier clients) */
+  #fichier .benefit {
+    border-color: rgba(13,27,46,0.12);
+    background: #fff;
+  }
+  #fichier .benefit h3 { color: var(--ink); }
+  #fichier .benefit p { color: #5a6472; }
+
   /* --- Statut pilote --- */
   .status-band {
     display: flex; align-items: center; gap: 12px;
@@ -295,6 +303,7 @@
     <div class="links">
       <a href="#comment">Comment ça marche</a>
       <a href="#pourquoi">Pourquoi Ancrimo</a>
+      <a href="#fichier">Fichier clients</a>
       <a href="#tarifs">Tarifs</a>
       <a href="#contact">Contact</a>
     </div>
@@ -494,6 +503,43 @@
         <h3>Zéro matériel en caisse</h3>
         <p>Aucun boîtier, aucune tablette, aucun terminal à installer. Le système fonctionne en pur auto-service.</p>
       </div>
+      <div class="benefit">
+        <div class="glyph">✉️</div>
+        <h3>La récompense arrive par email</h3>
+        <p>Dès qu'un palier tombe, le client reçoit son code promo par email, automatiquement. Il n'a rien à surveiller — et il revient.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">📣</div>
+        <h3>Relancez vos clients quand vous voulez</h3>
+        <p>Depuis votre tableau de bord, vous écrivez un message et vous l'envoyez en un clic. Uniquement à ceux qui ont accepté d'être recontactés.</p>
+      </div>
+    </div>
+
+    <div class="status-band">
+      <span class="pulse"></span>
+      <span><strong>84 clients inscrits en 3 semaines</strong> dans la boutique pilote — 65&nbsp;% acceptent d'être recontactés, 77&nbsp;% laissent leur email.</span>
+    </div>
+  </div>
+</section>
+
+<section class="section-light" id="fichier">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Votre fichier clients</span>
+      <h2>Vos clients arrêtent d'être des inconnus</h2>
+      <p>Aujourd'hui, un client qui sort de votre boutique disparaît. Avec Ancrimo, il laisse son prénom, son téléphone, et le plus souvent son email — en acceptant explicitement d'être recontacté.</p>
+    </div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="glyph">🔐</div>
+        <h3>Un consentement clair</h3>
+        <p>Le client coche lui-même s'il accepte d'être recontacté. Vous n'écrivez qu'à ceux qui ont dit oui — le reste ne reçoit jamais rien.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">📤</div>
+        <h3>Exportable, et à vous</h3>
+        <p>Votre fichier s'exporte en un clic, au format tableur, quand vous voulez. Il vous appartient, sans condition.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -515,6 +561,7 @@
           <li>Programme de fidélité complet</li>
           <li>QR code personnalisé, prêt à imprimer</li>
           <li>Paliers de récompense paramétrables</li>
+          <li>Email automatique à chaque récompense</li>
           <li>Invitation aux avis Google</li>
           <li>Export de votre fichier clients</li>
         </ul>
@@ -529,6 +576,7 @@
           <li>Tout ce qui est inclus dans Boutique</li>
           <li>Un compteur indépendant par boutique</li>
           <li>Tableau de bord réseau consolidé</li>
+          <li>2 campagnes email par mois incluses</li>
           <li>Une affiche QR par point de vente</li>
           <li>33€ par boutique au lieu de 39€</li>
         </ul>
@@ -543,6 +591,7 @@
           <li>Tout ce qui est inclus dans Réseau</li>
           <li>Au-delà de 6 points de vente</li>
           <li>Ou volume de passages important</li>
+          <li>Volume de campagnes email sur mesure</li>
           <li>Tarif dégressif selon le volume</li>
           <li>Accompagnement au déploiement</li>
         </ul>
