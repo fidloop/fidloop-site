@@ -23,7 +23,6 @@
     color: var(--ink);
     min-height: 100vh;
   }
-
   /* --- Écran mot de passe --- */
   #gate {
     min-height: 100vh;
@@ -52,14 +51,12 @@
     color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer;
   }
   #gate .err { color: var(--error); font-size: 13px; margin-top: 12px; display: none; }
-
   /* --- Dashboard --- */
   #dashboard { display: none; max-width: 1000px; margin: 0 auto; padding: 32px 20px 60px; }
   .top { text-align: center; margin-bottom: 36px; }
   .top .eyebrow { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); font-weight: 700; }
   .top h1 { font-family: Georgia, serif; font-size: 30px; margin-top: 8px; }
   .top p { color: var(--ink-dim); font-size: 14px; margin-top: 6px; }
-
   .totals {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 14px; margin-bottom: 18px;
@@ -70,7 +67,6 @@
   }
   .totals .card .n { font-size: 28px; font-weight: 800; color: var(--green); }
   .totals .card .l { font-size: 12px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-
   .export-all {
     display: block; margin: 0 auto 36px; padding: 12px 22px;
     background: var(--ink); color: #fff; border: none; border-radius: 10px;
@@ -83,7 +79,6 @@
     border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
   }
   .shop-export:hover { border-color: var(--green); }
-
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
   .shop-card {
     background: var(--paper); border: 2px solid var(--border); border-radius: 14px;
@@ -102,7 +97,6 @@
   .bar-legend span::before { content: "●"; margin-right: 4px; }
   .bar-legend .l6::before { color: var(--yellow-deep); }
   .bar-legend .l10::before { color: var(--green); }
-
   .detail {
     margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
     display: none; max-height: 220px; overflow-y: auto;
@@ -115,10 +109,53 @@
   .detail-row .name { font-weight: 600; }
   .detail-row .cycle { color: var(--ink-dim); }
   .loading, .empty { text-align: center; color: var(--ink-dim); font-size: 14px; padding: 40px; }
+  /* --- Campagnes --- */
+  .campaign-box {
+    background: var(--paper); border: 2px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 36px;
+  }
+  .campaign-box h2 { font-size: 18px; margin-bottom: 4px; }
+  .campaign-box .sub { color: var(--ink-dim); font-size: 13px; margin-bottom: 18px; }
+  .campaign-field { margin-bottom: 14px; }
+  .campaign-field label {
+    display: block; font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--ink-dim); margin-bottom: 6px;
+  }
+  .campaign-box select,
+  .campaign-box input[type="text"],
+  .campaign-box textarea {
+    width: 100%; padding: 12px 14px;
+    background: var(--paper-dim); border: 2px solid var(--border);
+    border-radius: 8px; font-size: 14px; font-family: inherit; outline: none;
+  }
+  .campaign-box select:focus,
+  .campaign-box input[type="text"]:focus,
+  .campaign-box textarea:focus { border-color: var(--green); }
+  .campaign-box textarea { resize: vertical; min-height: 110px; }
+  .campaign-count { font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; }
+  .campaign-count strong { color: var(--ink); }
+  .campaign-send-btn {
+    padding: 12px 22px; background: var(--yellow); color: var(--ink);
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .campaign-send-btn:disabled { opacity: 0.5; cursor: default; }
+  .campaign-confirm {
+    display: none; margin-top: 14px; padding: 14px; background: var(--paper-dim);
+    border-radius: 10px; font-size: 13.5px;
+  }
+  .campaign-confirm.open { display: block; }
+  .campaign-confirm .btns { margin-top: 10px; display: flex; gap: 10px; }
+  .campaign-confirm button {
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+  }
+  .campaign-confirm .confirm-yes { background: var(--green); color: #fff; }
+  .campaign-confirm .confirm-no { background: var(--border); color: var(--ink); }
+  .campaign-result { margin-top: 14px; font-size: 13.5px; display: none; }
+  .campaign-result.ok { color: var(--green); display: block; }
+  .campaign-result.error { color: var(--error); display: block; }
 </style>
 </head>
 <body>
-
 <div id="gate">
   <div class="box">
     <h1>Espace Réseau</h1>
@@ -128,44 +165,73 @@
     <div class="err" id="pwd-err">Mot de passe incorrect.</div>
   </div>
 </div>
-
 <div id="dashboard">
   <div class="top">
     <div class="eyebrow">Réseau Pil'Vite</div>
     <h1>Programme de fidélité</h1>
     <p>Vue d'ensemble des 6 boutiques</p>
   </div>
-
   <div class="totals" id="totals"></div>
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
+
+  <div class="campaign-box" id="campaign-box">
+    <h2>Envoyer une campagne email</h2>
+    <div class="sub">Envoyé uniquement aux clients ayant donné leur consentement marketing et ayant un email renseigné.</div>
+    <div class="campaign-field">
+      <label for="campaign-boutique">Destinataires</label>
+      <select id="campaign-boutique">
+        <option value="">Tout le réseau</option>
+      </select>
+    </div>
+    <div class="campaign-count" id="campaign-count"></div>
+    <div class="campaign-field">
+      <label for="campaign-subject">Sujet</label>
+      <input type="text" id="campaign-subject" placeholder="Ex : -10% cette semaine chez Pil'Vite">
+    </div>
+    <div class="campaign-field">
+      <label for="campaign-message">Message</label>
+      <textarea id="campaign-message" placeholder="Votre message..." rows="6"></textarea>
+    </div>
+    <button class="campaign-send-btn" id="campaign-send-btn">Envoyer la campagne</button>
+    <div class="campaign-confirm" id="campaign-confirm">
+      <div id="campaign-confirm-text"></div>
+      <div class="btns">
+        <button class="confirm-yes" id="campaign-confirm-yes">Confirmer l'envoi</button>
+        <button class="confirm-no" id="campaign-confirm-no">Annuler</button>
+      </div>
+    </div>
+    <div class="campaign-result" id="campaign-result"></div>
+  </div>
+
   <div class="grid" id="grid">
     <div class="loading">Chargement des données...</div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const SUPABASE_URL = "https://xreqpkzovokiheichauf.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_ur4bRIDpnPAyaLffnN2xIg_ZnfNLNRn";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   const NETWORK_STATS_URL = SUPABASE_URL + "/functions/v1/network-stats";
+  const SEND_CAMPAIGN_URL = SUPABASE_URL + "/functions/v1/send-campaign";
   // Le mot de passe n'est plus vérifié ici : il est envoyé au serveur, qui seul
   // décide de renvoyer les données ou non. Même en lisant ce fichier, personne
   // ne peut voir le mot de passe ni contourner la vérification.
+  // On le garde en mémoire après connexion pour pouvoir aussi appeler send-campaign
+  // (revérifié côté serveur à chaque appel, comme network-stats).
+  let DASHBOARD_PWD = null;
+  let LAST_DATA = null;
 
   document.getElementById("pwd-btn").addEventListener("click", checkPassword);
   document.getElementById("pwd").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkPassword();
   });
-
   async function checkPassword() {
     const val = document.getElementById("pwd").value;
     const btn = document.getElementById("pwd-btn");
     btn.disabled = true;
     btn.textContent = "Vérification...";
     document.getElementById("pwd-err").style.display = "none";
-
     try {
       const res = await fetch(NETWORK_STATS_URL, {
         method: "POST",
@@ -175,15 +241,14 @@
         },
         body: JSON.stringify({ password: val }),
       });
-
       if (!res.ok) {
         document.getElementById("pwd-err").style.display = "block";
         btn.disabled = false;
         btn.textContent = "Accéder";
         return;
       }
-
       const data = await res.json();
+      DASHBOARD_PWD = val;
       document.getElementById("gate").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
       renderDashboard(data);
@@ -194,39 +259,33 @@
       btn.textContent = "Accéder";
     }
   }
-
   function renderDashboard(data) {
     const boutiques = data.boutiques || [];
     const adhesions = data.adhesions || [];
     let clientsById = {};
     (data.clients || []).forEach((c) => { clientsById[c.id] = c; });
-
+    LAST_DATA = { boutiques, adhesions, clientsById };
     if (boutiques.length === 0 && adhesions.length === 0) {
       document.getElementById("grid").innerHTML = '<div class="empty">Impossible de charger les données.</div>';
       return;
     }
-
     // Export global : tous les clients, toutes boutiques confondues
     document.getElementById("export-all-btn").onclick = () =>
       exportCsv(adhesions, boutiques, clientsById, "ancrimo_clients_reseau");
-
     // --- Totaux réseau ---
     const totalInscrits = adhesions.length;
     const totalPassages = adhesions.reduce((sum, a) => sum + (a.nb_passages_total || 0), 0);
     const totalPalier6 = adhesions.filter((a) => a.nb_passages_cycle_actuel >= 6).length;
     const totalPalier10 = adhesions.filter((a) => a.nb_passages_cycle_actuel >= 10).length;
-
     document.getElementById("totals").innerHTML = `
       <div class="card"><div class="n">${totalInscrits}</div><div class="l">Clients inscrits</div></div>
       <div class="card"><div class="n">${totalPassages}</div><div class="l">Passages total</div></div>
       <div class="card"><div class="n">${totalPalier6}</div><div class="l">Au palier 6+</div></div>
       <div class="card"><div class="n">${totalPalier10}</div><div class="l">Au palier 10+</div></div>
     `;
-
     // --- Par boutique ---
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
-
     boutiques.forEach((boutique) => {
       const shopAdhesions = adhesions.filter((a) => a.boutique_id === boutique.id);
       const inscrits = shopAdhesions.length;
@@ -235,11 +294,9 @@
       const palier10 = shopAdhesions.filter((a) => a.nb_passages_cycle_actuel >= 10).length;
       const pct6 = inscrits ? (palier6 / inscrits) * 100 : 0;
       const pct10 = inscrits ? (palier10 / inscrits) * 100 : 0;
-
       const sortedList = [...shopAdhesions].sort((a, b) =>
         new Date(b.date_inscription) - new Date(a.date_inscription)
       );
-
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
@@ -286,12 +343,11 @@
       }
       grid.appendChild(card);
     });
-
     if (boutiques.length === 0) {
       grid.innerHTML = '<div class="empty">Aucune boutique trouvée.</div>';
     }
+    initCampaignBox(boutiques);
   }
-
   function csvEscape(val) {
     const s = (val === null || val === undefined) ? "" : String(val);
     if (s.includes(";") || s.includes('"') || s.includes("\n")) {
@@ -299,16 +355,13 @@
     }
     return s;
   }
-
   function exportCsv(adhesionsList, boutiquesList, clientsById, filenamePrefix) {
     const boutiqueNomById = {};
     boutiquesList.forEach((b) => { boutiqueNomById[b.id] = b.nom; });
-
     const headers = [
       "Prenom", "Telephone", "Email", "Boutique",
       "Passages total", "Cycle actuel", "Date inscription", "Consentement SMS/Email",
     ];
-
     const rows = adhesionsList.map((a) => {
       const c = clientsById[a.client_id] || {};
       const telephoneTexte = c.telephone ? `="${c.telephone}"` : "";
@@ -325,8 +378,7 @@
       // il ne doit pas passer par csvEscape qui casserait la syntaxe.
       return [otherFields[0], telephoneTexte, ...otherFields.slice(1)].join(";");
     });
-
-    const csvContent = "\uFEFF" + [headers.join(";"), ...rows].join("\n");
+    const csvContent = "﻿" + [headers.join(";"), ...rows].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -337,6 +389,94 @@
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  // --- Campagnes email ---
+  function initCampaignBox(boutiques) {
+    const select = document.getElementById("campaign-boutique");
+    select.innerHTML = '<option value="">Tout le réseau</option>' +
+      boutiques.map((b) => `<option value="${b.id}">${b.nom}</option>`).join("");
+    select.addEventListener("change", updateCampaignCount);
+    updateCampaignCount();
+
+    const sendBtn = document.getElementById("campaign-send-btn");
+    const confirmBox = document.getElementById("campaign-confirm");
+    const confirmText = document.getElementById("campaign-confirm-text");
+    const confirmYes = document.getElementById("campaign-confirm-yes");
+    const confirmNo = document.getElementById("campaign-confirm-no");
+    const resultBox = document.getElementById("campaign-result");
+
+    sendBtn.addEventListener("click", () => {
+      resultBox.className = "campaign-result";
+      resultBox.textContent = "";
+      const subject = document.getElementById("campaign-subject").value.trim();
+      const message = document.getElementById("campaign-message").value.trim();
+      if (!subject || !message) {
+        resultBox.className = "campaign-result error";
+        resultBox.textContent = "Merci de remplir le sujet et le message.";
+        return;
+      }
+      const count = computeRecipientCount();
+      const boutiqueLabel = select.options[select.selectedIndex].text;
+      confirmText.innerHTML = `Confirmer l'envoi à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}) ?`;
+      confirmBox.classList.add("open");
+    });
+
+    confirmNo.addEventListener("click", () => {
+      confirmBox.classList.remove("open");
+    });
+
+    confirmYes.addEventListener("click", async () => {
+      confirmBox.classList.remove("open");
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Envoi en cours...";
+      resultBox.className = "campaign-result";
+      resultBox.textContent = "";
+      const subject = document.getElementById("campaign-subject").value.trim();
+      const message = document.getElementById("campaign-message").value.trim();
+      const boutique_id = select.value || null;
+      try {
+        const res = await fetch(SEND_CAMPAIGN_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ password: DASHBOARD_PWD, subject, message, boutique_id }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          resultBox.className = "campaign-result error";
+          resultBox.textContent = "Erreur : " + (data.error || res.status);
+        } else {
+          resultBox.className = "campaign-result ok";
+          resultBox.textContent = `Envoyé à ${data.sent} destinataire(s). ${data.skipped ? data.skipped + " ignoré(s) (pas de consentement/email). " : ""}${data.errors ? data.errors + " erreur(s) d'envoi." : ""}`;
+        }
+      } catch (err) {
+        resultBox.className = "campaign-result error";
+        resultBox.textContent = "Erreur de connexion. Réessayez.";
+      }
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Envoyer la campagne";
+    });
+  }
+
+  function computeRecipientCount() {
+    if (!LAST_DATA) return 0;
+    const boutiqueId = document.getElementById("campaign-boutique").value;
+    const { adhesions, clientsById } = LAST_DATA;
+    const relevant = boutiqueId ? adhesions.filter((a) => a.boutique_id === boutiqueId) : adhesions;
+    const clientIds = [...new Set(relevant.map((a) => a.client_id))];
+    return clientIds.filter((id) => {
+      const c = clientsById[id];
+      return c && c.consentement_marketing && c.email;
+    }).length;
+  }
+
+  function updateCampaignCount() {
+    const count = computeRecipientCount();
+    document.getElementById("campaign-count").innerHTML =
+      `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront cet email (consentement + email renseigné).`;
   }
 </script>
 </body>
