@@ -184,6 +184,7 @@
       </select>
     </div>
     <div class="campaign-count" id="campaign-count"></div>
+    <div class="campaign-count" id="campaign-quota"></div>
     <div class="campaign-field">
       <label for="campaign-subject">Sujet</label>
       <input type="text" id="campaign-subject" placeholder="Ex : -10% cette semaine chez Pil'Vite">
@@ -398,6 +399,7 @@
       boutiques.map((b) => `<option value="${b.id}">${b.nom}</option>`).join("");
     select.addEventListener("change", updateCampaignCount);
     updateCampaignCount();
+    refreshQuota();
 
     const sendBtn = document.getElementById("campaign-send-btn");
     const confirmBox = document.getElementById("campaign-confirm");
@@ -447,11 +449,22 @@
         const data = await res.json();
         if (!res.ok) {
           resultBox.className = "campaign-result error";
-          resultBox.textContent = "Erreur : " + (data.error || res.status);
+          if (data.error === "quota_depasse") {
+            resultBox.textContent = `Quota mensuel atteint (${data.campagnes_utilisees}/${data.quota_total} campagnes ce mois). Contactez Ancrimo pour ajouter des campagnes supplémentaires.`;
+          } else if (data.error === "limite_journaliere") {
+            resultBox.textContent = `Cette campagne vise ${data.destinataires} destinataires mais il ne reste que ${data.restant_aujourdhui} envois possibles aujourd'hui. Réessayez demain ou ciblez une seule boutique.`;
+          } else if (data.error === "aucun_destinataire") {
+            resultBox.textContent = "Aucun destinataire éligible (consentement + email) pour cette cible.";
+          } else {
+            resultBox.textContent = "Erreur : " + (data.error || res.status);
+          }
         } else {
           resultBox.className = "campaign-result ok";
-          resultBox.textContent = `Envoyé à ${data.sent} destinataire(s). ${data.skipped ? data.skipped + " ignoré(s) (pas de consentement/email). " : ""}${data.errors ? data.errors + " erreur(s) d'envoi." : ""}`;
+          resultBox.textContent = `Envoyé à ${data.sent} destinataire(s).${data.errors ? " " + data.errors + " erreur(s) d'envoi." : ""} Il vous reste ${data.campagnes_restantes} campagne(s) ce mois.`;
+          document.getElementById("campaign-subject").value = "";
+          document.getElementById("campaign-message").value = "";
         }
+        refreshQuota();
       } catch (err) {
         resultBox.className = "campaign-result error";
         resultBox.textContent = "Erreur de connexion. Réessayez.";
@@ -471,6 +484,27 @@
       const c = clientsById[id];
       return c && c.consentement_marketing && c.email;
     }).length;
+  }
+
+  // Interroge le serveur pour connaître le quota réel (le serveur fait foi).
+  async function refreshQuota() {
+    const box = document.getElementById("campaign-quota");
+    try {
+      const res = await fetch(SEND_CAMPAIGN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ password: DASHBOARD_PWD, preview: true }),
+      });
+      if (!res.ok) { box.textContent = ""; return; }
+      const q = await res.json();
+      box.innerHTML =
+        `<strong>${q.campagnes_restantes}</strong> campagne${q.campagnes_restantes > 1 ? "s" : ""} restante${q.campagnes_restantes > 1 ? "s" : ""} ce mois (${q.campagnes_utilisees}/${q.quota_total} utilisée${q.campagnes_utilisees > 1 ? "s" : ""}) · <strong>${q.restant_aujourdhui}</strong> envois possibles aujourd'hui.`;
+    } catch (e) {
+      box.textContent = "";
+    }
   }
 
   function updateCampaignCount() {
