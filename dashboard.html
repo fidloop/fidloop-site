@@ -51,6 +51,31 @@
     color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer;
   }
   #gate .err { color: var(--error); font-size: 13px; margin-top: 12px; display: none; }
+  #gate .note { color: var(--green); font-size: 13px; margin-top: 12px; display: none; line-height: 1.5; }
+  #gate .note.show { display: block; }
+  #gate .err.show { display: block; }
+  .pwd-wrap { position: relative; }
+  .pwd-wrap input { padding-right: 46px !important; }
+  .pwd-wrap .eye {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 34px !important; height: 34px; margin: 0 !important; padding: 0 !important;
+    background: none !important; border: none; font-size: 16px; cursor: pointer;
+    opacity: .55; line-height: 1;
+  }
+  .pwd-wrap .eye:hover { opacity: 1; }
+  .remember {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 14px; font-size: 13px; color: var(--ink-dim); cursor: pointer;
+  }
+  .remember input { width: auto !important; margin: 0 !important; padding: 0 !important; }
+  .gate-links { margin-top: 18px; }
+  .gate-link {
+    background: none !important; border: none; padding: 0 !important; margin: 0 !important;
+    width: auto !important; color: var(--ink-dim) !important; font-size: 13px !important;
+    text-decoration: underline; cursor: pointer;
+  }
+  .gate-link:hover { color: var(--ink) !important; }
+  #gate .stack input + input { margin-top: 10px; }
   /* --- Dashboard --- */
   #dashboard { display: none; max-width: 1000px; margin: 0 auto; padding: 32px 20px 60px; }
   .top { text-align: center; margin-bottom: 36px; }
@@ -199,11 +224,52 @@
 <body>
 <div id="gate">
   <div class="box">
-    <h1>Espace Ancrimo</h1>
-    <p>Accès réservé</p>
-    <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="off">
-    <button id="pwd-btn">Accéder</button>
-    <div class="err" id="pwd-err">Mot de passe incorrect.</div>
+
+    <div id="panel-login">
+      <h1>Espace Ancrimo</h1>
+      <p>Accès réservé</p>
+      <div class="pwd-wrap">
+        <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="current-password">
+        <button type="button" class="eye" id="pwd-eye" title="Afficher le mot de passe">&#128065;</button>
+      </div>
+      <label class="remember">
+        <input type="checkbox" id="pwd-remember"> Rester connecté sur cet appareil
+      </label>
+      <button id="pwd-btn">Accéder</button>
+      <div class="err" id="pwd-err">Mot de passe incorrect.</div>
+      <div class="note" id="login-note"></div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="lien-oubli">Mot de passe oublié ?</button>
+      </div>
+    </div>
+
+    <div id="panel-oubli" style="display:none">
+      <h1>Mot de passe oublié</h1>
+      <p>Saisissez l'adresse email de votre accès : vous recevrez un lien pour choisir un nouveau mot de passe.</p>
+      <input type="email" id="oubli-email" placeholder="votre@email.fr" autocomplete="email">
+      <button id="oubli-btn">Envoyer le lien</button>
+      <div class="err" id="oubli-err"></div>
+      <div class="note" id="oubli-note"></div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="oubli-retour">&#8592; Retour à la connexion</button>
+      </div>
+    </div>
+
+    <div id="panel-reset" style="display:none">
+      <h1>Nouveau mot de passe</h1>
+      <p>Choisissez un mot de passe d'au moins 8 caractères.</p>
+      <div class="stack">
+        <input type="password" id="reset-1" placeholder="Nouveau mot de passe" autocomplete="new-password">
+        <input type="password" id="reset-2" placeholder="Confirmer" autocomplete="new-password">
+      </div>
+      <button id="reset-btn">Valider</button>
+      <div class="err" id="reset-err"></div>
+      <div class="note" id="reset-note"></div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="reset-retour">&#8592; Retour à la connexion</button>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="dashboard">
@@ -211,6 +277,7 @@
     <span class="who" id="acces-nom"></span>
     <span class="topbar-actions">
       <button class="link-btn" id="btn-mdp">Changer le mot de passe</button>
+      <button class="link-btn" id="btn-logout-all">Déconnecter tous les appareils</button>
       <button class="link-btn" id="btn-logout">Se déconnecter</button>
     </span>
   </div>
@@ -218,6 +285,9 @@
   <div class="mdp-box" id="mdp-box">
     <h3>Changer le mot de passe</h3>
     <p class="mdp-sub">Il remplace celui de cet accès uniquement, immédiatement.</p>
+    <div class="mdp-row" style="margin-bottom:10px">
+      <input type="password" id="mdp-0" placeholder="Mot de passe actuel" autocomplete="current-password">
+    </div>
     <div class="mdp-row">
       <input type="password" id="mdp-1" placeholder="Nouveau mot de passe (8 caractères min.)" autocomplete="new-password">
       <input type="password" id="mdp-2" placeholder="Confirmer" autocomplete="new-password">
@@ -278,51 +348,238 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const NETWORK_STATS_URL = SUPABASE_URL + "/functions/v1/network-stats";
   const SEND_CAMPAIGN_URL = SUPABASE_URL + "/functions/v1/send-campaign";
-  // Le mot de passe n'est plus vérifié ici : il est envoyé au serveur, qui seul
-  // décide de renvoyer les données ou non. Même en lisant ce fichier, personne
-  // ne peut voir le mot de passe ni contourner la vérification.
-  // On le garde en mémoire après connexion pour pouvoir aussi appeler send-campaign
-  // (revérifié côté serveur à chaque appel, comme network-stats).
-  let DASHBOARD_PWD = null;
-  let LAST_DATA = null;
+  // ============================================================
+  // Comptes : session par jeton, mot de passe oublié, réinitialisation
+  // ============================================================
+  // Le navigateur ne conserve JAMAIS le mot de passe. À la connexion, le serveur
+  // renvoie un jeton de session (révocable, avec une date d'expiration) ; c'est
+  // lui seul qui est stocké, et le serveur revérifie tout à chaque appel.
+  const CLE_SESSION = "ancrimo_session";
+  const INACTIVITE_MINUTES = 30;
 
+  let SESSION_TOKEN = null;
+  let LAST_DATA = null;
+  let minuteurInactivite = null;
+
+  function lireSession() {
+    try {
+      const brut = localStorage.getItem(CLE_SESSION) || sessionStorage.getItem(CLE_SESSION);
+      if (!brut) return null;
+      const s = JSON.parse(brut);
+      if (!s || !s.token || !s.expire_le || new Date(s.expire_le) <= new Date()) {
+        effacerSession();
+        return null;
+      }
+      return s;
+    } catch (e) { return null; }
+  }
+  function ecrireSession(s, persistant) {
+    effacerSession();
+    if (!s || !s.token) return;
+    try {
+      (persistant ? localStorage : sessionStorage)
+        .setItem(CLE_SESSION, JSON.stringify({ token: s.token, expire_le: s.expire_le }));
+    } catch (e) {}
+  }
+  function effacerSession() {
+    try { localStorage.removeItem(CLE_SESSION); sessionStorage.removeItem(CLE_SESSION); } catch (e) {}
+  }
+  function api(corps) {
+    return fetch(NETWORK_STATS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify(corps),
+    });
+  }
+  function montrerPanneau(id) {
+    ["panel-login", "panel-oubli", "panel-reset"].forEach((p) => {
+      const el = document.getElementById(p);
+      if (el) el.style.display = (p === id ? "block" : "none");
+    });
+  }
+  function afficher(id, texte, classe) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = texte || "";
+    el.className = (classe || "err") + (texte ? " show" : "");
+    if (!texte) el.style.display = "none"; else el.style.display = "block";
+  }
+
+  // --- Déconnexion automatique après inactivité ---
+  function armerInactivite() {
+    clearTimeout(minuteurInactivite);
+    minuteurInactivite = setTimeout(() => {
+      deconnecter("Vous avez été déconnecté après " + INACTIVITE_MINUTES + " minutes d'inactivité.");
+    }, INACTIVITE_MINUTES * 60000);
+  }
+  ["click", "keydown", "scroll", "mousemove", "touchstart"].forEach((ev) => {
+    document.addEventListener(ev, () => { if (SESSION_TOKEN) armerInactivite(); }, { passive: true });
+  });
+
+  async function deconnecter(message, partout) {
+    const jeton = SESSION_TOKEN;
+    SESSION_TOKEN = null;
+    LAST_DATA = null;
+    clearTimeout(minuteurInactivite);
+    effacerSession();
+    if (jeton) {
+      try { await api({ token: jeton, action: partout ? "logout_partout" : "logout" }); } catch (e) {}
+    }
+    if (message) {
+      try { sessionStorage.setItem("ancrimo_message", message); } catch (e) {}
+    }
+    location.href = location.pathname;
+  }
+
+  // --- Connexion par mot de passe ---
   document.getElementById("pwd-btn").addEventListener("click", checkPassword);
   document.getElementById("pwd").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkPassword();
   });
+  document.getElementById("pwd-eye").addEventListener("click", () => {
+    const i = document.getElementById("pwd");
+    i.type = i.type === "password" ? "text" : "password";
+    i.focus();
+  });
+
   async function checkPassword() {
     const val = document.getElementById("pwd").value;
     const btn = document.getElementById("pwd-btn");
+    const persistant = document.getElementById("pwd-remember").checked;
     btn.disabled = true;
     btn.textContent = "Vérification...";
-    document.getElementById("pwd-err").style.display = "none";
+    afficher("pwd-err", "");
+    afficher("login-note", "", "note");
     try {
-      const res = await fetch(NETWORK_STATS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({ password: val }),
-      });
+      const res = await api({ password: val, longue_duree: persistant });
+      const data = await res.json();
       if (!res.ok) {
-        document.getElementById("pwd-err").style.display = "block";
+        const messages = {
+          mot_de_passe_incorrect: "Mot de passe incorrect.",
+          trop_de_tentatives: "Trop de tentatives. Réessayez dans " + (data.minutes || 15) + " minutes.",
+        };
+        afficher("pwd-err", messages[data.error] || "Mot de passe incorrect.");
         btn.disabled = false;
         btn.textContent = "Accéder";
         return;
       }
-      const data = await res.json();
-      DASHBOARD_PWD = val;
-      document.getElementById("gate").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-      renderDashboard(data);
+      SESSION_TOKEN = data.token || null;
+      ecrireSession({ token: data.token, expire_le: data.expire_le }, persistant);
+      document.getElementById("pwd").value = "";
+      ouvrirDashboard(data);
     } catch (err) {
-      document.getElementById("pwd-err").textContent = "Erreur de connexion. Réessayez.";
-      document.getElementById("pwd-err").style.display = "block";
+      afficher("pwd-err", "Erreur de connexion. Réessayez.");
       btn.disabled = false;
       btn.textContent = "Accéder";
     }
   }
+
+  function ouvrirDashboard(data) {
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    armerInactivite();
+    renderDashboard(data);
+  }
+
+  // --- Mot de passe oublié ---
+  document.getElementById("lien-oubli").addEventListener("click", () => {
+    afficher("pwd-err", "");
+    montrerPanneau("panel-oubli");
+    document.getElementById("oubli-email").focus();
+  });
+  document.getElementById("oubli-retour").addEventListener("click", () => montrerPanneau("panel-login"));
+  document.getElementById("oubli-email").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("oubli-btn").click();
+  });
+  document.getElementById("oubli-btn").addEventListener("click", async () => {
+    const email = document.getElementById("oubli-email").value.trim();
+    const btn = document.getElementById("oubli-btn");
+    afficher("oubli-err", "");
+    afficher("oubli-note", "", "note");
+    if (!email || email.indexOf("@") === -1) {
+      afficher("oubli-err", "Saisissez une adresse email valide.");
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Envoi...";
+    try {
+      await api({ action: "mot_de_passe_oublie", email });
+      // Réponse volontairement identique dans tous les cas : personne ne peut
+      // deviner quelles adresses existent.
+      afficher("oubli-note",
+        "Si un accès correspond à cette adresse, un lien vient d'être envoyé. Il est valable 1 heure. Pensez à regarder dans les indésirables.",
+        "note");
+    } catch (e) {
+      afficher("oubli-err", "Erreur de connexion. Réessayez.");
+    }
+    btn.disabled = false;
+    btn.textContent = "Envoyer le lien";
+  });
+
+  // --- Réinitialisation depuis le lien reçu par email ---
+  const JETON_RESET = new URLSearchParams(location.search).get("reset");
+  document.getElementById("reset-retour").addEventListener("click", () => { location.href = location.pathname; });
+  document.getElementById("reset-2").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("reset-btn").click();
+  });
+  document.getElementById("reset-btn").addEventListener("click", async () => {
+    const a = document.getElementById("reset-1").value;
+    const b = document.getElementById("reset-2").value;
+    const btn = document.getElementById("reset-btn");
+    afficher("reset-err", "");
+    afficher("reset-note", "", "note");
+    if (a.length < 8) { afficher("reset-err", "Le mot de passe doit faire au moins 8 caractères."); return; }
+    if (a !== b) { afficher("reset-err", "Les deux saisies ne correspondent pas."); return; }
+    btn.disabled = true;
+    btn.textContent = "Validation...";
+    try {
+      const res = await api({ action: "reset_password", reset_token: JETON_RESET, new_password: a });
+      const data = await res.json();
+      if (!res.ok) {
+        const messages = {
+          lien_invalide: "Ce lien n'est plus valable (expiré ou déjà utilisé). Demandez-en un nouveau.",
+          mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
+          mot_de_passe_deja_utilise: "Ce mot de passe est déjà utilisé par un autre accès. Choisissez-en un autre.",
+        };
+        afficher("reset-err", messages[data.error] || ("Erreur : " + (data.error || res.status)));
+        btn.disabled = false;
+        btn.textContent = "Valider";
+        return;
+      }
+      document.getElementById("reset-1").value = "";
+      document.getElementById("reset-2").value = "";
+      afficher("reset-note", "Mot de passe modifié. Vous pouvez vous connecter.", "note");
+      btn.style.display = "none";
+    } catch (e) {
+      afficher("reset-err", "Erreur de connexion. Réessayez.");
+      btn.disabled = false;
+      btn.textContent = "Valider";
+    }
+  });
+
+  // --- Au chargement : lien de reset, sinon reprise de session ---
+  (async function demarrer() {
+    try {
+      const msg = sessionStorage.getItem("ancrimo_message");
+      if (msg) { sessionStorage.removeItem("ancrimo_message"); afficher("login-note", msg, "note"); }
+    } catch (e) {}
+
+    if (JETON_RESET) { montrerPanneau("panel-reset"); return; }
+
+    const s = lireSession();
+    if (!s) return;
+    try {
+      const res = await api({ token: s.token });
+      if (!res.ok) { effacerSession(); return; }
+      const data = await res.json();
+      SESSION_TOKEN = s.token;
+      ouvrirDashboard(data);
+    } catch (e) { /* on reste sur l'écran de connexion */ }
+  })();
+
   function renderDashboard(data) {
     // L'accès renvoyé par le serveur fait foi : identité, périmètre et droits.
     const acces = data.acces || {};
@@ -523,7 +780,7 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ password: DASHBOARD_PWD, subject, message, boutique_id }),
+          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -567,9 +824,10 @@
 
   // --- Déconnexion : on efface le mot de passe en mémoire et on recharge ---
   document.getElementById("btn-logout").addEventListener("click", () => {
-    DASHBOARD_PWD = null;
-    LAST_DATA = null;
-    location.reload();
+    deconnecter();
+  });
+  document.getElementById("btn-logout-all").addEventListener("click", () => {
+    deconnecter("Tous les appareils ont été déconnectés.", true);
   });
 
   // --- Changement de mot de passe ---
@@ -583,15 +841,20 @@
   });
   document.getElementById("mdp-annuler").addEventListener("click", () => {
     mdpBox.classList.remove("open");
-    document.getElementById("mdp-1").value = "";
-    document.getElementById("mdp-2").value = "";
+    ["mdp-0", "mdp-1", "mdp-2"].forEach((id) => { document.getElementById(id).value = ""; });
     mdpResult.className = "mdp-result";
   });
 
   document.getElementById("mdp-valider").addEventListener("click", async () => {
+    const actuel = document.getElementById("mdp-0").value;
     const a = document.getElementById("mdp-1").value;
     const b = document.getElementById("mdp-2").value;
     mdpResult.className = "mdp-result";
+    if (!actuel) {
+      mdpResult.className = "mdp-result error";
+      mdpResult.textContent = "Saisissez votre mot de passe actuel.";
+      return;
+    }
     if (a.length < 8) {
       mdpResult.className = "mdp-result error";
       mdpResult.textContent = "Le mot de passe doit faire au moins 8 caractères.";
@@ -609,25 +872,29 @@
           "Content-Type": "application/json",
           "Authorization": "Bearer " + SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ password: DASHBOARD_PWD, action: "change_password", new_password: a }),
+        body: JSON.stringify({ token: SESSION_TOKEN, action: "change_password", current_password: actuel, new_password: a }),
       });
       const data = await res.json();
       if (!res.ok) {
         mdpResult.className = "mdp-result error";
         const messages = {
+          mot_de_passe_actuel_incorrect: "Le mot de passe actuel est incorrect.",
           mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
           mot_de_passe_identique: "Le nouveau mot de passe est identique à l'ancien.",
           mot_de_passe_deja_utilise: "Ce mot de passe est déjà utilisé par un autre accès. Choisissez-en un autre.",
+          session_expiree: "Votre session a expiré. Reconnectez-vous.",
         };
         mdpResult.textContent = messages[data.error] || ("Erreur : " + (data.error || res.status));
         return;
       }
-      // Le nouveau mot de passe devient celui de la session en cours.
-      DASHBOARD_PWD = a;
-      document.getElementById("mdp-1").value = "";
-      document.getElementById("mdp-2").value = "";
+      // Le serveur a révoqué toutes les sessions et en a ouvert une neuve : on la prend.
+      if (data.token) {
+        SESSION_TOKEN = data.token;
+        ecrireSession({ token: data.token, expire_le: data.expire_le }, !!localStorage.getItem(CLE_SESSION));
+      }
+      ["mdp-0", "mdp-1", "mdp-2"].forEach((id) => { document.getElementById(id).value = ""; });
       mdpResult.className = "mdp-result ok";
-      mdpResult.textContent = "Mot de passe modifié. Notez-le : l'ancien ne fonctionne plus.";
+      mdpResult.textContent = "Mot de passe modifié. Notez-le : l'ancien ne fonctionne plus, et les autres appareils ont été déconnectés.";
     } catch (err) {
       mdpResult.className = "mdp-result error";
       mdpResult.textContent = "Erreur de connexion. Réessayez.";
@@ -644,7 +911,7 @@
           "Content-Type": "application/json",
           "Authorization": "Bearer " + SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ password: DASHBOARD_PWD, preview: true }),
+        body: JSON.stringify({ token: SESSION_TOKEN, preview: true }),
       });
       if (!res.ok) { box.textContent = ""; return; }
       const q = await res.json();
