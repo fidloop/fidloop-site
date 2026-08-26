@@ -631,13 +631,42 @@
     // --- Totaux réseau ---
     const totalInscrits = adhesions.length;
     const totalPassages = adhesions.reduce((sum, a) => sum + (a.nb_passages_total || 0), 0);
-    const totalPalier6 = adhesions.filter((a) => a.nb_passages_cycle_actuel >= 6).length;
-    const totalPalier10 = adhesions.filter((a) => a.nb_passages_cycle_actuel >= 10).length;
+    // Chaque boutique a ses propres paliers : on compte chaque client contre
+    // ceux de SA boutique, jamais contre un 6/10 supposé identique partout.
+    const PALIERS = {};
+    boutiques.forEach((b) => {
+      PALIERS[b.id] = {
+        p1: b.palier_1_passages || 6,
+        pct1: b.palier_1_pourcentage || 10,
+        p2: b.palier_2_passages || null,
+        pct2: b.palier_2_pourcentage || null,
+      };
+    });
+    const paliersDe = (id) => PALIERS[id] || { p1: 6, pct1: 10, p2: 10, pct2: 15 };
+
+    const totalPalier1 = adhesions.filter(
+      (a) => a.nb_passages_cycle_actuel >= paliersDe(a.boutique_id).p1
+    ).length;
+    const totalPalier2 = adhesions.filter((a) => {
+      const p = paliersDe(a.boutique_id);
+      return p.p2 && a.nb_passages_cycle_actuel >= p.p2;
+    }).length;
+
+    // Si toutes les boutiques ont le même réglage, on l'affiche en toutes lettres.
+    // Dès qu'elles diffèrent, un "palier 6+" global serait un mensonge.
+    const reglages = [...new Set(boutiques.map((b) => `${paliersDe(b.id).p1}|${paliersDe(b.id).p2}`))];
+    const memeReglage = reglages.length === 1 && boutiques.length > 0;
+    const ref = boutiques.length ? paliersDe(boutiques[0].id) : { p1: 6, p2: 10 };
+    const label1 = memeReglage ? `Au palier ${ref.p1}+` : "Au 1er palier";
+    const label2 = memeReglage
+      ? (ref.p2 ? `Au palier ${ref.p2}+` : "Cycle terminé")
+      : "Au 2e palier";
+
     document.getElementById("totals").innerHTML = `
       <div class="card"><div class="n">${totalInscrits}</div><div class="l">Clients inscrits</div></div>
       <div class="card"><div class="n">${totalPassages}</div><div class="l">Passages total</div></div>
-      <div class="card"><div class="n">${totalPalier6}</div><div class="l">Au palier 6+</div></div>
-      <div class="card"><div class="n">${totalPalier10}</div><div class="l">Au palier 10+</div></div>
+      <div class="card"><div class="n">${totalPalier1}</div><div class="l">${label1}</div></div>
+      <div class="card"><div class="n">${totalPalier2}</div><div class="l">${label2}</div></div>
     `;
     // --- Par boutique ---
     const grid = document.getElementById("grid");
@@ -646,8 +675,13 @@
       const shopAdhesions = adhesions.filter((a) => a.boutique_id === boutique.id);
       const inscrits = shopAdhesions.length;
       const passages = shopAdhesions.reduce((sum, a) => sum + (a.nb_passages_total || 0), 0);
-      const palier6 = shopAdhesions.filter((a) => a.nb_passages_cycle_actuel >= 6 && a.nb_passages_cycle_actuel < 10).length;
-      const palier10 = shopAdhesions.filter((a) => a.nb_passages_cycle_actuel >= 10).length;
+      const pal = paliersDe(boutique.id);
+      const palier6 = shopAdhesions.filter(
+        (a) => a.nb_passages_cycle_actuel >= pal.p1 && (!pal.p2 || a.nb_passages_cycle_actuel < pal.p2)
+      ).length;
+      const palier10 = pal.p2
+        ? shopAdhesions.filter((a) => a.nb_passages_cycle_actuel >= pal.p2).length
+        : 0;
       const pct6 = inscrits ? (palier6 / inscrits) * 100 : 0;
       const pct10 = inscrits ? (palier10 / inscrits) * 100 : 0;
       const sortedList = [...shopAdhesions].sort((a, b) =>
@@ -666,8 +700,8 @@
           <div class="bar-seg-10" style="width:${pct10}%"></div>
         </div>
         <div class="bar-legend">
-          <span class="l6">${palier6} au palier 6</span>
-          <span class="l10">${palier10} au palier 10</span>
+          <span class="l6">${palier6} au palier ${pal.p1} (−${pal.pct1}%)</span>
+          ${pal.p2 ? `<span class="l10">${palier10} au palier ${pal.p2} (−${pal.pct2}%)</span>` : ""}
         </div>
         <div class="detail" id="detail-${boutique.id}">
           ${
@@ -677,7 +711,7 @@
                     (a) => `
             <div class="detail-row">
               <span class="name">${(clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?"}</span>
-              <span class="cycle">${a.nb_passages_cycle_actuel}/6 · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
+              <span class="cycle">${a.nb_passages_cycle_actuel}/${pal.p2 && a.nb_passages_cycle_actuel > pal.p1 ? pal.p2 : pal.p1} · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
             </div>`
                   )
                   .join("")
