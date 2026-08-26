@@ -133,6 +133,10 @@
   }
   .stampcard .result.show { opacity: 1; transform: translateY(0); }
   .stampcard .result b { color: var(--gold); font-family: "IBM Plex Mono"; }
+  .stampcard .tiers-note {
+    margin-top: 14px; font-size: 13.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+  }
 
   /* --- Sections claires --- */
   .section-light { background: var(--paper); color: var(--ink-text); padding: 88px 0; }
@@ -338,11 +342,14 @@
     <div class="stampcard" id="stampcard">
       <div class="head">
         <span class="label">Aperçu du mécanisme</span>
-        <span class="tiers">6 passages = <b>−10%</b> · 10 passages = <b>−15%</b></span>
+        <span class="tiers">Exemple : 6 passages = <b>−10%</b> · 10 passages = <b>−15%</b></span>
       </div>
       <div class="stamps" id="stamps"></div>
       <div class="result" id="stamp-result">
         <span class="mono">✓</span> Récompense débloquée automatiquement — le client la voit dans son Wallet, en caisse.
+      </div>
+      <div class="tiers-note">
+        <span class="mono">⚙</span> Nombre de passages et pourcentage de remise définis avec vous, selon votre commerce.
       </div>
     </div>
   </div>
@@ -567,7 +574,7 @@
         <ul class="plan-features">
           <li>Programme de fidélité complet</li>
           <li>QR code personnalisé, prêt à imprimer</li>
-          <li>Paliers de récompense paramétrables</li>
+          <li>Paliers et remises définis avec vous</li>
           <li>Email automatique à chaque récompense</li>
           <li>Invitation aux avis Google</li>
           <li>Export de votre fichier clients</li>
@@ -673,7 +680,7 @@
     "scene-qr": "Le client scanne le QR affiché en caisse",
     "scene-form": "Inscription en 30 secondes",
     "scene-success": "Sa carte est prête, ajoutée en un tap",
-    "scene-checkin": "Aux paliers (6 et 10 passages) : récompense automatique",
+    "scene-checkin": "Aux paliers que vous définissez : récompense automatique",
     "scene-review": "Au 1er point et à chaque palier : invitation à laisser un avis",
   };
 
