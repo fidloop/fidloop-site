@@ -586,6 +586,40 @@
   document.getElementById("reward-overlay-close").addEventListener("click", () => {
     document.getElementById("reward-overlay").style.display = "none";
   });
+
+  // --- Verrouillage de la boutique venant du QR code -----------------
+  // Le parametre ?boutique= pre-remplissait le menu sans empecher de le
+  // changer : un client de Vaulx pouvait creer sa carte a Saint-Priest.
+  // Un <select> desactive reste lisible en JavaScript, donc la valeur
+  // envoyee ne change pas : seul le choix manuel est bloque.
+  // Sans parametre dans l URL, le menu reste libre comme avant.
+  (function verrouillerBoutiqueDuQrCode() {
+    var demandee = new URLSearchParams(location.search).get("boutique");
+    if (!demandee) return;
+    var menu = document.getElementById("boutique");
+    if (!menu) return;
+
+    function verrouiller() {
+      if (menu.disabled) return true;
+      var existe = Array.prototype.some.call(menu.options, function (o) {
+        return o.value === demandee;
+      });
+      if (!existe) return false;
+      menu.value = demandee;
+      menu.disabled = true;
+      menu.style.opacity = "0.75";
+      menu.style.cursor = "default";
+      return true;
+    }
+
+    // Les boutiques arrivent apres un appel reseau : on attend l option.
+    if (verrouiller()) return;
+    var observateur = new MutationObserver(function () {
+      if (verrouiller()) observateur.disconnect();
+    });
+    observateur.observe(menu, { childList: true });
+    setTimeout(function () { observateur.disconnect(); }, 15000);
+  })();
 </script>
 </body>
 </html>
