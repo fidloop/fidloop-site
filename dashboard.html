@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Espace Réseau Pil'Vite</title>
+<title>Espace Ancrimo</title>
 <style>
   :root {
     --ink: #201d18;
@@ -109,6 +109,47 @@
   .detail-row .name { font-weight: 600; }
   .detail-row .cycle { color: var(--ink-dim); }
   .loading, .empty { text-align: center; color: var(--ink-dim); font-size: 14px; padding: 40px; }
+  /* --- Barre du haut : identité de l'accès, déconnexion --- */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px; margin-bottom: 22px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  }
+  .topbar .who { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .topbar-actions { display: flex; gap: 16px; }
+  .link-btn {
+    background: none; border: none; padding: 0; cursor: pointer;
+    font-size: 13px; color: var(--ink-dim); text-decoration: underline;
+    font-family: inherit;
+  }
+  .link-btn:hover { color: var(--ink); }
+
+  /* --- Changement de mot de passe --- */
+  .mdp-box {
+    display: none; background: var(--paper); border: 2px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+  }
+  .mdp-box.open { display: block; }
+  .mdp-box h3 { font-size: 15px; margin-bottom: 4px; }
+  .mdp-sub { font-size: 12.5px; color: var(--ink-dim); margin-bottom: 14px; }
+  .mdp-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .mdp-row input {
+    flex: 1 1 200px; padding: 11px 13px; background: var(--paper-dim);
+    border: 2px solid var(--border); border-radius: 8px; font-size: 14px;
+    font-family: inherit; outline: none;
+  }
+  .mdp-row input:focus { border-color: var(--green); }
+  .mdp-btns { display: flex; gap: 10px; margin-top: 12px; }
+  .mdp-ok, .mdp-cancel {
+    padding: 10px 18px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .mdp-ok { background: var(--green); color: #fff; }
+  .mdp-cancel { background: var(--border); color: var(--ink); }
+  .mdp-result { margin-top: 12px; font-size: 13px; display: none; }
+  .mdp-result.ok { color: var(--green); display: block; }
+  .mdp-result.error { color: var(--error); display: block; }
+
   /* --- Campagnes --- */
   .campaign-box {
     background: var(--paper); border: 2px solid var(--border); border-radius: 14px;
@@ -158,18 +199,40 @@
 <body>
 <div id="gate">
   <div class="box">
-    <h1>Espace Réseau</h1>
-    <p>Accès réservé — Pil'Vite</p>
+    <h1>Espace Ancrimo</h1>
+    <p>Accès réservé</p>
     <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="off">
     <button id="pwd-btn">Accéder</button>
     <div class="err" id="pwd-err">Mot de passe incorrect.</div>
   </div>
 </div>
 <div id="dashboard">
+  <div class="topbar">
+    <span class="who" id="acces-nom"></span>
+    <span class="topbar-actions">
+      <button class="link-btn" id="btn-mdp">Changer le mot de passe</button>
+      <button class="link-btn" id="btn-logout">Se déconnecter</button>
+    </span>
+  </div>
+
+  <div class="mdp-box" id="mdp-box">
+    <h3>Changer le mot de passe</h3>
+    <p class="mdp-sub">Il remplace celui de cet accès uniquement, immédiatement.</p>
+    <div class="mdp-row">
+      <input type="password" id="mdp-1" placeholder="Nouveau mot de passe (8 caractères min.)" autocomplete="new-password">
+      <input type="password" id="mdp-2" placeholder="Confirmer" autocomplete="new-password">
+    </div>
+    <div class="mdp-btns">
+      <button class="mdp-ok" id="mdp-valider">Valider</button>
+      <button class="mdp-cancel" id="mdp-annuler">Annuler</button>
+    </div>
+    <div class="mdp-result" id="mdp-result"></div>
+  </div>
+
   <div class="top">
-    <div class="eyebrow">Réseau Pil'Vite</div>
+    <div class="eyebrow" id="top-eyebrow">Votre espace</div>
     <h1>Programme de fidélité</h1>
-    <p>Vue d'ensemble des 6 boutiques</p>
+    <p id="top-sub">Vue d'ensemble</p>
   </div>
   <div class="totals" id="totals"></div>
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
@@ -187,7 +250,7 @@
     <div class="campaign-count" id="campaign-quota"></div>
     <div class="campaign-field">
       <label for="campaign-subject">Sujet</label>
-      <input type="text" id="campaign-subject" placeholder="Ex : -10% cette semaine chez Pil'Vite">
+      <input type="text" id="campaign-subject" placeholder="Ex : -10% cette semaine dans votre boutique">
     </div>
     <div class="campaign-field">
       <label for="campaign-message">Message</label>
@@ -261,6 +324,17 @@
     }
   }
   function renderDashboard(data) {
+    // L'accès renvoyé par le serveur fait foi : identité, périmètre et droits.
+    const acces = data.acces || {};
+    document.getElementById("acces-nom").textContent = acces.nom || "Votre espace";
+    const peutCampagnes = !!acces.peut_envoyer_campagnes;
+
+    // Sans le droit campagnes, le bloc est retiré du DOM — pas seulement masqué.
+    if (!peutCampagnes) {
+      const cb = document.getElementById("campaign-box");
+      if (cb) cb.remove();
+    }
+
     const boutiques = data.boutiques || [];
     const adhesions = data.adhesions || [];
     let clientsById = {};
@@ -347,7 +421,12 @@
     if (boutiques.length === 0) {
       grid.innerHTML = '<div class="empty">Aucune boutique trouvée.</div>';
     }
-    initCampaignBox(boutiques);
+    document.getElementById("top-sub").textContent =
+      boutiques.length > 1
+        ? `Vue d'ensemble de ${boutiques.length} boutiques`
+        : (boutiques[0] ? boutiques[0].nom : "Aucune boutique");
+
+    if (peutCampagnes) initCampaignBox(boutiques);
   }
   function csvEscape(val) {
     const s = (val === null || val === undefined) ? "" : String(val);
@@ -485,6 +564,75 @@
       return c && c.consentement_marketing && c.email;
     }).length;
   }
+
+  // --- Déconnexion : on efface le mot de passe en mémoire et on recharge ---
+  document.getElementById("btn-logout").addEventListener("click", () => {
+    DASHBOARD_PWD = null;
+    LAST_DATA = null;
+    location.reload();
+  });
+
+  // --- Changement de mot de passe ---
+  const mdpBox = document.getElementById("mdp-box");
+  const mdpResult = document.getElementById("mdp-result");
+
+  document.getElementById("btn-mdp").addEventListener("click", () => {
+    mdpBox.classList.toggle("open");
+    mdpResult.className = "mdp-result";
+    mdpResult.textContent = "";
+  });
+  document.getElementById("mdp-annuler").addEventListener("click", () => {
+    mdpBox.classList.remove("open");
+    document.getElementById("mdp-1").value = "";
+    document.getElementById("mdp-2").value = "";
+    mdpResult.className = "mdp-result";
+  });
+
+  document.getElementById("mdp-valider").addEventListener("click", async () => {
+    const a = document.getElementById("mdp-1").value;
+    const b = document.getElementById("mdp-2").value;
+    mdpResult.className = "mdp-result";
+    if (a.length < 8) {
+      mdpResult.className = "mdp-result error";
+      mdpResult.textContent = "Le mot de passe doit faire au moins 8 caractères.";
+      return;
+    }
+    if (a !== b) {
+      mdpResult.className = "mdp-result error";
+      mdpResult.textContent = "Les deux saisies ne correspondent pas.";
+      return;
+    }
+    try {
+      const res = await fetch(NETWORK_STATS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ password: DASHBOARD_PWD, action: "change_password", new_password: a }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        mdpResult.className = "mdp-result error";
+        const messages = {
+          mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
+          mot_de_passe_identique: "Le nouveau mot de passe est identique à l'ancien.",
+          mot_de_passe_deja_utilise: "Ce mot de passe est déjà utilisé par un autre accès. Choisissez-en un autre.",
+        };
+        mdpResult.textContent = messages[data.error] || ("Erreur : " + (data.error || res.status));
+        return;
+      }
+      // Le nouveau mot de passe devient celui de la session en cours.
+      DASHBOARD_PWD = a;
+      document.getElementById("mdp-1").value = "";
+      document.getElementById("mdp-2").value = "";
+      mdpResult.className = "mdp-result ok";
+      mdpResult.textContent = "Mot de passe modifié. Notez-le : l'ancien ne fonctionne plus.";
+    } catch (err) {
+      mdpResult.className = "mdp-result error";
+      mdpResult.textContent = "Erreur de connexion. Réessayez.";
+    }
+  });
 
   // Interroge le serveur pour connaître le quota réel (le serveur fait foi).
   async function refreshQuota() {
