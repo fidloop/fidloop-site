@@ -228,6 +228,7 @@
     <div id="panel-login">
       <h1>Espace Ancrimo</h1>
       <p>Accès réservé</p>
+      <input type="email" id="login-email" placeholder="Adresse email" autocomplete="username" style="margin-bottom:10px">
       <div class="pwd-wrap">
         <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="current-password">
         <button type="button" class="eye" id="pwd-eye" title="Afficher le mot de passe">&#128065;</button>
@@ -355,6 +356,7 @@
   // renvoie un jeton de session (révocable, avec une date d'expiration) ; c'est
   // lui seul qui est stocké, et le serveur revérifie tout à chaque appel.
   const CLE_SESSION = "ancrimo_session";
+  const CLE_EMAIL = "ancrimo_email";
   const INACTIVITE_MINUTES = 30;
 
   let SESSION_TOKEN = null;
@@ -439,6 +441,9 @@
   document.getElementById("pwd").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkPassword();
   });
+  document.getElementById("login-email").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("pwd").focus();
+  });
   document.getElementById("pwd-eye").addEventListener("click", () => {
     const i = document.getElementById("pwd");
     i.type = i.type === "password" ? "text" : "password";
@@ -446,28 +451,39 @@
   });
 
   async function checkPassword() {
+    const mail = document.getElementById("login-email").value.trim();
     const val = document.getElementById("pwd").value;
     const btn = document.getElementById("pwd-btn");
     const persistant = document.getElementById("pwd-remember").checked;
-    btn.disabled = true;
-    btn.textContent = "Vérification...";
     afficher("pwd-err", "");
     afficher("login-note", "", "note");
+    if (!mail || mail.indexOf("@") === -1) {
+      afficher("pwd-err", "Saisissez votre adresse email.");
+      return;
+    }
+    if (!val) {
+      afficher("pwd-err", "Saisissez votre mot de passe.");
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Vérification...";
     try {
-      const res = await api({ password: val, longue_duree: persistant });
+      const res = await api({ email: mail, password: val, longue_duree: persistant });
       const data = await res.json();
       if (!res.ok) {
         const messages = {
-          mot_de_passe_incorrect: "Mot de passe incorrect.",
+          identifiants_incorrects: "Email ou mot de passe incorrect.",
           trop_de_tentatives: "Trop de tentatives. Réessayez dans " + (data.minutes || 15) + " minutes.",
         };
-        afficher("pwd-err", messages[data.error] || "Mot de passe incorrect.");
+        afficher("pwd-err", messages[data.error] || "Email ou mot de passe incorrect.");
         btn.disabled = false;
         btn.textContent = "Accéder";
         return;
       }
       SESSION_TOKEN = data.token || null;
       ecrireSession({ token: data.token, expire_le: data.expire_le }, persistant);
+      // On retient l'email pour la prochaine fois — jamais le mot de passe.
+      try { localStorage.setItem(CLE_EMAIL, mail); } catch (e) {}
       document.getElementById("pwd").value = "";
       ouvrirDashboard(data);
     } catch (err) {
@@ -542,7 +558,6 @@
         const messages = {
           lien_invalide: "Ce lien n'est plus valable (expiré ou déjà utilisé). Demandez-en un nouveau.",
           mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
-          mot_de_passe_deja_utilise: "Ce mot de passe est déjà utilisé par un autre accès. Choisissez-en un autre.",
         };
         afficher("reset-err", messages[data.error] || ("Erreur : " + (data.error || res.status)));
         btn.disabled = false;
@@ -565,6 +580,15 @@
     try {
       const msg = sessionStorage.getItem("ancrimo_message");
       if (msg) { sessionStorage.removeItem("ancrimo_message"); afficher("login-note", msg, "note"); }
+    } catch (e) {}
+
+    // On repropose la dernière adresse utilisée sur cet appareil.
+    try {
+      const dernier = localStorage.getItem(CLE_EMAIL);
+      if (dernier) {
+        document.getElementById("login-email").value = dernier;
+        document.getElementById("oubli-email").value = dernier;
+      }
     } catch (e) {}
 
     if (JETON_RESET) { montrerPanneau("panel-reset"); return; }
@@ -881,7 +905,6 @@
           mot_de_passe_actuel_incorrect: "Le mot de passe actuel est incorrect.",
           mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
           mot_de_passe_identique: "Le nouveau mot de passe est identique à l'ancien.",
-          mot_de_passe_deja_utilise: "Ce mot de passe est déjà utilisé par un autre accès. Choisissez-en un autre.",
           session_expiree: "Votre session a expiré. Reconnectez-vous.",
         };
         mdpResult.textContent = messages[data.error] || ("Erreur : " + (data.error || res.status));
