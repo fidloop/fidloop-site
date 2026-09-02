@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>
+  // Sans boutique dans l adresse, ancrimo.fr est le site commercant.
+  // Les QR codes portent toujours ?boutique=... et arrivent donc ici normalement.
+  (function __aiguillage() {
+    var p = new URLSearchParams(location.search);
+    if (!p.get("boutique") && !p.get("client")) location.replace("/pro.html" + location.hash);
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carte de fidélité Pil'Vite</title>
