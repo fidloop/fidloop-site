@@ -374,10 +374,44 @@
     });
   }
 
+  // --- Habillage aux couleurs de l enseigne ---
+  const ENSEIGNE_PAR_DEFAUT = "Pil'Vite";
+
+  function appliquerEnseigne(e) {
+    if (!e || !e.nom) return;
+
+    if (e.nom !== ENSEIGNE_PAR_DEFAUT) {
+      document.title = document.title.split(ENSEIGNE_PAR_DEFAUT).join(e.nom);
+      const marcheur = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      const aChanger = [];
+      let n;
+      while ((n = marcheur.nextNode())) {
+        if (n.nodeValue.indexOf(ENSEIGNE_PAR_DEFAUT) === -1) continue;
+        if (n.parentElement && n.parentElement.closest("select")) continue;
+        aChanger.push(n);
+      }
+      aChanger.forEach((t) => {
+        t.nodeValue = t.nodeValue.split(ENSEIGNE_PAR_DEFAUT).join(e.nom);
+      });
+    }
+
+    if (e.couleur) document.documentElement.style.setProperty("--green", e.couleur);
+
+    const voile = "linear-gradient(180deg, rgba(20,17,12,0.35) 0%, rgba(20,17,12,0.55) 100%)";
+    document.querySelectorAll(".banner").forEach((b) => {
+      if (e.hero_url) {
+        b.style.backgroundImage = voile + ", url(" + JSON.stringify(e.hero_url) + ")";
+      } else {
+        b.style.backgroundImage = voile;
+        b.style.backgroundColor = e.couleur;
+      }
+    });
+  }
+
   async function loadBoutiques() {
     const { data, error } = await supabaseClient
       .from("boutiques")
-      .select("id, nom")
+      .select("id, nom, enseignes(nom, couleur, couleur_texte, hero_url)")
       .eq("actif", true)
       .order("nom");
 
@@ -387,13 +421,24 @@
       return;
     }
 
-    data.forEach((b) => {
+    const enseigneDe = {};
+    data.forEach((b) => { enseigneDe[b.id] = b.enseignes || null; });
+
+    // Le QR fixe la boutique : on n affiche que celles de la meme enseigne.
+    const enseigneActive = preselectedBoutique ? enseigneDe[preselectedBoutique] : null;
+    const visibles = enseigneActive
+      ? data.filter((b) => (enseigneDe[b.id] || {}).nom === enseigneActive.nom)
+      : data;
+
+    visibles.forEach((b) => {
       const opt = document.createElement("option");
       opt.value = b.id;
       opt.textContent = b.nom;
       if (preselectedBoutique === b.id) opt.selected = true;
       boutiqueSelect.appendChild(opt);
     });
+
+    appliquerEnseigne(enseigneActive);
   }
 
   // --- Point d'entrée : ce téléphone est-il déjà reconnu ? ---
