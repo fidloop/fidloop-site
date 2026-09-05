@@ -1,12 +1,13 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
       "missing": [
         { "type": "query", "key": "boutique" },
         { "type": "query", "key": "client" }
       ],
-      "destination": "/pro.html"
+      "destination": "/pro.html",
+      "permanent": false
     }
   ]
 }
