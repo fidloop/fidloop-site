@@ -178,6 +178,14 @@
   .benefit h3 { font-size: 16px; margin-bottom: 8px; color: #fff; }
   .benefit p { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
   @media (max-width: 720px) { .benefits { grid-template-columns: 1fr; } }
+.sector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.sector-card { border: 1px solid rgba(13,27,46,0.12); background: #fff; border-radius: 14px; padding: 22px 20px; }
+.sector-card .glyph { font-size: 20px; margin-bottom: 10px; }
+.sector-card h3 { font-size: 15px; color: var(--ink-text); margin-bottom: 6px; }
+.sector-card p { font-size: 13.5px; color: #5a6472; line-height: 1.5; }
+.sector-note { margin-top: 22px; font-size: 13.5px; color: var(--muted-on-paper); display: flex; align-items: center; gap: 10px; }
+@media (max-width: 860px) { .sector-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .sector-grid { grid-template-columns: 1fr; } }
 
   /* Visuel tableau de bord + export */
   .shot {
@@ -497,6 +505,44 @@
       </div>
     </div>
   </div>
+</section>
+
+<section class="section-light" id="secteurs">
+<div class="wrap">
+<div class="section-head">
+<span class="tag">Des paliers pensés pour votre activité</span>
+<h2>Le même mécanisme, une récompense qui vous ressemble</h2>
+<p>Le principe ne change jamais : un scan, un point. Le seuil et la récompense, eux, sont définis avec vous selon votre commerce — voici quelques exemples.</p>
+</div>
+<div class="sector-grid">
+<div class="sector-card">
+<div class="glyph">🛍️</div>
+<h3>Boutique</h3>
+<p>10% de réduction au 6<sup>e</sup> article acheté.</p>
+</div>
+<div class="sector-card">
+<div class="glyph">🍽️</div>
+<h3>Restaurant</h3>
+<p>Un repas offert au 10<sup>e</sup> passage en caisse.</p>
+</div>
+<div class="sector-card">
+<div class="glyph">✂️</div>
+<h3>Coiffeur</h3>
+<p>Une coupe offerte au 10<sup>e</sup> rendez-vous.</p>
+</div>
+<div class="sector-card">
+<div class="glyph">💆</div>
+<h3>Institut de beauté</h3>
+<p>Un soin offert après 8 séances.</p>
+</div>
+<div class="sector-card">
+<div class="glyph">☕</div>
+<h3>Café</h3>
+<p>Le 10<sup>e</sup> café offert, quel que soit le nombre de boissons prises à chaque passage.</p>
+</div>
+</div>
+<p class="sector-note"><span class="mono">⚙</span> Ces seuils et récompenses ne sont que des exemples — chaque commerçant configure librement les siens avec nous, depuis son tableau de bord.</p>
+</div>
 </section>
 
 <section class="section-dark" id="pourquoi">
