@@ -110,6 +110,12 @@
     cursor: pointer;
   }
   .paliers-toggle:hover { border-color: var(--green); color: var(--ink); }
+  .poster-btn {
+    margin-top: 8px; margin-left: 6px; padding: 6px 10px; background: transparent; color: var(--ink-dim);
+    border: 1px solid var(--border); border-radius: 6px; font-size: 11.5px; font-weight: 700;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .poster-btn:hover { border-color: var(--green); color: var(--ink); }
   .paliers-edit {
     display: none; margin-top: 10px; padding: 12px; background: var(--paper-dim);
     border-radius: 10px;
@@ -721,6 +727,7 @@
       card.className = "shop-card";
       card.innerHTML = `
         <h3>${boutique.nom}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
+        <a class="poster-btn" href="/posters/${boutique.id}.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation()">🖨 Affiche</a>
         <div class="shop-stats">
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
           <div><div class="n">${passages}</div><div class="l">Passages</div></div>
