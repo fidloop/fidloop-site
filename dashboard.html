@@ -104,6 +104,35 @@
     border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
   }
   .shop-export:hover { border-color: var(--green); }
+  .paliers-toggle {
+    margin-top: 8px; padding: 6px 10px; background: transparent; color: var(--ink-dim);
+    border: 1px solid var(--border); border-radius: 6px; font-size: 11.5px; font-weight: 700;
+    cursor: pointer;
+  }
+  .paliers-toggle:hover { border-color: var(--green); color: var(--ink); }
+  .paliers-edit {
+    display: none; margin-top: 10px; padding: 12px; background: var(--paper-dim);
+    border-radius: 10px;
+  }
+  .paliers-edit.open { display: block; }
+  .paliers-edit-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .paliers-edit-row label {
+    flex: 1; display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.4px; color: var(--ink-dim);
+  }
+  .paliers-edit-row input {
+    width: 100%; margin-top: 4px; padding: 8px 10px; background: var(--paper);
+    border: 2px solid var(--border); border-radius: 6px; font-size: 13px; font-family: inherit; outline: none;
+  }
+  .paliers-edit-row input:focus { border-color: var(--green); }
+  .paliers-save {
+    padding: 9px 16px; background: var(--yellow); color: var(--ink);
+    border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .paliers-save:disabled { opacity: 0.5; cursor: default; }
+  .paliers-msg { margin-top: 8px; font-size: 12.5px; display: none; }
+  .paliers-msg.ok { color: var(--green); display: block; }
+  .paliers-msg.error { color: var(--error); display: block; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
   .shop-card {
     background: var(--paper); border: 2px solid var(--border); border-radius: 14px;
@@ -690,7 +719,7 @@
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
-        <h3>${boutique.nom}</h3>
+        <h3>${boutique.nom}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
         <div class="shop-stats">
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
           <div><div class="n">${passages}</div><div class="l">Passages</div></div>
@@ -702,6 +731,26 @@
         <div class="bar-legend">
           <span class="l6">${palier6} au palier ${pal.p1} (−${pal.pct1}%)</span>
           ${pal.p2 ? `<span class="l10">${palier10} au palier ${pal.p2} (−${pal.pct2}%)</span>` : ""}
+        </div>
+        <div class="paliers-edit" id="paliers-edit-${boutique.id}">
+          <div class="paliers-edit-row">
+            <label>Palier 1 \u2014 passages
+              <input type="number" min="1" max="100" id="p1-passages-${boutique.id}" value="${pal.p1}">
+            </label>
+            <label>R\u00e9duction %
+              <input type="number" min="1" max="90" id="p1-pct-${boutique.id}" value="${pal.pct1}">
+            </label>
+          </div>
+          <div class="paliers-edit-row">
+            <label>Palier 2 \u2014 passages (optionnel)
+              <input type="number" min="1" max="200" id="p2-passages-${boutique.id}" value="${pal.p2 || ''}">
+            </label>
+            <label>R\u00e9duction %
+              <input type="number" min="1" max="90" id="p2-pct-${boutique.id}" value="${pal.pct2 || ''}">
+            </label>
+          </div>
+          <button class="paliers-save" data-boutique-id="${boutique.id}">Enregistrer</button>
+          <div class="paliers-msg" id="paliers-msg-${boutique.id}"></div>
         </div>
         <div class="detail" id="detail-${boutique.id}">
           ${
@@ -721,7 +770,7 @@
         </div>
       `;
       card.addEventListener("click", (e) => {
-        if (e.target.classList.contains("shop-export")) return;
+        if (e.target.closest(".shop-export, .paliers-toggle, .paliers-edit")) return;
         document.getElementById(`detail-${boutique.id}`).classList.toggle("open");
       });
       const exportBtn = card.querySelector(".shop-export");
@@ -729,6 +778,57 @@
         exportBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           exportCsv(shopAdhesions, [boutique], clientsById, `ancrimo_clients_${boutique.nom}`);
+        });
+      }
+      const paliersToggle = card.querySelector(".paliers-toggle");
+      const paliersEdit = card.querySelector(`#paliers-edit-${boutique.id}`);
+      if (paliersToggle && paliersEdit) {
+        paliersToggle.addEventListener("click", (e) => {
+          e.stopPropagation();
+          paliersEdit.classList.toggle("open");
+        });
+        paliersEdit.addEventListener("click", (e) => e.stopPropagation());
+        const paliersSaveBtn = paliersEdit.querySelector(".paliers-save");
+        paliersSaveBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const msgEl = document.getElementById(`paliers-msg-${boutique.id}`);
+          msgEl.className = "paliers-msg";
+          msgEl.textContent = "";
+          const p1 = parseInt(document.getElementById(`p1-passages-${boutique.id}`).value, 10);
+          const pct1 = parseFloat(document.getElementById(`p1-pct-${boutique.id}`).value);
+          const p2raw = document.getElementById(`p2-passages-${boutique.id}`).value.trim();
+          const pct2raw = document.getElementById(`p2-pct-${boutique.id}`).value.trim();
+          const p2 = p2raw === "" ? null : parseInt(p2raw, 10);
+          const pct2 = pct2raw === "" ? null : parseFloat(pct2raw);
+          paliersSaveBtn.disabled = true;
+          paliersSaveBtn.textContent = "Enregistrement...";
+          try {
+            const res = await api({
+              token: SESSION_TOKEN,
+              action: "modifier_paliers",
+              boutique_id: boutique.id,
+              palier_1_passages: p1,
+              palier_1_pourcentage: pct1,
+              palier_2_passages: p2,
+              palier_2_pourcentage: p2 !== null ? pct2 : null,
+            });
+            if (!res.ok) {
+              msgEl.textContent = "Erreur : v\u00e9rifiez les valeurs saisies.";
+              msgEl.className = "paliers-msg error";
+            } else {
+              msgEl.textContent = "Enregistr\u00e9.";
+              msgEl.className = "paliers-msg ok";
+              const refresh = await api({ token: SESSION_TOKEN });
+              const freshData = await refresh.json();
+              renderDashboard(freshData);
+              return;
+            }
+          } catch (err) {
+            msgEl.textContent = "Erreur de connexion.";
+            msgEl.className = "paliers-msg error";
+          }
+          paliersSaveBtn.disabled = false;
+          paliersSaveBtn.textContent = "Enregistrer";
         });
       }
       grid.appendChild(card);
