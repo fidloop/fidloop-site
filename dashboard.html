@@ -116,6 +116,37 @@
     cursor: pointer; text-decoration: none; display: inline-block;
   }
   .poster-btn:hover { border-color: var(--green); color: var(--ink); }
+  .poster-print { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #poster-print, #poster-print * { visibility: visible; }
+    #poster-print {
+      display: flex !important;
+      position: absolute; top: 0; left: 0;
+      width: 210mm; min-height: 297mm;
+      flex-direction: column; align-items: center;
+      background: #fff;
+    }
+    .poster-print-banner { width: 100%; height: 52mm; object-fit: cover; display: block; }
+    #poster-print h1 {
+      font-family: Georgia, 'Times New Roman', serif; font-weight: 900; font-size: 42px;
+      text-align: center; margin-top: 14mm; line-height: 1.15; color: #1a1a1a;
+    }
+    .poster-print-sub { font-size: 16px; color: #555; text-align: center; margin-top: 8px; }
+    .poster-print-qrwrap {
+      margin-top: 12mm; background: #fff; border: 7px solid #FFD600; border-radius: 16px;
+      padding: 10mm; display: inline-block;
+    }
+    #poster-print-qr img, #poster-print-qr canvas, #poster-print-qr table {
+      width: 80mm !important; height: 80mm !important; display: block;
+    }
+    .poster-print-paliers { margin-top: 10mm; text-align: center; }
+    .poster-print-paliers div { font-weight: 800; font-size: 22px; color: #53AC3C; line-height: 1.6; }
+    .poster-print-footer { margin-top: auto; margin-bottom: 12mm; text-align: center; }
+    .poster-print-site { font-weight: 800; font-size: 15px; color: #1a1a1a; }
+    .poster-print-ville { font-weight: 600; font-size: 14px; color: #666; margin-top: 4px; }
+    @page { size: A4; margin: 0; }
+  }
   .paliers-edit {
     display: none; margin-top: 10px; padding: 12px; background: var(--paper-dim);
     border-radius: 10px;
@@ -255,8 +286,20 @@
   .campaign-result.ok { color: var(--green); display: block; }
   .campaign-result.error { color: var(--error); display: block; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+<div id="poster-print" class="poster-print">
+  <img class="poster-print-banner" src="/posters/banner-pilvite.png">
+  <h1>Votre carte<br>de fidélité</h1>
+  <div class="poster-print-sub">Scannez pour la recevoir<br>sur votre téléphone</div>
+  <div class="poster-print-qrwrap"><div id="poster-print-qr"></div></div>
+  <div class="poster-print-paliers" id="poster-print-paliers"></div>
+  <div class="poster-print-footer">
+    <div class="poster-print-site">ancrimo.fr</div>
+    <div class="poster-print-ville" id="poster-print-ville"></div>
+  </div>
+</div>
 <div id="gate">
   <div class="box">
 
@@ -727,7 +770,7 @@
       card.className = "shop-card";
       card.innerHTML = `
         <h3>${boutique.nom}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
-        <a class="poster-btn" href="/posters/${boutique.id}.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation()">🖨 Affiche</a>
+        <button class="poster-btn" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">🖨 Affiche</button>
         <div class="shop-stats">
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
           <div><div class="n">${passages}</div><div class="l">Passages</div></div>
@@ -781,6 +824,13 @@
         if (e.target.closest(".shop-export, .paliers-toggle, .paliers-edit")) return;
         document.getElementById(`detail-${boutique.id}`).classList.toggle("open");
       });
+      const posterBtn = card.querySelector(".poster-btn");
+      if (posterBtn) {
+        posterBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          printPoster(boutique, pal);
+        });
+      }
       const exportBtn = card.querySelector(".shop-export");
       if (exportBtn) {
         exportBtn.addEventListener("click", (e) => {
@@ -858,6 +908,22 @@
     }
     return s;
   }
+  function printPoster(boutique, pal) {
+    const qrBox = document.getElementById("poster-print-qr");
+    qrBox.innerHTML = "";
+    new QRCode(qrBox, {
+      text: "https://ancrimo.fr/?boutique=" + boutique.id,
+      width: 320,
+      height: 320,
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+    document.getElementById("poster-print-ville").textContent = boutique.nom;
+    const ligne2 = pal.p2 ? `<div>${pal.p2} passages = -${pal.pct2}%</div>` : "";
+    document.getElementById("poster-print-paliers").innerHTML =
+      `<div>${pal.p1} passages = -${pal.pct1}%</div>` + ligne2;
+    window.print();
+  }
+
   function exportCsv(adhesionsList, boutiquesList, clientsById, filenamePrefix) {
     const boutiqueNomById = {};
     boutiquesList.forEach((b) => { boutiqueNomById[b.id] = b.nom; });
