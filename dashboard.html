@@ -285,6 +285,39 @@
   .campaign-result { margin-top: 14px; font-size: 13.5px; display: none; }
   .campaign-result.ok { color: var(--green); display: block; }
   .campaign-result.error { color: var(--error); display: block; }
+
+  /* --- Crédits --- */
+  .credits-box {
+    background: var(--paper); border: 2px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 36px;
+  }
+  .credits-box h2 { font-size: 18px; margin-bottom: 4px; }
+  .credits-box .sub { color: var(--ink-dim); font-size: 13px; margin-bottom: 18px; }
+  .credits-balance { display: flex; align-items: baseline; gap: 8px; margin-bottom: 18px; }
+  .credits-balance .n { font-size: 34px; font-weight: 800; color: var(--green); }
+  .credits-balance .l { font-size: 13px; color: var(--ink-dim); }
+  .credits-packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .credits-pack {
+    background: var(--paper-dim); border: 2px solid var(--border); border-radius: 10px;
+    padding: 16px; text-align: center; cursor: pointer; font-family: inherit;
+  }
+  .credits-pack:hover { border-color: var(--green); }
+  .credits-pack:disabled { opacity: 0.5; cursor: default; }
+  .credits-pack .pack-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .credits-pack .pack-credits { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+  .credits-pack .pack-price { font-size: 20px; font-weight: 800; color: var(--ink); margin-top: 8px; }
+  .credits-msg { margin-top: 14px; font-size: 13.5px; display: none; }
+  .credits-msg.ok { color: var(--green); display: block; }
+  .credits-msg.error { color: var(--error); display: block; }
+
+  /* --- Choix du canal (email / SMS) --- */
+  .campaign-canal-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .campaign-canal-toggle button {
+    flex: 1; padding: 10px; border: 2px solid var(--border); border-radius: 8px;
+    background: var(--paper); color: var(--ink-dim); font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .campaign-canal-toggle button.active { border-color: var(--green); color: var(--ink); background: var(--paper-dim); }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -379,6 +412,30 @@
     <div class="mdp-result" id="mdp-result"></div>
   </div>
 
+  <div class="credits-box" id="credits-box">
+    <h2>Crédits d'envoi</h2>
+    <div class="sub">1 crédit = 1 envoi SMS, ou 1 envoi email au-delà des 2 campagnes gratuites du mois.</div>
+    <div class="credits-balance"><span class="n" id="credits-solde">—</span><span class="l">crédit(s) disponible(s)</span></div>
+    <div class="credits-packs">
+      <button type="button" class="credits-pack" data-pack="decouverte">
+        <div class="pack-name">Découverte</div>
+        <div class="pack-credits">50 crédits</div>
+        <div class="pack-price">12,50 €</div>
+      </button>
+      <button type="button" class="credits-pack" data-pack="boutique">
+        <div class="pack-name">Boutique</div>
+        <div class="pack-credits">200 crédits</div>
+        <div class="pack-price">40 €</div>
+      </button>
+      <button type="button" class="credits-pack" data-pack="reseau">
+        <div class="pack-name">Réseau</div>
+        <div class="pack-credits">500 crédits</div>
+        <div class="pack-price">80 €</div>
+      </button>
+    </div>
+    <div class="credits-msg" id="credits-msg"></div>
+  </div>
+
   <div class="top">
     <div class="eyebrow" id="top-eyebrow">Votre espace</div>
     <h1>Programme de fidélité</h1>
@@ -388,8 +445,12 @@
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
 
   <div class="campaign-box" id="campaign-box">
-    <h2>Envoyer une campagne email</h2>
-    <div class="sub">Envoyé uniquement aux clients ayant donné leur consentement marketing et ayant un email renseigné.</div>
+    <h2>Envoyer une campagne</h2>
+    <div class="sub" id="campaign-sub">Envoyé par email aux clients ayant donné leur consentement marketing et ayant un email renseigné. Gratuit dans la limite de 2 campagnes par mois, puis 1 crédit par envoi.</div>
+    <div class="campaign-canal-toggle">
+      <button type="button" class="canal-btn active" id="canal-email" data-canal="email">✉ Email</button>
+      <button type="button" class="canal-btn" id="canal-sms" data-canal="sms">💬 SMS</button>
+    </div>
     <div class="campaign-field">
       <label for="campaign-boutique">Destinataires</label>
       <select id="campaign-boutique">
@@ -398,7 +459,7 @@
     </div>
     <div class="campaign-count" id="campaign-count"></div>
     <div class="campaign-count" id="campaign-quota"></div>
-    <div class="campaign-field">
+    <div class="campaign-field" id="campaign-subject-field">
       <label for="campaign-subject">Sujet</label>
       <input type="text" id="campaign-subject" placeholder="Ex : -10% cette semaine dans votre boutique">
     </div>
@@ -428,6 +489,7 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const NETWORK_STATS_URL = SUPABASE_URL + "/functions/v1/network-stats";
   const SEND_CAMPAIGN_URL = SUPABASE_URL + "/functions/v1/send-campaign";
+  const CREATE_CREDIT_CHECKOUT_URL = SUPABASE_URL + "/functions/v1/create-credit-checkout";
   // ============================================================
   // Comptes : session par jeton, mot de passe oublié, réinitialisation
   // ============================================================
@@ -441,6 +503,8 @@
   let SESSION_TOKEN = null;
   let LAST_DATA = null;
   let minuteurInactivite = null;
+  let ACCES_ID = null;
+  let CAMPAIGN_CANAL = "email";
 
   function lireSession() {
     try {
@@ -661,6 +725,23 @@
       if (msg) { sessionStorage.removeItem("ancrimo_message"); afficher("login-note", msg, "note"); }
     } catch (e) {}
 
+    // Retour depuis le paiement Stripe d'un pack de crédits (voir create-credit-checkout).
+    // Le webhook crédite le compte de façon asynchrone : on affiche un message
+    // immédiat puis on rafraîchit le solde un peu plus tard.
+    const achat = new URLSearchParams(location.search).get("achat");
+    if (achat) {
+      try {
+        sessionStorage.setItem(
+          "ancrimo_achat_message",
+          achat === "succes"
+            ? "Paiement reçu. Les crédits seront ajoutés à votre solde dans quelques instants."
+            : "Achat annulé. Aucun montant n'a été débité."
+        );
+        sessionStorage.setItem("ancrimo_achat_type", achat);
+      } catch (e) {}
+      history.replaceState(null, "", location.pathname);
+    }
+
     // On repropose la dernière adresse utilisée sur cet appareil.
     try {
       const dernier = localStorage.getItem(CLE_EMAIL);
@@ -688,11 +769,31 @@
     const acces = data.acces || {};
     document.getElementById("acces-nom").textContent = acces.nom || "Votre espace";
     const peutCampagnes = !!acces.peut_envoyer_campagnes;
+    ACCES_ID = acces.id || null;
 
-    // Sans le droit campagnes, le bloc est retiré du DOM — pas seulement masqué.
+    // Sans le droit campagnes, les blocs campagne et crédits sont retirés du DOM — pas seulement masqués.
     if (!peutCampagnes) {
       const cb = document.getElementById("campaign-box");
       if (cb) cb.remove();
+      const crb = document.getElementById("credits-box");
+      if (crb) crb.remove();
+    } else {
+      updateCreditsSolde(acces.solde_credits);
+      // Message éventuel laissé par un retour de paiement Stripe (voir demarrer()).
+      try {
+        const achatMsg = sessionStorage.getItem("ancrimo_achat_message");
+        if (achatMsg) {
+          sessionStorage.removeItem("ancrimo_achat_message");
+          const achatType = sessionStorage.getItem("ancrimo_achat_type") || "";
+          sessionStorage.removeItem("ancrimo_achat_type");
+          const msgBox = document.getElementById("credits-msg");
+          if (msgBox) {
+            msgBox.className = "credits-msg " + (achatType === "succes" ? "ok" : "error");
+            msgBox.textContent = achatMsg;
+          }
+          if (achatType === "succes") setTimeout(refreshQuota, 2500);
+        }
+      } catch (e) {}
     }
 
     const boutiques = data.boutiques || [];
@@ -960,14 +1061,12 @@
     URL.revokeObjectURL(url);
   }
 
-  // --- Campagnes email ---
+  // --- Campagnes email / SMS ---
   function initCampaignBox(boutiques) {
     const select = document.getElementById("campaign-boutique");
     select.innerHTML = '<option value="">Tout le réseau</option>' +
       boutiques.map((b) => `<option value="${b.id}">${b.nom}</option>`).join("");
     select.addEventListener("change", updateCampaignCount);
-    updateCampaignCount();
-    refreshQuota();
 
     const sendBtn = document.getElementById("campaign-send-btn");
     const confirmBox = document.getElementById("campaign-confirm");
@@ -976,19 +1075,44 @@
     const confirmNo = document.getElementById("campaign-confirm-no");
     const resultBox = document.getElementById("campaign-result");
 
+    function setCanal(canal) {
+      CAMPAIGN_CANAL = canal;
+      document.getElementById("canal-email").classList.toggle("active", canal === "email");
+      document.getElementById("canal-sms").classList.toggle("active", canal === "sms");
+      document.getElementById("campaign-subject-field").style.display = canal === "sms" ? "none" : "block";
+      document.getElementById("campaign-sub").textContent =
+        canal === "sms"
+          ? "Envoyé par SMS aux clients ayant donné leur consentement marketing et ayant un numéro de téléphone renseigné. Chaque SMS envoyé consomme 1 crédit."
+          : "Envoyé par email aux clients ayant donné leur consentement marketing et ayant un email renseigné. Gratuit dans la limite de 2 campagnes par mois, puis 1 crédit par envoi.";
+      resultBox.className = "campaign-result";
+      resultBox.textContent = "";
+      updateCampaignCount();
+    }
+    document.getElementById("canal-email").addEventListener("click", () => setCanal("email"));
+    document.getElementById("canal-sms").addEventListener("click", () => setCanal("sms"));
+
+    updateCampaignCount();
+    refreshQuota();
+
     sendBtn.addEventListener("click", () => {
       resultBox.className = "campaign-result";
       resultBox.textContent = "";
       const subject = document.getElementById("campaign-subject").value.trim();
       const message = document.getElementById("campaign-message").value.trim();
-      if (!subject || !message) {
+      if (CAMPAIGN_CANAL === "email" && !subject) {
         resultBox.className = "campaign-result error";
-        resultBox.textContent = "Merci de remplir le sujet et le message.";
+        resultBox.textContent = "Merci de remplir le sujet.";
+        return;
+      }
+      if (!message) {
+        resultBox.className = "campaign-result error";
+        resultBox.textContent = "Merci de remplir le message.";
         return;
       }
       const count = computeRecipientCount();
       const boutiqueLabel = select.options[select.selectedIndex].text;
-      confirmText.innerHTML = `Confirmer l'envoi à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}) ?`;
+      const canalLabel = CAMPAIGN_CANAL === "sms" ? "SMS" : "email";
+      confirmText.innerHTML = `Confirmer l'envoi par ${canalLabel} à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}) ?`;
       confirmBox.classList.add("open");
     });
 
@@ -1012,25 +1136,37 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id }),
+          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id, canal: CAMPAIGN_CANAL }),
         });
         const data = await res.json();
         if (!res.ok) {
           resultBox.className = "campaign-result error";
-          if (data.error === "quota_depasse") {
+          if (data.error === "credits_insuffisants") {
+            resultBox.textContent = `Crédits insuffisants : il faut ${data.credits_necessaires} crédit(s), il en reste ${data.credits_disponibles}. Achetez un pack de crédits ci-dessus pour continuer.`;
+          } else if (data.error === "quota_depasse") {
             resultBox.textContent = `Quota mensuel atteint (${data.campagnes_utilisees}/${data.quota_total} campagnes ce mois). Contactez Ancrimo pour ajouter des campagnes supplémentaires.`;
           } else if (data.error === "limite_journaliere") {
             resultBox.textContent = `Cette campagne vise ${data.destinataires} destinataires mais il ne reste que ${data.restant_aujourdhui} envois possibles aujourd'hui. Réessayez demain ou ciblez une seule boutique.`;
           } else if (data.error === "aucun_destinataire") {
-            resultBox.textContent = "Aucun destinataire éligible (consentement + email) pour cette cible.";
+            resultBox.textContent = CAMPAIGN_CANAL === "sms"
+              ? "Aucun destinataire éligible (consentement + téléphone) pour cette cible."
+              : "Aucun destinataire éligible (consentement + email) pour cette cible.";
+          } else if (data.error === "sujet_requis") {
+            resultBox.textContent = "Merci de remplir le sujet.";
+          } else if (data.error === "message_requis") {
+            resultBox.textContent = "Merci de remplir le message.";
           } else {
             resultBox.textContent = "Erreur : " + (data.error || res.status);
           }
+          if (data.solde_credits !== undefined) updateCreditsSolde(data.solde_credits);
         } else {
           resultBox.className = "campaign-result ok";
-          resultBox.textContent = `Envoyé à ${data.sent} destinataire(s).${data.errors ? " " + data.errors + " erreur(s) d'envoi." : ""} Il vous reste ${data.campagnes_restantes} campagne(s) ce mois.`;
+          const rappelQuota = CAMPAIGN_CANAL === "email" ? ` Il vous reste ${data.campagnes_restantes} campagne(s) email gratuite(s) ce mois.` : "";
+          const rappelCredits = data.credits_utilises > 0 ? ` ${data.credits_utilises} crédit(s) utilisé(s), ${data.solde_credits_restant} restant(s).` : "";
+          resultBox.textContent = `Envoyé à ${data.sent} destinataire(s).${data.errors ? " " + data.errors + " erreur(s) d'envoi." : ""}${rappelQuota}${rappelCredits}`;
           document.getElementById("campaign-subject").value = "";
           document.getElementById("campaign-message").value = "";
+          if (data.solde_credits_restant !== undefined) updateCreditsSolde(data.solde_credits_restant);
         }
         refreshQuota();
       } catch (err) {
@@ -1050,7 +1186,8 @@
     const clientIds = [...new Set(relevant.map((a) => a.client_id))];
     return clientIds.filter((id) => {
       const c = clientsById[id];
-      return c && c.consentement_marketing && c.email;
+      if (!c || !c.consentement_marketing) return false;
+      return CAMPAIGN_CANAL === "sms" ? !!c.telephone : !!c.email;
     }).length;
   }
 
@@ -1147,7 +1284,8 @@
       if (!res.ok) { box.textContent = ""; return; }
       const q = await res.json();
       box.innerHTML =
-        `<strong>${q.campagnes_restantes}</strong> campagne${q.campagnes_restantes > 1 ? "s" : ""} restante${q.campagnes_restantes > 1 ? "s" : ""} ce mois (${q.campagnes_utilisees}/${q.quota_total} utilisée${q.campagnes_utilisees > 1 ? "s" : ""}) · <strong>${q.restant_aujourdhui}</strong> envois possibles aujourd'hui.`;
+        `<strong>${q.campagnes_restantes}</strong> campagne${q.campagnes_restantes > 1 ? "s" : ""} email gratuite${q.campagnes_restantes > 1 ? "s" : ""} restante${q.campagnes_restantes > 1 ? "s" : ""} ce mois (${q.campagnes_utilisees}/${q.quota_total} utilisée${q.campagnes_utilisees > 1 ? "s" : ""}) · <strong>${q.restant_aujourdhui}</strong> envois email possibles aujourd'hui.`;
+      if (q.solde_credits !== undefined) updateCreditsSolde(q.solde_credits);
     } catch (e) {
       box.textContent = "";
     }
@@ -1155,9 +1293,52 @@
 
   function updateCampaignCount() {
     const count = computeRecipientCount();
+    const quoi = CAMPAIGN_CANAL === "sms" ? "ce SMS" : "cet email";
+    const champ = CAMPAIGN_CANAL === "sms" ? "téléphone" : "email";
     document.getElementById("campaign-count").innerHTML =
-      `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront cet email (consentement + email renseigné).`;
+      `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
   }
+
+  // --- Solde de crédits + achat de packs ---
+  function updateCreditsSolde(n) {
+    const el = document.getElementById("credits-solde");
+    if (el) el.textContent = (n === null || n === undefined) ? "—" : n;
+  }
+
+  function initCreditsBox() {
+    const msgBox = document.getElementById("credits-msg");
+    document.querySelectorAll(".credits-pack").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!ACCES_ID || !msgBox) return;
+        msgBox.className = "credits-msg";
+        msgBox.textContent = "Préparation du paiement...";
+        document.querySelectorAll(".credits-pack").forEach((b) => { b.disabled = true; });
+        try {
+          const res = await fetch(CREATE_CREDIT_CHECKOUT_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({ acces_id: ACCES_ID, pack: btn.dataset.pack }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.url) {
+            msgBox.className = "credits-msg error";
+            msgBox.textContent = "Erreur : " + (data.error || res.status);
+            document.querySelectorAll(".credits-pack").forEach((b) => { b.disabled = false; });
+            return;
+          }
+          location.href = data.url;
+        } catch (err) {
+          msgBox.className = "credits-msg error";
+          msgBox.textContent = "Erreur de connexion. Réessayez.";
+          document.querySelectorAll(".credits-pack").forEach((b) => { b.disabled = false; });
+        }
+      });
+    });
+  }
+  initCreditsBox();
 </script>
 </body>
 </html>
