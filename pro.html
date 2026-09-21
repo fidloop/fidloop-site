@@ -398,6 +398,21 @@
     font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.06); color: #fff;
   }
   @media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
+
+  /* --- Packs de crédits (SMS / campagnes supplémentaires) --- */
+  .credit-packs-note { margin-top: 40px; padding-top: 40px; border-top: 1px dashed var(--line-paper); }
+  .credit-packs-head { max-width: 560px; margin-bottom: 24px; }
+  .credit-packs-head h3 { font-family: "Fraunces", serif; font-size: 19px; font-weight: 600; color: var(--ink-text); }
+  .credit-packs-head p { font-size: 14px; color: var(--muted-on-paper); margin-top: 8px; line-height: 1.55; }
+  .credit-packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .credit-pack {
+    background: #fbf7ec; border: 1.5px solid var(--line-paper); border-radius: 4px;
+    padding: 18px 16px; text-align: center;
+  }
+  .credit-pack .cp-name { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mint); }
+  .credit-pack .cp-credits { font-size: 13px; color: var(--muted-on-paper); margin-top: 6px; }
+  .credit-pack .cp-price { font-family: "Fraunces", serif; font-size: 24px; font-weight: 600; color: var(--ink-text); margin-top: 10px; }
+  @media (max-width: 860px) { .credit-packs { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -750,6 +765,30 @@
           <li>Accompagnement au déploiement</li>
         </ul>
         <a class="plan-cta" href="#contact">Nous contacter</a>
+      </div>
+    </div>
+
+    <div class="credit-packs-note">
+      <div class="credit-packs-head">
+        <h3>Besoin d'aller plus loin ? Packs de crédits SMS &amp; email</h3>
+        <p>Au-delà des campagnes email incluses dans votre offre, ou pour des campagnes SMS, 1 crédit = 1 envoi. Sans abonnement, sans date d'expiration, à recharger quand vous voulez depuis votre tableau de bord.</p>
+      </div>
+      <div class="credit-packs">
+        <div class="credit-pack">
+          <div class="cp-name">Découverte</div>
+          <div class="cp-credits">50 crédits</div>
+          <div class="cp-price">12,50 €</div>
+        </div>
+        <div class="credit-pack">
+          <div class="cp-name">Boutique</div>
+          <div class="cp-credits">200 crédits</div>
+          <div class="cp-price">40 €</div>
+        </div>
+        <div class="credit-pack">
+          <div class="cp-name">Réseau</div>
+          <div class="cp-credits">500 crédits</div>
+          <div class="cp-price">80 €</div>
+        </div>
       </div>
     </div>
   </div>
