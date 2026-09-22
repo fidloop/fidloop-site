@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Politique de confidentialité d'Ancrimo — traitement des données personnelles.">
+<link rel="canonical" href="https://ancrimo.fr/confidentialite.html">
+<meta name="robots" content="noindex, follow">
+<title>Politique de confidentialité — Ancrimo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1712;
+    --ink2: #2a2017;
+    --paper: #f1e9d8;
+    --paper2: #e8dcc2;
+    --mint: #b23b20;
+    --mint-soft: rgba(178,59,32,0.13);
+    --gold: #c98a3a;
+    --gold-soft: rgba(201,138,58,0.16);
+    --ink-text: #1c1712;
+    --muted: #a89a85;
+    --muted-on-paper: #6b6153;
+    --line: rgba(241,233,216,0.12);
+    --line-paper: rgba(28,23,18,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Inter", -apple-system, sans-serif;
+    background: var(--ink);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .display { font-family: "Fraunces", serif; letter-spacing: -0.01em; }
+  .mono { font-family: "IBM Plex Mono", monospace; letter-spacing: 0.02em; }
+  a { color: inherit; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(28,23,18,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .inner { max-width: 1080px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 9px; font-family: "Fraunces", serif; font-weight: 600; font-size: 18px; text-decoration: none; }
+  .logo .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px var(--mint-soft); }
+  nav .legal-links { display: flex; gap: 24px; font-size: 13.5px; font-weight: 500; color: rgba(241,233,216,0.68); }
+  nav .legal-links a { text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+  nav .legal-links a:hover, nav .legal-links a.active { color: var(--paper); border-bottom-color: var(--mint); }
+  @media (max-width: 640px) { nav .legal-links { display: none; } }
+
+  .legal-hero { padding: 56px 0 28px; border-bottom: 1px solid var(--line); }
+  .legal-hero .eyebrow {
+    display: inline-block; font-family: "IBM Plex Mono"; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--mint); background: var(--mint-soft); border: 1.5px solid var(--mint); border-radius: 999px; padding: 5px 12px; margin-bottom: 18px;
+  }
+  .legal-hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 600; }
+  .legal-hero .sub { margin-top: 14px; color: var(--muted); font-size: 14.5px; font-family: "IBM Plex Mono"; }
+
+  main.legal-body { padding: 44px 0 90px; }
+  main.legal-body h2 {
+    font-size: 21px; font-weight: 600; color: var(--paper); margin-top: 40px; margin-bottom: 14px;
+    padding-top: 8px;
+  }
+  main.legal-body h2:first-child { margin-top: 0; }
+  main.legal-body h3 { font-size: 16.5px; font-weight: 600; color: var(--gold); margin-top: 22px; margin-bottom: 8px; font-family: "Inter", sans-serif; }
+  main.legal-body p { font-size: 15px; line-height: 1.75; color: rgba(241,233,216,0.82); margin-bottom: 14px; }
+  main.legal-body ul { margin: 0 0 16px 0; padding-left: 22px; }
+  main.legal-body li { font-size: 15px; line-height: 1.7; color: rgba(241,233,216,0.82); margin-bottom: 8px; }
+  main.legal-body a.inline-link { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0; }
+  footer .inner { max-width: 1080px; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer .meta { font-size: 13px; color: var(--muted); }
+  footer .legal-foot-links { display: flex; gap: 18px; font-size: 13px; color: var(--muted); }
+  footer .legal-foot-links a { text-decoration: none; }
+  footer .legal-foot-links a:hover { color: var(--paper); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a class="logo" href="/pro.html"><span class="dot"></span>Ancrimo</a>
+    <div class="legal-links">
+      <a href="/cgv.html">CGV</a>
+      <a href="/confidentialite.html" class="active">Confidentialité</a>
+      <a href="/accord-sous-traitance.html">RGPD</a>
+    </div>
+  </div>
+</nav>
+
+<header class="legal-hero">
+  <div class="wrap">
+    <span class="eyebrow">Document légal</span>
+    <h1>Politique de confidentialité</h1>
+    <div class="sub">Ancrimo — ancrimo.fr</div>
+  </div>
+</header>
+
+<main class="legal-body">
+  <div class="wrap">
+  <p>Dernière mise à jour : 22 septembre 2026</p>
+  <p>La présente politique de confidentialité explique comment Ancrimo collecte et utilise des données personnelles, dans le cadre de son site ancrimo.fr, de son Dashboard de gestion, et du programme de fidélité proposé aux clients finaux des commerçants utilisateurs du Service.</p>
+  <p>Deux catégories de personnes sont concernées par cette politique, avec un statut différent au sens du Règlement Général sur la Protection des Données (RGPD) : les commerçants clients d'Ancrimo (« Clients »), pour lesquels Ancrimo est responsable de traitement ; et les clients finaux inscrits au programme de fidélité d'un Client (« Membres »), pour lesquels Ancrimo agit en tant que sous-traitant, pour le compte du Client concerné, dans les conditions précisées à la section 3.</p>
+  <h2>1. Qui est responsable du traitement ?</h2>
+  <p>Le responsable des traitements décrits aux sections 2 et 4 (données des Clients d'Ancrimo, gestion du site et de la relation commerciale) est MG App StudioTrack, entreprise individuelle (micro-entrepreneur) immatriculée sous le numéro SIRET 104 811 807 00015, dont le siège est situé 64 rue Waldeck Rousseau, 69006 Lyon, joignable à contact@ancrimo.fr.</p>
+  <p>Pour les données des Membres du programme de fidélité, le responsable de traitement est le Client (le commerçant ou le réseau de boutiques) pour le compte duquel Ancrimo agit en tant que sous-traitant, conformément à l'Accord de sous-traitance conclu entre Ancrimo et ce Client. Pour exercer un droit sur ces données, le Membre est invité à se rapprocher en priorité du commerçant auprès duquel il a adhéré au programme de fidélité.</p>
+  <h2>2. Données collectées auprès des Clients (commerçants)</h2>
+  <p>Lors de la création d'un compte Dashboard ou de la souscription au Service, Ancrimo collecte : nom du commerce ou du réseau, adresse email, mot de passe (stocké sous forme hachée, jamais en clair), coordonnées de facturation et informations de paiement transmises directement à Stripe (Ancrimo ne conserve pas les données de carte bancaire), historique d'utilisation du Service (campagnes envoyées, solde de Crédits, connexions).</p>
+  <p>Ces données sont utilisées pour : fournir l'accès au Service et en assurer le bon fonctionnement, gérer la facturation et le suivi de l'abonnement, répondre aux demandes de support, et, sous réserve du consentement du Client, l'informer des évolutions du Service.</p>
+  <p>Base légale : exécution du contrat (CGV) pour la fourniture du Service et la facturation ; intérêt légitime d'Ancrimo pour l'amélioration du Service et la sécurité ; consentement pour toute communication non strictement nécessaire au Service.</p>
+  <h2>3. Données des Membres du programme de fidélité (clients finaux)</h2>
+  <p>Lorsqu'un consommateur adhère au programme de fidélité d'un Client via le QR code ou le tag NFC d'un point de vente, les données suivantes peuvent être collectées, selon ce que le Client a configuré : nom, adresse email et/ou numéro de téléphone, historique de passages et de paliers de fidélité, consentement (ou non) à recevoir des communications marketing par email et/ou SMS.</p>
+  <p>Ces données sont collectées et traitées par Ancrimo exclusivement pour le compte et sur instruction du Client concerné (gestion de la carte de fidélité, envoi des campagnes que le Client décide de déclencher), qui en est le responsable de traitement. Le Client est seul responsable de s'assurer que le Membre a valablement consenti à son inscription au programme et, le cas échéant, à recevoir des communications marketing, conformément à la réglementation applicable.</p>
+  <p>Un Membre souhaitant exercer ses droits (accès, rectification, effacement, opposition) sur ces données, ou retirer son consentement à recevoir des campagnes, peut s'adresser directement au commerçant concerné, ou à défaut à contact@ancrimo.fr, qui transmettra la demande au Client responsable dans les meilleurs délais.</p>
+  <h2>4. Cookies et traceurs sur ancrimo.fr</h2>
+  <p>Le site ancrimo.fr n'utilise à ce jour aucun outil de mesure d'audience ni cookie publicitaire. Seuls des cookies strictement nécessaires au fonctionnement du site et du Dashboard sont déposés (notamment pour maintenir une session de connexion), lesquels ne requièrent pas de consentement préalable au titre de la réglementation applicable. Si un outil d'analytics ou un pixel publicitaire venait à être ajouté ultérieurement, la présente politique serait mise à jour en conséquence et un bandeau de consentement conforme aux recommandations de la CNIL serait mis en place avant tout dépôt de cookie non essentiel.</p>
+  <h2>5. Destinataires des données — sous-traitants d'Ancrimo</h2>
+  <p>Pour fournir le Service, Ancrimo fait appel aux prestataires suivants, qui peuvent être amenés à traiter tout ou partie des données décrites ci-dessus, dans la stricte mesure nécessaire à l'exécution de leur prestation :</p>
+  <ul>
+    <li>Supabase — hébergement de la base de données et des fonctions techniques du Service.</li>
+    <li>Brevo (Sendinblue SAS) — envoi des emails et SMS de campagne pour le compte des Clients.</li>
+    <li>Stripe — traitement sécurisé des paiements (abonnements et achats de Crédits).</li>
+    <li>Vercel — hébergement du site ancrimo.fr et du Dashboard.</li>
+  </ul>
+  <p>La base de données est hébergée par Supabase au sein de l'Union européenne (région Irlande), sans transfert hors de l'Union européenne pour ce traitement.</p>
+  <p>Ancrimo ne vend ni ne loue aucune donnée personnelle à des tiers à des fins publicitaires.</p>
+  <h2>6. Durée de conservation</h2>
+  <p>Les données d'un compte Client sont conservées pendant toute la durée de la relation contractuelle, puis archivées pendant la durée nécessaire au respect des obligations légales (notamment comptables), avant suppression ou anonymisation. Les données d'un Membre du programme de fidélité sont conservées selon la durée définie par le Client responsable de traitement, et au maximum pendant 3 ans à compter du dernier contact actif, à titre indicatif, en l'absence d'instruction contraire de celui-ci.</p>
+  <h2>7. Sécurité</h2>
+  <p>Ancrimo met en œuvre des mesures techniques et organisationnelles raisonnables pour protéger les données contre l'accès non autorisé, la perte ou l'altération, notamment : chiffrement des mots de passe, connexions sécurisées (HTTPS), séparation des accès selon le périmètre de chaque compte Client, et recours à des prestataires eux-mêmes engagés contractuellement à un niveau de sécurité approprié.</p>
+  <h2>8. Vos droits</h2>
+  <p>Conformément au RGPD et à la loi Informatique et Libertés, toute personne dispose d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité sur les données la concernant, ainsi que du droit de définir des directives relatives au sort de ses données après son décès. Ces droits peuvent être exercés en écrivant à contact@ancrimo.fr, en précisant la personne ou le compte concerné.</p>
+  <p>Si une personne estime, après nous avoir contactés, que ses droits ne sont pas respectés, elle peut introduire une réclamation auprès de la Commission Nationale de l'Informatique et des Libertés (CNIL) — www.cnil.fr.</p>
+  <h2>9. Modifications</h2>
+  <p>Ancrimo peut mettre à jour la présente politique de confidentialité, notamment pour refléter une évolution du Service ou de la réglementation. La date de dernière mise à jour figure en haut de ce document.</p>
+  <h2>10. Contact</h2>
+  <p>Pour toute question relative à la présente politique ou au traitement de données personnelles, contactez Ancrimo à contact@ancrimo.fr.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="inner">
+    <a class="logo" href="/pro.html"><span class="dot"></span>Ancrimo</a>
+    <div class="legal-foot-links">
+      <a href="/cgv.html">CGV</a>
+      <a href="/confidentialite.html">Confidentialité</a>
+      <a href="/accord-sous-traitance.html">RGPD</a>
+    </div>
+    <div class="meta"><a href="mailto:contact@ancrimo.fr" style="color:inherit;text-decoration:none;">contact@ancrimo.fr</a> · ancrimo.fr</div>
+  </div>
+</footer>
+
+</body>
+</html>
