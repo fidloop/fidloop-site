@@ -29,21 +29,28 @@
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--paper-dim);
+    background:
+      radial-gradient(ellipse 900px 520px at 50% -8%, rgba(79,170,56,0.12) 0%, rgba(79,170,56,0) 60%),
+      var(--paper-dim);
     color: var(--ink);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 26px 14px 40px;
   }
 
   .wrap {
     width: 100%; max-width: 460px;
+    margin: 0 auto;
     padding-bottom: 48px;
     background: var(--paper);
-    min-height: 100vh;
     border: 3px solid var(--green);
-    box-shadow: 0 0 40px rgba(0,0,0,0.06);
+    border-radius: 22px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 28px 55px -22px rgba(20,17,12,0.38), 0 10px 24px -14px rgba(20,17,12,0.16);
+    animation: wrapIn 0.6s cubic-bezier(.16,1,.3,1) both;
   }
 
   /* --- Bandeau haut : vraie texture bois de la carte + logo --- */
@@ -57,12 +64,24 @@
     text-align: center;
     position: relative;
   }
+  .banner { overflow: hidden; }
+  .banner::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.22) 45%, transparent 100%);
+    transform: skewX(-20deg);
+    animation: shineSweep 1.5s ease-out 0.5s 1 both;
+    pointer-events: none;
+  }
   .banner .eyebrow {
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--yellow);
     font-weight: 700;
+    animation: fadeUp 0.55s cubic-bezier(.16,1,.3,1) both;
   }
   .banner h1 {
     font-family: Georgia, "Times New Roman", serif;
@@ -72,12 +91,14 @@
     letter-spacing: 0.3px;
     color: #ffffff;
     text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    animation: fadeUp 0.55s cubic-bezier(.16,1,.3,1) 0.08s both;
   }
   .banner p {
     color: rgba(255,255,255,0.85);
     font-size: 14.5px;
     margin-top: 6px;
     text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+    animation: fadeUp 0.55s cubic-bezier(.16,1,.3,1) 0.14s both;
   }
 
   /* --- Cadran / signature visuelle : anneau de progression --- */
@@ -85,10 +106,16 @@
     width: 68px; height: 68px;
     margin: 14px auto 0;
     position: relative;
+    animation: fadeUp 0.55s cubic-bezier(.16,1,.3,1) 0.2s both;
   }
   .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .dial .track { stroke: rgba(255,255,255,0.3); }
-  .dial .fill { stroke: var(--yellow); stroke-linecap: round; }
+  .dial .fill {
+    stroke: var(--yellow);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.9s cubic-bezier(.16,1,.3,1);
+    filter: drop-shadow(0 0 5px rgba(255,222,45,0.6));
+  }
   .dial .center {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
@@ -98,7 +125,7 @@
   .dial .center .l { font-size: 9px; color: rgba(255,255,255,0.75); letter-spacing: 1px; }
 
   /* --- Corps --- */
-  .body { padding: 28px 24px; }
+  .body { padding: 28px 24px; animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) 0.22s both; }
 
   .tiers {
     display: flex;
@@ -190,10 +217,11 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: transform 0.1s, opacity 0.15s;
+    transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, opacity 0.15s;
     box-shadow: 0 4px 14px rgba(240,200,0,0.35);
   }
-  button:active { transform: scale(0.98); }
+  button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(240,200,0,0.45); }
+  button:active:not(:disabled) { transform: scale(0.97); box-shadow: 0 2px 8px rgba(240,200,0,0.3); }
   button:disabled { opacity: 0.55; cursor: not-allowed; }
 
   .cat-grid {
@@ -215,8 +243,10 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: none;
+    animation: chipIn 0.4s cubic-bezier(.16,1,.3,1) both;
   }
-  .cat-chip:active { transform: scale(0.97); }
+  .cat-chip:hover:not(:disabled) { background: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 14px rgba(240,200,0,0.35); }
+  .cat-chip:active:not(:disabled) { transform: scale(0.96); }
   .cat-chip:disabled { opacity: 0.55; cursor: not-allowed; }
 
   .error-msg {
@@ -241,9 +271,10 @@
     margin: 0 auto 20px;
     font-size: 28px;
     color: var(--green);
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
   }
-  .success h2 { font-family: Georgia, serif; font-size: 22px; margin-bottom: 10px; color: var(--ink); }
-  .success p { color: var(--ink-dim); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px; }
+  .success h2 { font-family: Georgia, serif; font-size: 22px; margin-bottom: 10px; color: var(--ink); animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) 0.1s both; }
+  .success p { color: var(--ink-dim); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px; animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) 0.16s both; }
   .success a.wallet-btn {
     display: inline-flex; align-items: center; gap: 10px;
     background: var(--yellow);
@@ -252,7 +283,35 @@
     box-shadow: 0 4px 14px rgba(240,200,0,0.35);
   }
 
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @keyframes wrapIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    70% { opacity: 1; transform: scale(1.06); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes chipIn {
+    from { opacity: 0; transform: translateY(6px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes shineSweep {
+    from { left: -60%; }
+    to { left: 130%; }
+  }
+  @keyframes confettiTombe {
+    from { transform: translate(0, 0) rotate(0deg); opacity: 0.95; }
+    to { transform: translate(var(--derive, 0px), 100vh) rotate(var(--rot-fin, 480deg)); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -342,10 +401,10 @@
     <div class="reward-banner" id="checkin-reward" style="display:none;"></div>
 
     <!-- Overlay plein écran, affiché uniquement quand un palier vient d'être débloqué -->
-    <div id="reward-overlay" style="display:none; position:fixed; inset:0; z-index:999; background:rgba(32,29,24,0.94); flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center;">
-      <div style="font-size:64px; margin-bottom:8px;">🎉</div>
+    <div id="reward-overlay" style="display:none; position:fixed; inset:0; z-index:999; background:rgba(32,29,24,0.94); flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center; animation:fadeUp 0.35s ease both;">
+      <div style="font-size:64px; margin-bottom:8px; animation:popIn 0.6s cubic-bezier(.34,1.56,.64,1) 0.1s both;">🎉</div>
       <div style="color:var(--yellow); font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">Récompense débloquée</div>
-      <div id="reward-overlay-pct" style="color:#ffffff; font-size:56px; font-weight:800; margin-bottom:20px;"></div>
+      <div id="reward-overlay-pct" style="color:#ffffff; font-size:56px; font-weight:800; margin-bottom:20px; animation:popIn 0.6s cubic-bezier(.34,1.56,.64,1) 0.2s both;"></div>
       <div style="background:#ffffff; border-radius:14px; padding:18px 28px; margin-bottom:28px;">
         <div style="font-size:12px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Montrez ce code en caisse</div>
         <div id="reward-overlay-code" style="font-family:monospace; font-size:26px; font-weight:800; color:var(--ink);"></div>
@@ -402,6 +461,34 @@
   // Pré-sélection via QR code : ?boutique=<id>
   const urlParams = new URLSearchParams(window.location.search);
   const preselectedBoutique = urlParams.get("boutique");
+
+  // --- Petite pluie de confettis pour la récompense débloquée (aucune dépendance externe) ---
+  function lancerConfetti(container) {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const couleurs = ["#ffde2d", "#f0c800", "#4faa38", "#ffffff"];
+    const zone = document.createElement("div");
+    zone.style.cssText = "position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:1000;";
+    container.appendChild(zone);
+
+    for (let i = 0; i < 36; i++) {
+      const piece = document.createElement("span");
+      const taille = 6 + Math.random() * 6;
+      const gauche = Math.random() * 100;
+      const delai = Math.random() * 0.35;
+      const duree = 1.6 + Math.random() * 1;
+      const rotFin = (360 + Math.random() * 360) * (Math.random() < 0.5 ? -1 : 1);
+      const derive = Math.round((Math.random() - 0.5) * 80);
+      piece.style.cssText =
+        "position:absolute; top:-20px; left:" + gauche + "%; width:" + taille + "px; height:" + (taille * 0.4) + "px;" +
+        "background:" + couleurs[i % couleurs.length] + "; opacity:0.95; border-radius:1px;" +
+        "--rot-fin:" + rotFin + "deg; --derive:" + derive + "px;" +
+        "animation: confettiTombe " + duree + "s cubic-bezier(.36,.2,.65,1) " + delai + "s 1 both;";
+      zone.appendChild(piece);
+    }
+
+    setTimeout(() => zone.remove(), 3200);
+  }
 
   function showScreen(id) {
     ["form-screen", "checkin-screen", "success-screen", "unavailable-screen"].forEach((s) => {
@@ -614,11 +701,12 @@
       // pas besoin du bouton générique.
       btn.style.display = "none";
       catGrid.innerHTML = "";
-      categories.forEach((cat) => {
+      categories.forEach((cat, i) => {
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "cat-chip";
         chip.textContent = cat;
+        chip.style.animationDelay = (i * 0.05) + "s";
         chip.onclick = () => addPoint(clientId, boutiqueId, cat);
         catGrid.appendChild(chip);
       });
@@ -680,6 +768,7 @@
         document.getElementById("reward-overlay-pct").textContent = "−" + result.remise.pourcentage + "%";
         document.getElementById("reward-overlay-code").textContent = result.remise.code_promo;
         document.getElementById("reward-overlay").style.display = "flex";
+        lancerConfetti(document.getElementById("reward-overlay"));
       }
 
       // Invitation à laisser un avis Google : uniquement au tout premier point,
