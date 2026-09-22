@@ -434,6 +434,12 @@
         <option value="">Tout le réseau</option>
       </select>
     </div>
+    <div class="campaign-field" id="campaign-categorie-field" style="display:none;">
+      <label for="campaign-categorie">Catégorie de prestation</label>
+      <select id="campaign-categorie">
+        <option value="">Toutes les catégories</option>
+      </select>
+    </div>
     <div class="campaign-count" id="campaign-count"></div>
     <div class="campaign-count" id="campaign-quota"></div>
     <div class="campaign-field" id="campaign-subject-field">
@@ -511,6 +517,9 @@
   let minuteurInactivite = null;
   let ACCES_ID = null;
   let CAMPAIGN_CANAL = "email";
+  const CATEGORIES_CACHE = {};
+  let PREVIEW_REQUEST_ID = 0;
+  let LAST_PREVIEW_COUNT = null;
 
   function lireSession() {
     try {
@@ -1072,7 +1081,13 @@
     const select = document.getElementById("campaign-boutique");
     select.innerHTML = '<option value="">Tout le réseau</option>' +
       boutiques.map((b) => `<option value="${b.id}">${b.nom}</option>`).join("");
-    select.addEventListener("change", updateCampaignCount);
+    const categorieSelect = document.getElementById("campaign-categorie");
+    select.addEventListener("change", async () => {
+      await refreshCategorieOptions();
+      updateCampaignCount();
+    });
+    categorieSelect.addEventListener("change", updateCampaignCount);
+    refreshCategorieOptions();
 
     const sendBtn = document.getElementById("campaign-send-btn");
     const confirmBox = document.getElementById("campaign-confirm");
@@ -1115,10 +1130,11 @@
         resultBox.textContent = "Merci de remplir le message.";
         return;
       }
-      const count = computeRecipientCount();
+      const count = LAST_PREVIEW_COUNT !== null ? LAST_PREVIEW_COUNT : computeRecipientCount();
       const boutiqueLabel = select.options[select.selectedIndex].text;
       const canalLabel = CAMPAIGN_CANAL === "sms" ? "SMS" : "email";
-      confirmText.innerHTML = `Confirmer l'envoi par ${canalLabel} à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}) ?`;
+      const categorieLabel = categorieSelect.value ? ` — catégorie « ${categorieSelect.options[categorieSelect.selectedIndex].text} »` : "";
+      confirmText.innerHTML = `Confirmer l'envoi par ${canalLabel} à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}${categorieLabel}) ?`;
       confirmBox.classList.add("open");
     });
 
@@ -1135,6 +1151,7 @@
       const subject = document.getElementById("campaign-subject").value.trim();
       const message = document.getElementById("campaign-message").value.trim();
       const boutique_id = select.value || null;
+      const categorie = categorieSelect.value || null;
       try {
         const res = await fetch(SEND_CAMPAIGN_URL, {
           method: "POST",
@@ -1142,7 +1159,7 @@
             "Content-Type": "application/json",
             "Authorization": "Bearer " + SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id, canal: CAMPAIGN_CANAL }),
+          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id, canal: CAMPAIGN_CANAL, categorie }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -1195,6 +1212,75 @@
       if (!c || !c.consentement_marketing) return false;
       return CAMPAIGN_CANAL === "sms" ? !!c.telephone : !!c.email;
     }).length;
+  }
+
+  // Catégories de prestation configurées pour l'enseigne d'une boutique (mêmes réglages
+  // que les boutons proposés au client sur la page de passage).
+  async function getCategoriesPour(boutiqueId) {
+    if (CATEGORIES_CACHE[boutiqueId] !== undefined) return CATEGORIES_CACHE[boutiqueId];
+    const { data } = await supabaseClient
+      .from("boutiques")
+      .select("enseignes(categories_passage)")
+      .eq("id", boutiqueId)
+      .maybeSingle();
+    const cats = (data && data.enseignes && data.enseignes.categories_passage) || [];
+    CATEGORIES_CACHE[boutiqueId] = cats;
+    return cats;
+  }
+
+  // Le filtre par catégorie ne s'applique qu'à une boutique précise ou, pour « Tout le
+  // réseau », à la première boutique du périmètre (même enseigne dans l'immense majorité
+  // des cas). Si aucune catégorie n'est configurée, le champ reste masqué.
+  async function refreshCategorieOptions() {
+    const boutiqueSelect = document.getElementById("campaign-boutique");
+    const field = document.getElementById("campaign-categorie-field");
+    const categorieSelect = document.getElementById("campaign-categorie");
+    const boutiqueId = boutiqueSelect.value || (LAST_DATA && LAST_DATA.boutiques[0] && LAST_DATA.boutiques[0].id);
+    if (!boutiqueId) { field.style.display = "none"; return; }
+    const cats = await getCategoriesPour(boutiqueId);
+    if (!cats || cats.length === 0) {
+      field.style.display = "none";
+      categorieSelect.innerHTML = '<option value="">Toutes les catégories</option>';
+      return;
+    }
+    const valeurActuelle = categorieSelect.value;
+    categorieSelect.innerHTML = '<option value="">Toutes les catégories</option>' +
+      cats.map((c) => `<option value="${c}">${c}</option>`).join("");
+    if (cats.includes(valeurActuelle)) categorieSelect.value = valeurActuelle;
+    field.style.display = "block";
+  }
+
+  // Compte exact des destinataires : demandé au serveur (mode preview), car lui seul
+  // peut croiser le filtre catégorie avec l'historique des passages (RLS oblige).
+  async function updateCampaignPreview() {
+    const countBox = document.getElementById("campaign-count");
+    const quoi = CAMPAIGN_CANAL === "sms" ? "ce SMS" : "cet email";
+    const champ = CAMPAIGN_CANAL === "sms" ? "téléphone" : "email";
+    countBox.innerHTML = `<strong>…</strong> destinataire(s) recevront ${quoi} (consentement + ${champ} renseigné).`;
+    const boutique_id = document.getElementById("campaign-boutique").value || null;
+    const categorie = document.getElementById("campaign-categorie").value || null;
+    const requestId = ++PREVIEW_REQUEST_ID;
+    try {
+      const res = await fetch(SEND_CAMPAIGN_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ token: SESSION_TOKEN, preview: true, boutique_id, canal: CAMPAIGN_CANAL, categorie }),
+      });
+      if (requestId !== PREVIEW_REQUEST_ID) return; // une demande plus récente est en cours
+      if (!res.ok) { countBox.textContent = ""; LAST_PREVIEW_COUNT = computeRecipientCount(); return; }
+      const data = await res.json();
+      const count = data.destinataires !== undefined ? data.destinataires : computeRecipientCount();
+      LAST_PREVIEW_COUNT = count;
+      countBox.innerHTML = `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
+      if (data.solde_credits !== undefined) updateCreditsSolde(data.solde_credits);
+    } catch (e) {
+      if (requestId !== PREVIEW_REQUEST_ID) return;
+      LAST_PREVIEW_COUNT = computeRecipientCount();
+      countBox.innerHTML = `<strong>${LAST_PREVIEW_COUNT}</strong> destinataire${LAST_PREVIEW_COUNT > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
+    }
   }
 
   // --- Déconnexion : on efface le mot de passe en mémoire et on recharge ---
@@ -1298,11 +1384,10 @@
   }
 
   function updateCampaignCount() {
-    const count = computeRecipientCount();
-    const quoi = CAMPAIGN_CANAL === "sms" ? "ce SMS" : "cet email";
-    const champ = CAMPAIGN_CANAL === "sms" ? "téléphone" : "email";
-    document.getElementById("campaign-count").innerHTML =
-      `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
+    // Estimation immédiate (client) pendant que le décompte exact (serveur, avec
+    // filtre catégorie) arrive.
+    LAST_PREVIEW_COUNT = computeRecipientCount();
+    updateCampaignPreview();
   }
 
   // --- Solde de crédits + achat de packs ---
