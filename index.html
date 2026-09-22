@@ -196,6 +196,29 @@
   button:active { transform: scale(0.98); }
   button:disabled { opacity: 0.55; cursor: not-allowed; }
 
+  .cat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .cat-chip {
+    width: auto;
+    margin-top: 0;
+    padding: 12px 18px;
+    border: 2px solid var(--yellow);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+  }
+  .cat-chip:active { transform: scale(0.97); }
+  .cat-chip:disabled { opacity: 0.55; cursor: not-allowed; }
+
   .error-msg {
     display: none;
     margin-top: 14px;
@@ -311,6 +334,10 @@
     <h2 id="checkin-title">Content de vous revoir !</h2>
     <p id="checkin-text">Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.</p>
     <button id="checkin-btn" style="max-width:280px; margin:0 auto;">J'ai fait un achat, +1 point</button>
+    <div id="checkin-categories" style="display:none; max-width:320px; margin:0 auto;">
+      <p style="font-size:13px; color:var(--ink-dim); margin:18px 0 0;">Qu'est-ce que vous venez faire aujourd'hui ?</p>
+      <div class="cat-grid" id="checkin-categories-grid"></div>
+    </div>
     <div class="error-msg" id="checkin-error" style="max-width:280px; margin:14px auto 0;"></div>
     <div class="reward-banner" id="checkin-reward" style="display:none;"></div>
 
@@ -522,6 +549,20 @@
     }
   });
 
+  // --- Catégorie de prestation choisie par le client (configurable par enseigne) ---
+  const categoriesParBoutique = {};
+  async function getCategoriesPour(boutiqueId) {
+    if (categoriesParBoutique[boutiqueId] !== undefined) return categoriesParBoutique[boutiqueId];
+    const { data } = await supabaseClient
+      .from("boutiques")
+      .select("enseignes(categories_passage)")
+      .eq("id", boutiqueId)
+      .maybeSingle();
+    const cats = (data && data.enseignes && data.enseignes.categories_passage) || [];
+    categoriesParBoutique[boutiqueId] = cats;
+    return cats;
+  }
+
   // --- Parcours 2 : client déjà inscrit, ce téléphone est reconnu ---
   async function showCheckinScreen(clientId, boutiqueId, estNouveau) {
     showScreen("checkin-screen");
@@ -529,6 +570,7 @@
     document.getElementById("checkin-reward").style.display = "none";
     document.getElementById("reward-overlay").style.display = "none";
     document.getElementById("review-invite").style.display = "none";
+    document.getElementById("checkin-categories").style.display = "none";
 
     const res = await fetch(CLIENT_STATUS_URL, {
       method: "POST",
@@ -562,7 +604,31 @@
     const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
     btn.textContent = "J'ai fait un achat, +1 point";
-    btn.onclick = () => addPoint(clientId, boutiqueId);
+
+    const categories = await getCategoriesPour(boutiqueId);
+    const catWrap = document.getElementById("checkin-categories");
+    const catGrid = document.getElementById("checkin-categories-grid");
+
+    if (categories && categories.length > 0) {
+      // La boutique a des catégories configurées : le client choisit directement,
+      // pas besoin du bouton générique.
+      btn.style.display = "none";
+      catGrid.innerHTML = "";
+      categories.forEach((cat) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "cat-chip";
+        chip.textContent = cat;
+        chip.onclick = () => addPoint(clientId, boutiqueId, cat);
+        catGrid.appendChild(chip);
+      });
+      catWrap.style.display = "block";
+    } else {
+      // Pas de catégories configurées pour cette enseigne : comportement inchangé.
+      btn.style.display = "flex";
+      catWrap.style.display = "none";
+      btn.onclick = () => addPoint(clientId, boutiqueId, null);
+    }
   }
 
   function updateCheckinDial(cycle) {
@@ -574,12 +640,15 @@
       circumference - circumference * pct;
   }
 
-  async function addPoint(clientId, boutiqueId) {
+  async function addPoint(clientId, boutiqueId, categorie) {
     const btn = document.getElementById("checkin-btn");
+    const catWrap = document.getElementById("checkin-categories");
+    const catButtons = catWrap ? catWrap.querySelectorAll("button") : [];
     const errEl = document.getElementById("checkin-error");
     errEl.style.display = "none";
     btn.disabled = true;
     btn.textContent = "Enregistrement...";
+    catButtons.forEach((b) => { b.disabled = true; });
 
     try {
       const res = await fetch(ADD_PASSAGE_URL, {
@@ -588,7 +657,7 @@
           "Content-Type": "application/json",
           "Authorization": "Bearer " + SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ client_id: clientId, boutique_id: boutiqueId }),
+        body: JSON.stringify({ client_id: clientId, boutique_id: boutiqueId, categorie: categorie || null }),
       });
       const result = await res.json();
 
@@ -597,6 +666,7 @@
         errEl.style.display = "block";
         btn.disabled = false;
         btn.textContent = "J'ai fait un achat, +1 point";
+        catButtons.forEach((b) => { b.disabled = false; });
         return;
       }
 
@@ -604,6 +674,7 @@
       document.getElementById("checkin-text").textContent =
         "Point ajouté ! Merci de votre fidélité 🎉";
       btn.style.display = "none";
+      if (catWrap) catWrap.style.display = "none";
 
       if (result.remise) {
         document.getElementById("reward-overlay-pct").textContent = "−" + result.remise.pourcentage + "%";
@@ -633,6 +704,7 @@
       errEl.style.display = "block";
       btn.disabled = false;
       btn.textContent = "J'ai fait un achat, +1 point";
+      catButtons.forEach((b) => { b.disabled = false; });
     }
   }
 
