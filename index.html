@@ -36,7 +36,7 @@ body{
 .banner{
   background-image:linear-gradient(180deg,rgba(7,22,14,.18),rgba(7,22,14,.72)),
     url('https://xreqpkzovokiheichauf.supabase.co/storage/v1/object/public/logos-cartes/pilvite-hero-v8-final.png');
-  background-size:cover;background-position:center;min-height:270px;padding:30px 26px 26px;
+  background-size:cover;background-position:right center;min-height:270px;padding:30px 26px 26px;
   text-align:center;position:relative;display:flex;flex-direction:column;justify-content:flex-end;
 }
 .banner::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 42%);pointer-events:none}
@@ -47,6 +47,7 @@ body{
 .dial{width:76px;height:76px;margin:16px auto 0;position:relative;z-index:1}
 .dial svg{width:100%;height:100%;transform:rotate(-90deg)}
 .dial .track{stroke:rgba(255,255,255,.28)}
+#checkin-screen .dial .track{stroke:#e6e2da}
 .dial .fill{stroke:var(--yellow);stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.16,1,.3,1);filter:drop-shadow(0 0 6px rgba(247,201,72,.5))}
 .dial .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .dial .center .n{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:#fff}
@@ -64,7 +65,9 @@ input[type=text],input[type=tel],input[type=email],select{
 input::placeholder{color:#9aa9a1}
 input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(47,143,91,.1);background:#fff}
 select{appearance:none;-webkit-appearance:none}select option{background:#fff;color:var(--ink)}
-.select-wrap{position:relative}.select-wrap::after{content:"⌄";position:absolute;right:15px;top:50%;transform:translateY(-50%);color:var(--green);pointer-events:none;font-size:16px;font-weight:800}
+.select-wrap{position:relative}.select-wrap::after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;border-right:2px solid var(--green);border-bottom:2px solid var(--green);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+select{padding-right:44px}
+select:disabled{opacity:1;color:var(--ink);cursor:default}
 .consent{display:flex;gap:11px;align-items:flex-start;margin-top:20px;padding:14px;background:var(--paper-dim);border:1px solid var(--border);border-radius:12px;cursor:pointer}
 .consent input{margin-top:3px;width:18px;height:18px;accent-color:var(--green);flex-shrink:0}.consent span{font-size:12.5px;color:var(--ink-dim);line-height:1.5}
 .legal{font-size:10.8px;color:#89978f;margin-top:13px;line-height:1.55}
@@ -83,7 +86,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 @keyframes popIn{0%{opacity:0;transform:scale(.8)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
 @keyframes shineSweep{from{left:-60%}to{left:130%}}
 @keyframes confettiTombe{from{transform:translate(0,0) rotate(0deg);opacity:.95}to{transform:translate(var(--derive,0px),100vh) rotate(var(--rot-fin,480deg));opacity:0}}
-@media(max-width:430px){body{padding:0 0 28px}.wrap{border-radius:0 0 24px 24px;border-left:0;border-right:0}.banner{min-height:250px}.body{padding:24px 18px 18px}.tiers{gap:7px}.tiers .tier{font-size:10.5px}}
+@media(max-width:430px){body{padding:0 0 28px}.wrap{border-radius:0 0 24px 24px;border-left:0;border-right:0}.banner{min-height:0;padding:28px 18px 26px;background-size:260% auto}.banner h1{font-size:26px;margin-top:6px}.banner p{font-size:13px;margin-top:6px}#form-screen .banner .dial{display:none}.body{padding:18px 18px 18px}.tiers{gap:7px;margin-bottom:16px}.tiers .tier{font-size:10.5px;padding:9px 6px}label{margin:13px 0 6px}input[type=text],input[type=tel],input[type=email],select{padding:12px 14px}.consent{margin-top:14px;padding:11px 12px}select{padding-right:44px}#signup-form button{margin-top:16px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
