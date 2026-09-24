@@ -44,6 +44,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .mdp-btns{display:flex;gap:9px;margin-top:11px}.mdp-ok,.mdp-cancel{padding:9px 16px;border:0;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer}.mdp-ok{background:var(--green);color:#fff}.mdp-cancel{background:var(--border);color:var(--ink)}.mdp-result,.campaign-result,.credits-msg{margin-top:11px;font-size:12.5px;display:none}.mdp-result.ok,.campaign-result.ok,.credits-msg.ok{color:var(--green);display:block}.mdp-result.error,.campaign-result.error,.credits-msg.error{color:var(--error);display:block}
 .campaign-field{margin-bottom:13px}.campaign-field label{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-dim);margin-bottom:5px}
 .campaign-box select,.campaign-box input[type=text],.campaign-box textarea{width:100%;padding:11px 12px;background:#fbfdfc;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none}.campaign-box select:focus,.campaign-box input[type=text]:focus,.campaign-box textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(47,143,91,.08)}.campaign-box textarea{resize:vertical;min-height:105px}
+.sms-compteur{font-size:12px;color:var(--ink-dim);margin-top:6px}.sms-compteur strong{color:var(--ink)}.sms-compteur.trop,.sms-compteur.trop strong{color:var(--error)}
+.sms-apercu{margin-top:8px;padding:10px 12px;background:var(--paper-dim);border:1px solid var(--border);border-radius:12px;font-size:12.5px;line-height:1.45;white-space:pre-wrap;color:var(--ink)}.sms-apercu .t{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-dim);margin-bottom:4px}
 .campaign-count{font-size:12.5px;color:var(--ink-dim);margin-bottom:12px}.campaign-count strong{color:var(--ink)}.campaign-send-btn{padding:11px 19px;background:var(--yellow);color:var(--ink);border:0;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer}.campaign-send-btn:disabled{opacity:.5}
 .campaign-confirm{display:none;margin-top:12px;padding:13px;background:var(--paper-dim);border-radius:9px;font-size:12.5px}.campaign-confirm.open{display:block}.campaign-confirm .btns{margin-top:9px;display:flex;gap:9px}.campaign-confirm button{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;border:0}.campaign-confirm .confirm-yes{background:var(--green);color:#fff}.campaign-confirm .confirm-no{background:var(--border);color:var(--ink)}
 .credits-balance{display:flex;align-items:baseline;gap:7px;margin-bottom:17px}.credits-balance .n{font-size:32px;font-weight:850;color:var(--green)}.credits-balance .l{font-size:12px;color:var(--ink-dim)}.credits-packs{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.credits-pack{background:var(--paper-dim);border:1px solid var(--border);border-radius:11px;padding:15px;text-align:center;cursor:pointer;font-family:inherit}.credits-pack:hover{border-color:var(--green)}.credits-pack:disabled{opacity:.5}.credits-pack .pack-name{font-size:12.5px;font-weight:800}.credits-pack .pack-credits{font-size:11.5px;color:var(--ink-dim);margin-top:2px}.credits-pack .pack-price{font-size:19px;font-weight:850;margin-top:7px}
@@ -188,6 +190,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <div class="campaign-field">
       <label for="campaign-message">Message</label>
       <textarea id="campaign-message" placeholder="Votre message..." rows="6"></textarea>
+      <div class="sms-compteur" id="sms-compteur" style="display:none;"></div>
+      <div class="sms-apercu" id="sms-apercu" style="display:none;"><span class="t">Aperçu du SMS reçu</span><span id="sms-apercu-texte"></span></div>
     </div>
     <button class="campaign-send-btn" id="campaign-send-btn">Envoyer la campagne</button>
     <div class="campaign-confirm" id="campaign-confirm">
@@ -259,6 +263,69 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   const CATEGORIES_CACHE = {};
   let PREVIEW_REQUEST_ID = 0;
   let LAST_PREVIEW_COUNT = null;
+  // Taille max du message SMS pour la cible choisie (renvoyée par le serveur, qui
+  // décompte le nom de la boutique et la mention STOP). Valeur prudente par défaut.
+  let SMS_MAX_MESSAGE = 110;
+  let SMS_PREFIXE = "";
+
+  // --- SMS : 1 SMS = 160 caractères de l'alphabet GSM. Un seul caractère hors GSM
+  // (ê, ç, ô, apostrophe typographique, emoji…) ferait passer tout le SMS en Unicode
+  // (70 caractères) et multiplierait le coût : on remplace ces caractères.
+  const SMS_MAX = 160;
+  const MENTION_STOP = "STOP au [STOP_CODE]"; // Brevo remplace [STOP_CODE] par son numéro court
+  const RESERVE_STOP = 15; // saut de ligne + "STOP au " + numéro court (6 chiffres max)
+  const GSM_BASE = "@£$¥èéùìòÇ\nØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà";
+  const GSM_EXT = "^{}\\[~]|€";
+  const REMPLACEMENTS_SMS = {
+    "ê": "e", "ë": "e", "È": "E", "Ê": "E", "Ë": "E", "â": "a", "á": "a", "ã": "a", "À": "A", "Â": "A", "Á": "A",
+    "î": "i", "ï": "i", "í": "i", "Î": "I", "Ï": "I", "Ì": "I", "Í": "I", "ô": "o", "ó": "o", "õ": "o", "Ô": "O", "Ò": "O", "Ó": "O",
+    "û": "u", "ú": "u", "Û": "U", "Ù": "U", "Ú": "U", "ç": "c", "ÿ": "y", "Ÿ": "Y", "œ": "oe", "Œ": "OE",
+    "’": "'", "‘": "'", "ʼ": "'", "´": "'", "`": "'", "“": "\"", "”": "\"", "«": "\"", "»": "\"",
+    "…": "...", "–": "-", "—": "-", " ": " ", " ": " ", "\t": " ",
+  };
+  function nettoyerSms(texte) {
+    let sortie = "";
+    for (const ch of String(texte || "").replace(/\r\n?/g, "\n")) {
+      const remplace = REMPLACEMENTS_SMS[ch] ?? ch;
+      for (const x of remplace) if (GSM_BASE.includes(x) || GSM_EXT.includes(x)) sortie += x;
+    }
+    return sortie.replace(/ {2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+  }
+  function longueurSms(texte) {
+    let n = 0;
+    for (const ch of texte) n += GSM_EXT.includes(ch) ? 2 : 1;
+    return n;
+  }
+  function prefixeSms(nom) { return nettoyerSms(nom || "Ancrimo") + " : "; }
+  function maxMessageSms(nom) { return SMS_MAX - longueurSms(prefixeSms(nom)) - RESERVE_STOP; }
+
+  // Compteur de caractères + aperçu, uniquement en mode SMS. Même calcul que le serveur.
+  function majCompteurSms() {
+    const compteur = document.getElementById("sms-compteur");
+    const apercu = document.getElementById("sms-apercu");
+    const sendBtnSms = document.getElementById("campaign-send-btn");
+    if (!compteur || !apercu) return;
+    if (CAMPAIGN_CANAL !== "sms") {
+      compteur.style.display = "none";
+      apercu.style.display = "none";
+      if (sendBtnSms && sendBtnSms.dataset.bloqueSms) { sendBtnSms.disabled = false; delete sendBtnSms.dataset.bloqueSms; }
+      return;
+    }
+    const brut = document.getElementById("campaign-message").value;
+    const net = nettoyerSms(brut);
+    const n = longueurSms(net);
+    const trop = n > SMS_MAX_MESSAGE;
+    compteur.className = "sms-compteur" + (trop ? " trop" : "");
+    compteur.innerHTML = `<strong>${n} / ${SMS_MAX_MESSAGE}</strong> caractères` +
+      (trop ? ` — raccourcissez de ${n - SMS_MAX_MESSAGE} caractère${n - SMS_MAX_MESSAGE > 1 ? "s" : ""} pour tenir en un seul SMS.` : " — 1 SMS = 1 crédit par destinataire.");
+    compteur.style.display = "block";
+    document.getElementById("sms-apercu-texte").textContent = (SMS_PREFIXE || "") + (net || "…") + "\nSTOP au 3xxxx";
+    apercu.style.display = "block";
+    if (sendBtnSms && !sendBtnSms.textContent.startsWith("Envoi")) {
+      sendBtnSms.disabled = trop;
+      if (trop) sendBtnSms.dataset.bloqueSms = "1"; else delete sendBtnSms.dataset.bloqueSms;
+    }
+  }
 
   function lireSession() {
     try {
@@ -842,12 +909,14 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       document.getElementById("campaign-subject-field").style.display = canal === "sms" ? "none" : "block";
       document.getElementById("campaign-sub").textContent =
         canal === "sms"
-          ? "Envoyé par SMS aux clients ayant donné leur consentement marketing et ayant un numéro de téléphone renseigné. Chaque SMS envoyé consomme 1 crédit."
+          ? "Envoyé par SMS aux clients ayant donné leur consentement marketing et ayant un numéro de téléphone renseigné. Chaque SMS envoyé consomme 1 crédit. Le message tient en un seul SMS ; le nom de la boutique et la mention de désinscription STOP sont ajoutés automatiquement."
           : "Envoyé par email aux clients ayant donné leur consentement marketing et ayant un email renseigné. Gratuit dans la limite de 2 campagnes par mois, puis 1 crédit par envoi.";
       resultBox.className = "campaign-result";
       resultBox.textContent = "";
       updateCampaignCount();
+      majCompteurSms();
     }
+    document.getElementById("campaign-message").addEventListener("input", majCompteurSms);
     document.getElementById("canal-email").addEventListener("click", () => setCanal("email"));
     document.getElementById("canal-sms").addEventListener("click", () => setCanal("sms"));
 
@@ -913,6 +982,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
             resultBox.textContent = CAMPAIGN_CANAL === "sms"
               ? "Aucun destinataire éligible (consentement + téléphone) pour cette cible."
               : "Aucun destinataire éligible (consentement + email) pour cette cible.";
+          } else if (data.error === "sms_trop_long") {
+            resultBox.textContent = `Message trop long pour un seul SMS : ${data.longueur} caractères pour ${data.max} maximum. Raccourcissez-le puis renvoyez.`;
+          } else if (data.error === "sms_indisponible") {
+            resultBox.textContent = "L'envoi de SMS est momentanément indisponible. Aucun crédit n'a été utilisé. Contactez Ancrimo.";
           } else if (data.error === "sujet_requis") {
             resultBox.textContent = "Merci de remplir le sujet.";
           } else if (data.error === "message_requis") {
@@ -937,6 +1010,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       }
       sendBtn.disabled = false;
       sendBtn.textContent = "Envoyer la campagne";
+      majCompteurSms();
     });
   }
 
@@ -1013,6 +1087,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       const data = await res.json();
       const count = data.destinataires !== undefined ? data.destinataires : computeRecipientCount();
       LAST_PREVIEW_COUNT = count;
+      if (data.sms_max_caracteres) {
+        SMS_MAX_MESSAGE = data.sms_max_caracteres;
+        SMS_PREFIXE = data.sms_prefixe || "";
+        majCompteurSms();
+      }
       countBox.innerHTML = `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
       if (data.solde_credits !== undefined) updateCreditsSolde(data.solde_credits);
     } catch (e) {
