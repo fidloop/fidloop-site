@@ -650,6 +650,32 @@
     return cats;
   }
 
+  // --- Position GPS du telephone, pour verification anti-fraude cote serveur --------
+  // Resout avec { latitude, longitude } si l utilisateur autorise et qu on obtient une
+  // position a temps, sinon resout avec null (refus, absence de support, ou timeout).
+  // Ne bloque jamais le passage : le serveur traite une position absente comme
+  // "non verifiee" et laisse passer.
+  function obtenirPositionGPS() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      const timer = setTimeout(() => resolve(null), 5000);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          clearTimeout(timer);
+          resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        },
+        () => {
+          clearTimeout(timer);
+          resolve(null);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+      );
+    });
+  }
+
   // --- Parcours 2 : client déjà inscrit, ce téléphone est reconnu ---
   async function showCheckinScreen(clientId, boutiqueId, estNouveau) {
     showScreen("checkin-screen");
@@ -738,6 +764,8 @@
     btn.textContent = "Enregistrement...";
     catButtons.forEach((b) => { b.disabled = true; });
 
+    const position = await obtenirPositionGPS();
+
     try {
       const res = await fetch(ADD_PASSAGE_URL, {
         method: "POST",
@@ -745,7 +773,12 @@
           "Content-Type": "application/json",
           "Authorization": "Bearer " + SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ client_id: clientId, boutique_id: boutiqueId, categorie: categorie || null }),
+        body: JSON.stringify({
+          client_id: clientId,
+          boutique_id: boutiqueId,
+          categorie: categorie || null,
+          ...(position ? { latitude: position.latitude, longitude: position.longitude } : {}),
+        }),
       });
       const result = await res.json();
 
