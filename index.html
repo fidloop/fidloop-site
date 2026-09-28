@@ -379,6 +379,21 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorMsg.style.display = "none";
+
+    // Numéro exploitable pour les SMS : 10 chiffres commençant par 0, ou format international (+33…).
+    // Même règle que côté serveur (send-campaign). On vérifie sans modifier ce que le client a tapé.
+    const telSaisi = document.getElementById("telephone").value.trim();
+    const telNettoye = telSaisi.replace(/[\s.\-()]/g, "");
+    const telValide = /^0[1-9]\d{8}$/.test(telNettoye) || /^\+33[1-9]\d{8}$/.test(telNettoye) || /^\+(?!33)\d{8,15}$/.test(telNettoye);
+    if (!telValide) {
+      errorMsg.textContent = /^[67]\d{8}$/.test(telNettoye)
+        ? "Il manque le 0 au début de votre numéro : tapez-le en entier, par exemple 06 12 34 56 78."
+        : "Numéro de téléphone incomplet ou incorrect. Tapez vos 10 chiffres, par exemple 06 12 34 56 78.";
+      errorMsg.style.display = "block";
+      document.getElementById("telephone").focus();
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = "Création de votre carte...";
 
