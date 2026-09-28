@@ -46,6 +46,21 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .campaign-box select,.campaign-box input[type=text],.campaign-box textarea{width:100%;padding:11px 12px;background:#fbfdfc;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none}.campaign-box select:focus,.campaign-box input[type=text]:focus,.campaign-box textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(47,143,91,.08)}.campaign-box textarea{resize:vertical;min-height:105px}
 .sms-compteur{font-size:12px;color:var(--ink-dim);margin-top:6px}.sms-compteur strong{color:var(--ink)}.sms-compteur.trop,.sms-compteur.trop strong{color:var(--error)}
 .sms-apercu{margin-top:8px;padding:10px 12px;background:var(--paper-dim);border:1px solid var(--border);border-radius:12px;font-size:12.5px;line-height:1.45;white-space:pre-wrap;color:var(--ink)}.sms-apercu .t{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-dim);margin-bottom:4px}
+.when-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.when-opt{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--ink)}
+.when-opt input{accent-color:var(--green)}
+#campaign-date{margin-top:8px;max-width:260px}
+.campaign-hint{font-size:12px;color:var(--ink-dim);margin-top:5px}
+.credit-opt{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-dim);margin:2px 0 14px;cursor:pointer;line-height:1.4}
+.credit-opt input{margin-top:2px;accent-color:var(--green)}
+.prog-box{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+.prog-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-dim);margin-bottom:8px}
+.prog-item{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--paper-dim)}
+.prog-item .quand{font-weight:700;font-size:13px}
+.prog-item .quoi{font-size:12.5px;color:var(--ink-dim);grid-column:1/-1;white-space:pre-wrap;overflow-wrap:anywhere}
+.prog-item .etat{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;align-self:start;white-space:nowrap}
+.etat.programmee{background:#fdf3cf;color:#6b5510}.etat.envoyee{background:#e6f1ea;color:#1f6b43}.etat.echec{background:#f8e6e3;color:#b8483a}.etat.en_cours{background:#e3eef4;color:#2f6d8f}.etat.annulee{background:#eee;color:#666}
+.prog-item button{font:inherit;font-size:12px;background:none;border:0;color:var(--ink-dim);text-decoration:underline;cursor:pointer;padding:0;justify-self:start}
 .campaign-count{font-size:12.5px;color:var(--ink-dim);margin-bottom:12px}.campaign-count strong{color:var(--ink)}.campaign-send-btn{padding:11px 19px;background:var(--yellow);color:var(--ink);border:0;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer}.campaign-send-btn:disabled{opacity:.5}
 .campaign-confirm{display:none;margin-top:12px;padding:13px;background:var(--paper-dim);border-radius:9px;font-size:12.5px}.campaign-confirm.open{display:block}.campaign-confirm .btns{margin-top:9px;display:flex;gap:9px}.campaign-confirm button{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;border:0}.campaign-confirm .confirm-yes{background:var(--green);color:#fff}.campaign-confirm .confirm-no{background:var(--border);color:var(--ink)}
 .credits-balance{display:flex;align-items:baseline;gap:7px;margin-bottom:17px}.credits-balance .n{font-size:32px;font-weight:850;color:var(--green)}.credits-balance .l{font-size:12px;color:var(--ink-dim)}.credits-packs{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.credits-pack{background:var(--paper-dim);border:1px solid var(--border);border-radius:11px;padding:15px;text-align:center;cursor:pointer;font-family:inherit}.credits-pack:hover{border-color:var(--green)}.credits-pack:disabled{opacity:.5}.credits-pack .pack-name{font-size:12.5px;font-weight:800}.credits-pack .pack-credits{font-size:11.5px;color:var(--ink-dim);margin-top:2px}.credits-pack .pack-price{font-size:19px;font-weight:850;margin-top:7px}
@@ -193,6 +208,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       <div class="sms-compteur" id="sms-compteur" style="display:none;"></div>
       <div class="sms-apercu" id="sms-apercu" style="display:none;"><span class="t">Aperçu du SMS reçu</span><span id="sms-apercu-texte"></span></div>
     </div>
+    <div class="campaign-field">
+      <label>Quand</label>
+      <div class="when-row" role="radiogroup" aria-label="Moment de l'envoi">
+        <label class="when-opt"><input type="radio" name="campaign-when" id="when-now" value="now" checked> Maintenant</label>
+        <label class="when-opt"><input type="radio" name="campaign-when" id="when-later" value="later"> Programmer</label>
+      </div>
+      <input type="datetime-local" id="campaign-date" style="display:none;" aria-label="Date et heure d'envoi">
+      <div class="campaign-hint" id="campaign-date-hint" style="display:none;"></div>
+    </div>
+    <label class="credit-opt" for="campaign-selon-credits"><input type="checkbox" id="campaign-selon-credits" checked> <span>Si mes crédits ne suffisent pas, envoyer quand même aux clients venus le plus récemment, dans la limite de mes crédits.</span></label>
     <button class="campaign-send-btn" id="campaign-send-btn">Envoyer la campagne</button>
     <div class="campaign-confirm" id="campaign-confirm">
       <div id="campaign-confirm-text"></div>
@@ -202,6 +227,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       </div>
     </div>
     <div class="campaign-result" id="campaign-result"></div>
+    <div class="prog-box" id="prog-box" style="display:none;">
+      <div class="prog-title">Envois programmés</div>
+      <div id="prog-list"></div>
+    </div>
   </div>
 
   <div class="credits-box" id="credits-box">
@@ -300,6 +329,90 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   function maxMessageSms(nom) { return SMS_MAX - longueurSms(prefixeSms(nom)) - RESERVE_STOP; }
 
   // Compteur de caractères + aperçu, uniquement en mode SMS. Même calcul que le serveur.
+  // --- Envois programmés ---
+  function programmeActif() { const r = document.getElementById("when-later"); return !!(r && r.checked); }
+  function libelleEnvoi() { return programmeActif() ? "Programmer l'envoi" : "Envoyer la campagne"; }
+  function dateLocaleInput(d) {
+    const p = (n) => String(n).padStart(2, "0");
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function dateParDefaut() {
+    // Prochain 17h30 à au moins une heure d'ici : le meilleur moment pour un SMS.
+    const d = new Date(); d.setSeconds(0, 0);
+    const cible = new Date(d); cible.setHours(17, 30, 0, 0);
+    if (cible.getTime() < d.getTime() + 3600000) cible.setDate(cible.getDate() + 1);
+    return cible;
+  }
+  function frDateHeure(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+  }
+  function majQuand() {
+    const later = programmeActif();
+    const input = document.getElementById("campaign-date");
+    const hint = document.getElementById("campaign-date-hint");
+    if (!input) return;
+    input.style.display = later ? "block" : "none";
+    hint.style.display = later ? "block" : "none";
+    if (later && !input.value) input.value = dateLocaleInput(dateParDefaut());
+    input.min = dateLocaleInput(new Date(Date.now() + 10 * 60000));
+    hint.textContent = CAMPAIGN_CANAL === "sms"
+      ? "Les SMS ne peuvent partir qu'entre 8h et 21h30. L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint."
+      : "L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint.";
+    const btn = document.getElementById("campaign-send-btn");
+    if (btn && !btn.textContent.startsWith("Envoi") && !btn.textContent.startsWith("Programmation")) btn.textContent = libelleEnvoi();
+  }
+  async function refreshProgrammees() {
+    const box = document.getElementById("prog-box");
+    const list = document.getElementById("prog-list");
+    if (!box || !SESSION_TOKEN) return;
+    try {
+      const res = await fetch(SEND_CAMPAIGN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_ANON_KEY },
+        body: JSON.stringify({ token: SESSION_TOKEN, action: "lister_programmees" }),
+      });
+      if (!res.ok) { box.style.display = "none"; return; }
+      const data = await res.json();
+      const progs = data.programmees || [];
+      list.textContent = "";
+      if (!progs.length) { box.style.display = "none"; return; }
+      const nomsBoutiques = {};
+      ((LAST_DATA && LAST_DATA.boutiques) || []).forEach((b) => { nomsBoutiques[b.id] = b.nom; });
+      const libEtat = { programmee: "Programmé", en_cours: "En cours", envoyee: "Envoyé", echec: "Échec", annulee: "Annulé" };
+      progs.forEach((p) => {
+        const item = document.createElement("div"); item.className = "prog-item";
+        const quand = document.createElement("div"); quand.className = "quand";
+        quand.textContent = frDateHeure(p.envoyer_le) + " · " + (p.canal === "sms" ? "SMS" : "Email") + " · " + (p.boutique_id ? (nomsBoutiques[p.boutique_id] || "Boutique") : "Tout le réseau");
+        const etat = document.createElement("span"); etat.className = "etat " + p.statut; etat.textContent = libEtat[p.statut] || p.statut;
+        const quoi = document.createElement("div"); quoi.className = "quoi";
+        let detail = (p.sujet ? p.sujet + " — " : "") + p.message;
+        if (detail.length > 160) detail = detail.slice(0, 157) + "…";
+        if (p.statut === "envoyee" && p.resultat && p.resultat.sent !== undefined) detail = "Envoyé à " + p.resultat.sent + " destinataire(s). " + detail;
+        if (p.statut === "echec" && p.resultat) detail = "Non envoyé : " + (p.resultat.error === "credits_insuffisants" ? "crédits insuffisants" : (p.resultat.error || "erreur")) + ". " + detail;
+        quoi.textContent = detail;
+        item.append(quand, etat, quoi);
+        if (p.statut === "programmee") {
+          const annuler = document.createElement("button"); annuler.type = "button"; annuler.textContent = "Annuler cet envoi";
+          annuler.addEventListener("click", async () => {
+            annuler.disabled = true; annuler.textContent = "Annulation…";
+            try {
+              await fetch(SEND_CAMPAIGN_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_ANON_KEY },
+                body: JSON.stringify({ token: SESSION_TOKEN, action: "annuler_programmee", id: p.id }),
+              });
+            } catch (e) {}
+            refreshProgrammees();
+          });
+          item.append(annuler);
+        }
+        list.append(item);
+      });
+      box.style.display = "block";
+    } catch (e) { box.style.display = "none"; }
+  }
+
   function majCompteurSms() {
     const compteur = document.getElementById("sms-compteur");
     const apercu = document.getElementById("sms-apercu");
@@ -915,13 +1028,17 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       resultBox.textContent = "";
       updateCampaignCount();
       majCompteurSms();
+      majQuand();
     }
     document.getElementById("campaign-message").addEventListener("input", majCompteurSms);
+    document.getElementById("when-now").addEventListener("change", majQuand);
+    document.getElementById("when-later").addEventListener("change", majQuand);
     document.getElementById("canal-email").addEventListener("click", () => setCanal("email"));
     document.getElementById("canal-sms").addEventListener("click", () => setCanal("sms"));
 
     updateCampaignCount();
     refreshQuota();
+    refreshProgrammees();
 
     sendBtn.addEventListener("click", () => {
       resultBox.className = "campaign-result";
@@ -942,7 +1059,23 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       const boutiqueLabel = select.options[select.selectedIndex].text;
       const canalLabel = CAMPAIGN_CANAL === "sms" ? "SMS" : "email";
       const categorieLabel = categorieSelect.value ? ` — catégorie « ${categorieSelect.options[categorieSelect.selectedIndex].text} »` : "";
-      confirmText.innerHTML = `Confirmer l'envoi par ${canalLabel} à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}${categorieLabel}) ?`;
+      if (programmeActif()) {
+        const v = document.getElementById("campaign-date").value;
+        const quand = v ? new Date(v) : null;
+        if (!quand || isNaN(quand.getTime()) || quand.getTime() < Date.now() + 5 * 60000) {
+          resultBox.className = "campaign-result error";
+          resultBox.textContent = "Choisissez une date et une heure d'envoi dans le futur (au moins 5 minutes d'ici).";
+          return;
+        }
+      }
+      const soldeTxt = (document.getElementById("credits-solde") || {}).textContent || "";
+      const solde = parseInt(soldeTxt, 10);
+      const selonCredits = document.getElementById("campaign-selon-credits").checked;
+      const limite = CAMPAIGN_CANAL === "sms" && selonCredits && !isNaN(solde) && solde < count && !programmeActif()
+        ? ` Vos crédits permettent ${solde} envoi(s) : les ${solde} clients venus le plus récemment le recevront.`
+        : (programmeActif() && selonCredits && CAMPAIGN_CANAL === "sms" ? " Si vos crédits ne suffisent pas au moment de l'envoi, les clients venus le plus récemment passeront en priorité." : "");
+      const quandTxt = programmeActif() ? ` le ${frDateHeure(new Date(document.getElementById("campaign-date").value).toISOString())}` : "";
+      confirmText.innerHTML = `${programmeActif() ? "Programmer" : "Confirmer"} l'envoi par ${canalLabel}${quandTxt} à <strong>${count}</strong> destinataire${count > 1 ? "s" : ""} (${boutiqueLabel}${categorieLabel}) ?${limite}`;
       confirmBox.classList.add("open");
     });
 
@@ -953,7 +1086,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     confirmYes.addEventListener("click", async () => {
       confirmBox.classList.remove("open");
       sendBtn.disabled = true;
-      sendBtn.textContent = "Envoi en cours...";
+      sendBtn.textContent = programmeActif() ? "Programmation..." : "Envoi en cours...";
       resultBox.className = "campaign-result";
       resultBox.textContent = "";
       const subject = document.getElementById("campaign-subject").value.trim();
@@ -967,13 +1100,23 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
             "Content-Type": "application/json",
             "Authorization": "Bearer " + SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ token: SESSION_TOKEN, subject, message, boutique_id, canal: CAMPAIGN_CANAL, categorie }),
+          body: JSON.stringify(Object.assign(
+            { token: SESSION_TOKEN, subject, message, boutique_id, canal: CAMPAIGN_CANAL, categorie,
+              selon_credits: document.getElementById("campaign-selon-credits").checked },
+            programmeActif() ? { action: "programmer", envoyer_le: new Date(document.getElementById("campaign-date").value).toISOString() } : {}
+          )),
         });
         const data = await res.json();
         if (!res.ok) {
           resultBox.className = "campaign-result error";
           if (data.error === "credits_insuffisants") {
-            resultBox.textContent = `Crédits insuffisants : il faut ${data.credits_necessaires} crédit(s), il en reste ${data.credits_disponibles}. Achetez un pack de crédits ci-dessus pour continuer.`;
+            resultBox.textContent = `Crédits insuffisants : il faut ${data.credits_necessaires} crédit(s), il en reste ${data.credits_disponibles}. Achetez un pack de crédits ci-dessus, ou cochez « envoyer quand même dans la limite de mes crédits ».`;
+          } else if (data.error === "date_trop_proche" || data.error === "date_invalide") {
+            resultBox.textContent = "Choisissez une date et une heure d'envoi dans le futur (au moins 5 minutes d'ici).";
+          } else if (data.error === "date_trop_lointaine") {
+            resultBox.textContent = "Un envoi peut être programmé au maximum 2 mois à l'avance.";
+          } else if (data.error === "heure_sms_interdite") {
+            resultBox.textContent = "Les SMS ne peuvent partir qu'entre 8h et 21h30. Choisissez une autre heure.";
           } else if (data.error === "quota_depasse") {
             resultBox.textContent = `Quota mensuel atteint (${data.campagnes_utilisees}/${data.quota_total} campagnes ce mois). Contactez Ancrimo pour ajouter des campagnes supplémentaires.`;
           } else if (data.error === "limite_journaliere") {
@@ -994,6 +1137,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
             resultBox.textContent = "Erreur : " + (data.error || res.status);
           }
           if (data.solde_credits !== undefined) updateCreditsSolde(data.solde_credits);
+        } else if (data.programmee) {
+          resultBox.className = "campaign-result ok";
+          resultBox.textContent = `C'est programmé : envoi le ${frDateHeure(data.envoyer_le)}. Les crédits seront utilisés au moment de l'envoi. Vous pouvez l'annuler ci-dessous d'ici là.`;
+          document.getElementById("campaign-subject").value = "";
+          document.getElementById("campaign-message").value = "";
+          document.getElementById("when-now").checked = true;
+          document.getElementById("campaign-date").value = "";
+          majQuand();
+          refreshProgrammees();
         } else {
           resultBox.className = "campaign-result ok";
           const rappelQuota = CAMPAIGN_CANAL === "email" ? ` Il vous reste ${data.campagnes_restantes} campagne(s) email gratuite(s) ce mois.` : "";
@@ -1009,7 +1161,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
         resultBox.textContent = "Erreur de connexion. Réessayez.";
       }
       sendBtn.disabled = false;
-      sendBtn.textContent = "Envoyer la campagne";
+      sendBtn.textContent = libelleEnvoi();
       majCompteurSms();
     });
   }
