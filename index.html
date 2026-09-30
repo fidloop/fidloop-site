@@ -91,6 +91,15 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 @media(max-width:430px){body{padding:0 0 28px}.wrap{border-radius:0 0 24px 24px;border-left:0;border-right:0}.banner{min-height:0;padding:28px 18px 26px;background-size:260% auto}.banner h1{font-size:26px;margin-top:6px}.banner p{font-size:13px;margin-top:6px}#form-screen .banner .dial{display:none}.body{padding:18px 18px 18px}.tiers{gap:7px;margin-bottom:16px}.tiers .tier{font-size:10.5px;padding:9px 6px}label{margin:13px 0 6px}input[type=text],input[type=tel],input[type=email],select{padding:12px 14px}.consent{margin-top:14px;padding:11px 12px}select{padding-right:44px}#signup-form button{margin-top:16px}}
 @media(max-height:620px){#reward-overlay{justify-content:flex-start!important;padding:18px 20px!important}#reward-overlay>div:first-child{font-size:40px!important;margin-bottom:2px!important}#reward-overlay-pct{font-size:42px!important;margin-bottom:12px!important}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.sav-bloc{max-width:320px;margin:24px auto 0;text-align:left;border:1px solid var(--border);border-radius:18px;padding:14px 16px 6px;background:var(--paper-dim)}
+.sav-titre{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:4px}
+.sav-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.sav-item:first-of-type{border-top:0}
+.sav-lib{font-size:14px;font-weight:700;color:var(--ink);line-height:1.3}
+.sav-sub{font-size:12px;color:var(--ink-dim);margin-top:2px}
+.sav-etat{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:999px;white-space:nowrap;background:#fdf3cf;color:#6b5510}
+.sav-etat.prete{background:#dff1e6;color:#1f6b43}
+.sav-etat.rendue{background:#ececec;color:#5f6b64}
 </style>
 </head>
 <body>
@@ -178,6 +187,11 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     </div>
     <div class="error-msg" id="checkin-error" style="max-width:280px; margin:14px auto 0;"></div>
     <div class="reward-banner" id="checkin-reward" style="display:none;"></div>
+    <!-- Réparations en cours (liaison WatchTrack), affiché seulement si la boutique est reliée -->
+    <div class="sav-bloc" id="sav-bloc" style="display:none;">
+      <div class="sav-titre">Mes réparations et commandes</div>
+      <div id="sav-liste"></div>
+    </div>
 
     <!-- Overlay plein écran, affiché uniquement quand un palier vient d'être débloqué -->
     <div id="reward-overlay" style="display:none; position:fixed; inset:0; z-index:999; overflow-y:auto; background:rgba(32,29,24,0.94); flex-direction:column; align-items:center; justify-content:center; padding:32px; text-align:center; animation:fadeUp 0.35s ease both;">
@@ -238,6 +252,42 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const ADD_PASSAGE_URL = SUPABASE_URL + "/functions/v1/quick-action";
   const CLIENT_STATUS_URL = SUPABASE_URL + "/functions/v1/get-client-status";
+  const SAV_URL = SUPABASE_URL + "/functions/v1/sav-event";
+
+  // --- « Mes réparations » : réparations WatchTrack liées au numéro du client ---
+  function echapper(t) {
+    return String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  async function chargerReparations(clientId, boutiqueId) {
+    const bloc = document.getElementById("sav-bloc");
+    const liste = document.getElementById("sav-liste");
+    try {
+      const res = await fetch(SAV_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "mes_reparations", client_id: clientId, boutique_id: boutiqueId }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.actif || !data.reparations || data.reparations.length === 0) {
+        bloc.style.display = "none";
+        return;
+      }
+      const simple = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      liste.innerHTML = data.reparations.map((r) => {
+        const st = simple(r.statut);
+        const classe = st === "prete" ? "prete" : st === "rendue" ? "rendue" : "";
+        const libelleEtat = st === "prete" ? "Prête, à récupérer" : st === "rendue" ? "Récupérée" : (r.statut || "En cours");
+        const depuis = r.statut_depuis ? new Date(r.statut_depuis).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "";
+        const sous = [r.ticket ? "Ticket " + r.ticket : "", depuis ? "depuis le " + depuis : ""].filter(Boolean).join(" · ");
+        return `<div class="sav-item"><div><div class="sav-lib">${echapper(r.libelle || "Réparation")}</div>` +
+          (sous ? `<div class="sav-sub">${echapper(sous)}</div>` : "") +
+          `</div><span class="sav-etat ${classe}">${echapper(libelleEtat)}</span></div>`;
+      }).join("");
+      bloc.style.display = "block";
+    } catch (e) {
+      bloc.style.display = "none";
+    }
+  }
 
   const boutiqueSelect = document.getElementById("boutique");
   const form = document.getElementById("signup-form");
@@ -512,6 +562,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       ? "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !"
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
     updateCheckinDial(result.nb_passages_cycle_actuel);
+    chargerReparations(clientId, boutiqueId);
 
     const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
