@@ -79,6 +79,8 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .cat-chip:hover:not(:disabled){background:var(--green);color:#fff;transform:translateY(-1px)}
 .error-msg{display:none;margin-top:13px;padding:12px 13px;background:rgba(201,74,58,.07);border:1px solid rgba(201,74,58,.24);border-radius:10px;font-size:13px;color:var(--error)}
 .success{display:none;padding:48px 25px;text-align:center}.success .check{width:68px;height:68px;border-radius:50%;background:rgba(47,143,91,.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:29px;color:var(--green);animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.banner.banner-mini{min-height:0;padding:24px 20px 22px;margin:-48px -25px 28px;justify-content:center;background-size:cover !important;background-position:center !important}
+.banner-mini .mini-titre{position:relative;z-index:1;font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:800;color:#fff;margin-top:6px;text-shadow:0 3px 14px rgba(0,0,0,.42)}
 .success h2{font-family:Georgia,serif;font-size:23px;margin-bottom:10px;color:var(--ink)}.success p{color:var(--ink-dim);font-size:14px;line-height:1.65;margin-bottom:26px}
 .success a.wallet-btn{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);color:var(--ink);text-decoration:none;padding:14px 23px;border-radius:12px;font-weight:800;font-size:14px;box-shadow:0 8px 22px rgba(220,174,33,.24)}
 .live-dot{width:9px;height:9px;border-radius:50%;background:#2fbf64;box-shadow:0 0 0 0 rgba(47,191,100,.6);animation:livePulse 1.4s ease-out infinite}
@@ -167,6 +169,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran retour client : déjà inscrit, gagner un point -->
   <div class="success" id="checkin-screen" style="display:none;">
+    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="dial" style="width:100px;height:100px;margin:0 auto 20px;">
       <svg viewBox="0 0 84 84">
         <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="6" stroke="#e6e2da"/>
@@ -234,6 +237,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran de succès -->
   <div class="success" id="success-screen">
+    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="check">✓</div>
     <h2>Votre carte est prête</h2>
     <p>Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.</p>
