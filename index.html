@@ -105,6 +105,16 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .anniv-row{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
 #anniv-champ>label{margin-top:16px!important}
 .anniv-aide{font-size:12px;color:var(--ink-dim);margin-top:7px;line-height:1.45}
+.roues{position:relative;display:grid;grid-template-columns:1fr 1.5fr;gap:6px;height:180px;border:1px solid var(--border);border-radius:16px;background:var(--paper-dim);overflow:hidden}
+.roues::before{content:"";position:absolute;left:8px;right:8px;top:72px;height:36px;border-radius:10px;background:#fff;border:1.5px solid rgba(47,143,91,.35);pointer-events:none}
+.roues::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--paper-dim),rgba(243,247,244,0) 38%,rgba(243,247,244,0) 62%,var(--paper-dim))}
+.roue{position:relative;height:180px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;perspective:420px;outline:none;touch-action:pan-y;overscroll-behavior:contain}
+.roue::-webkit-scrollbar{display:none}
+.roue-pad{height:72px}
+.roue-item{height:36px;line-height:36px;text-align:center;scroll-snap-align:center;font-size:16px;font-weight:600;color:var(--ink-dim);cursor:pointer;user-select:none;-webkit-user-select:none;transform-origin:50% 50%}
+.roue-item.actif{color:var(--ink);font-weight:800}
+.roue:focus-visible{box-shadow:inset 0 0 0 2px var(--green);border-radius:12px}
+.roues.fige{opacity:.6;pointer-events:none}
 .anniv-bloc{max-width:320px;margin:22px auto 0;text-align:left;border:1.5px dashed var(--green);border-radius:18px;padding:15px 16px 16px;background:#f6fbf8}
 .anniv-bloc .anniv-titre{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:5px}
 .anniv-bloc p{font-size:12.5px;color:var(--ink-dim);line-height:1.5;margin:0 0 11px}
@@ -312,10 +322,23 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
         const st = simple(r.statut);
         const classe = st === "prete" ? "prete" : st === "rendue" ? "rendue" : "";
         const libelleEtat = st === "prete" ? "Prête, à récupérer" : st === "rendue" ? "Récupérée" : (r.statut || "En cours");
-        const depuis = r.statut_depuis ? new Date(r.statut_depuis).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "";
-        const sous = [r.ticket ? "Ticket " + r.ticket : "", depuis ? "depuis le " + depuis : ""].filter(Boolean).join(" · ");
+        // Dates affichées : dépôt (création du ticket), puis « prête le » / « rendue le » (changement de statut)
+        const jourMois = (d) => {
+          if (!d) return "";
+          const x = new Date(d);
+          const opts = { day: "numeric", month: "long" };
+          if (x.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+          return x.toLocaleDateString("fr-FR", opts).replace(/^1 /, "1er ");
+        };
+        const depot = jourMois(r.date_creation);
+        const fin = jourMois(r.statut_depuis);
+        const lignes = [
+          depot ? "Déposée le " + depot : "",
+          st === "prete" && fin ? "Prête le " + fin : st === "rendue" && fin ? "Rendue le " + fin : "",
+          r.ticket ? "Ticket " + r.ticket : "",
+        ].filter(Boolean);
         return `<div class="sav-item"><div><div class="sav-lib">${echapper(r.libelle || "Réparation")}</div>` +
-          (sous ? `<div class="sav-sub">${echapper(sous)}</div>` : "") +
+          lignes.map((l) => `<div class="sav-sub">${echapper(l)}</div>`).join("") +
           `</div><span class="sav-etat ${classe}">${echapper(libelleEtat)}</span></div>`;
       }).join("");
       bloc.style.display = "block";
@@ -331,6 +354,67 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     if (j.options.length > 1) return;
     for (let i = 1; i <= 31; i++) j.add(new Option(String(i), String(i)));
     MOIS_NOMS.forEach((nom, i) => m.add(new Option(nom, String(i + 1))));
+    construireRoues(j, m);
+  }
+
+  // Roulettes « à tourner » vers le haut ou le bas (comme sur iPhone), sur tous les téléphones.
+  // Chaque roulette pilote le <select> masqué correspondant : lireDate() ne change pas.
+  // Première position « — » = pas de date (le champ reste facultatif).
+  function construireRoues(j, m) {
+    const ligne = j.closest(".anniv-row");
+    const roues = document.createElement("div");
+    roues.className = "roues";
+    roues.id = ligne.id ? ligne.id + "-roues" : "";
+    [j, m].forEach((sel) => roues.appendChild(creerRoue(sel)));
+    ligne.style.display = "none";
+    ligne.after(roues);
+  }
+  function creerRoue(sel) {
+    const H = 36;
+    const roue = document.createElement("div");
+    roue.className = "roue";
+    roue.tabIndex = 0;
+    roue.setAttribute("role", "listbox");
+    roue.setAttribute("aria-label", sel.getAttribute("aria-label") || "");
+    roue.appendChild(Object.assign(document.createElement("div"), { className: "roue-pad" }));
+    const items = [...sel.options].map((o, i) => {
+      const it = document.createElement("div");
+      it.className = "roue-item";
+      it.setAttribute("role", "option");
+      it.textContent = i === 0 ? "—" : o.text;
+      it.onclick = () => roue.scrollTo({ top: i * H, behavior: "smooth" });
+      roue.appendChild(it);
+      return it;
+    });
+    roue.appendChild(Object.assign(document.createElement("div"), { className: "roue-pad" }));
+    let courant = -1, attente = 0;
+    const dessiner = () => {
+      attente = 0;
+      const pos = roue.scrollTop / H;
+      const idx = Math.max(0, Math.min(items.length - 1, Math.round(pos)));
+      items.forEach((it, i) => {
+        const d = i - pos;
+        if (Math.abs(d) > 3) return;
+        it.style.transform = `rotateX(${(-d * 20).toFixed(1)}deg)`;
+        it.style.opacity = String(Math.max(0.25, 1 - Math.abs(d) * 0.28));
+      });
+      if (idx !== courant) {
+        if (items[courant]) { items[courant].classList.remove("actif"); items[courant].removeAttribute("aria-selected"); }
+        items[idx].classList.add("actif");
+        items[idx].setAttribute("aria-selected", "true");
+        courant = idx;
+        sel.selectedIndex = idx;
+      }
+    };
+    roue.addEventListener("scroll", () => { if (!attente) attente = requestAnimationFrame(dessiner); }, { passive: true });
+    roue.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      e.preventDefault();
+      const cible = Math.max(0, Math.min(items.length - 1, courant + (e.key === "ArrowDown" ? 1 : -1)));
+      roue.scrollTo({ top: cible * H, behavior: "smooth" });
+    });
+    requestAnimationFrame(() => { roue.scrollTop = sel.selectedIndex * H; dessiner(); });
+    return roue;
   }
   // null = rien choisi ; "incomplet" / "invalide" = à corriger ; sinon { jour, mois }
   function lireDate(idJour, idMois) {
@@ -388,9 +472,9 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       btn.disabled = true;
       const ok = await enregistrerAnniversaire(clientId, boutiqueId, d);
       msg.className = ok ? "anniv-msg" : "anniv-msg err";
-      msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer pour le moment, réessayez plus tard.";
+      msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour === 1 ? "1er" : d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer pour le moment, réessayez plus tard.";
       msg.style.display = "block";
-      if (ok) { btn.style.display = "none"; document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true; }
+      if (ok) { btn.style.display = "none"; document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true; document.querySelectorAll("#anniv-bloc .roues").forEach((x) => x.classList.add("fige")); }
       else btn.disabled = false;
     };
     bloc.style.display = "block";
