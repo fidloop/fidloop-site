@@ -74,6 +74,17 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 }
 @media(max-width:720px){#dashboard{padding:20px 14px 50px}.totals{grid-template-columns:repeat(2,1fr)}.top h1{font-size:28px}.topbar{align-items:flex-start}.topbar-actions{gap:11px}.grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+.anniv-ligne{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--border)}
+.anniv-ligne:first-child{border-top:0;padding-top:2px}
+.anniv-nom{font-size:14px;font-weight:800}.anniv-info{font-size:12px;color:var(--ink-dim);margin-top:3px;line-height:1.4}
+.anniv-switch{position:relative;display:inline-block;width:48px;height:27px;flex-shrink:0}
+.anniv-switch input{opacity:0;width:0;height:0}
+.anniv-switch span{position:absolute;inset:0;border-radius:999px;background:#cfd8d3;cursor:pointer;transition:background .2s}
+.anniv-switch span::before{content:"";position:absolute;width:21px;height:21px;left:3px;top:3px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.anniv-switch input:checked+span{background:var(--green)}
+.anniv-switch input:checked+span::before{transform:translateX(21px)}
+.anniv-switch input:disabled+span{opacity:.5;cursor:wait}
+.anniv-switch input:focus-visible+span{outline:3px solid rgba(47,143,91,.35);outline-offset:2px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -262,6 +273,13 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <div class="credits-msg" id="credits-msg"></div>
   </div>
 
+  <div class="credits-box" id="anniv-box">
+    <h2>🎂 SMS d'anniversaire</h2>
+    <div class="sub">Le jour de leur anniversaire, vers 10 h, vos clients reçoivent un SMS : une pile ou une clé plate offerte, ou −20 % en boutique, au choix, valable 15 jours. 1 crédit par SMS, pris sur cet accès. Seuls les clients qui ont donné leur date sur leur carte, et qui n'ont pas demandé STOP, le reçoivent.</div>
+    <div id="anniv-liste"><div class="campaign-count">Chargement…</div></div>
+    <div class="credits-msg" id="anniv-msg"></div>
+  </div>
+
   <div class="grid" id="grid">
     <div class="loading">Chargement des données...</div>
   </div>
@@ -274,6 +292,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   const NETWORK_STATS_URL = SUPABASE_URL + "/functions/v1/network-stats";
   const SEND_CAMPAIGN_URL = SUPABASE_URL + "/functions/v1/send-campaign";
   const CREATE_CREDIT_CHECKOUT_URL = SUPABASE_URL + "/functions/v1/create-credit-checkout";
+  const SAV_URL = SUPABASE_URL + "/functions/v1/sav-event";
   // ============================================================
   // Comptes : session par jeton, mot de passe oublié, réinitialisation
   // ============================================================
@@ -711,8 +730,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       if (cb) cb.remove();
       const crb = document.getElementById("credits-box");
       if (crb) crb.remove();
+      const anb = document.getElementById("anniv-box");
+      if (anb) anb.remove();
     } else {
       updateCreditsSolde(acces.solde_credits);
+      chargerAnniversaires();
       // Message éventuel laissé par un retour de paiement Stripe (voir demarrer()).
       try {
         const achatMsg = sessionStorage.getItem("ancrimo_achat_message");
@@ -1358,6 +1380,54 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     // filtre catégorie) arrive.
     LAST_PREVIEW_COUNT = computeRecipientCount();
     updateCampaignPreview();
+  }
+
+  // --- SMS d'anniversaire : un interrupteur par boutique ---
+  async function appelAnniversaire(corps) {
+    const res = await fetch(SAV_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "anniversaire_reglages", token: SESSION_TOKEN, ...corps }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "erreur");
+    return data;
+  }
+  function afficherAnniversaires(data) {
+    const liste = document.getElementById("anniv-liste");
+    if (!liste) return;
+    const echap = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const boutiques = data.boutiques || [];
+    if (boutiques.length === 0) { liste.innerHTML = '<div class="campaign-count">Aucune boutique.</div>'; return; }
+    liste.innerHTML = boutiques.map((b) => {
+      const dates = b.nb_dates === 0 ? "Aucun client n'a encore donné sa date" : b.nb_dates === 1 ? "1 client a donné sa date" : `${b.nb_dates} clients ont donné leur date`;
+      const paie = b.paye_par_autre_acces ? " · activé depuis un autre accès, qui paie les SMS" : "";
+      return `<div class="anniv-ligne"><div><div class="anniv-nom">${echap(b.nom)}</div><div class="anniv-info">${dates}${paie}</div></div>` +
+        `<label class="anniv-switch" title="Activer le SMS d'anniversaire pour ${echap(b.nom)}"><input type="checkbox" data-boutique="${echap(b.id)}" ${b.actif ? "checked" : ""} aria-label="SMS d'anniversaire ${echap(b.nom)}"><span></span></label></div>`;
+    }).join("") + (data.envoyes_12_mois ? `<div class="anniv-info" style="margin-top:10px">${data.envoyes_12_mois} SMS d'anniversaire envoyés ces 12 derniers mois.</div>` : "");
+    liste.querySelectorAll("input[data-boutique]").forEach((inp) => {
+      inp.addEventListener("change", async () => {
+        const msg = document.getElementById("anniv-msg");
+        inp.disabled = true;
+        try {
+          const d = await appelAnniversaire({ boutique_id: inp.dataset.boutique, actif: inp.checked });
+          afficherAnniversaires(d);
+          msg.className = "credits-msg ok";
+          msg.textContent = inp.checked ? "SMS d'anniversaire activé." : "SMS d'anniversaire désactivé.";
+        } catch (e) {
+          inp.checked = !inp.checked;
+          inp.disabled = false;
+          msg.className = "credits-msg error";
+          msg.textContent = e.message === "session_invalide" ? "Session expirée : reconnectez-vous." : "Impossible d'enregistrer, réessayez.";
+        }
+      });
+    });
+  }
+  async function chargerAnniversaires() {
+    const liste = document.getElementById("anniv-liste");
+    if (!liste) return;
+    try { afficherAnniversaires(await appelAnniversaire({})); }
+    catch (e) { liste.innerHTML = '<div class="campaign-count">Réglage indisponible pour le moment.</div>'; }
   }
 
   // --- Solde de crédits + achat de packs ---
