@@ -102,6 +102,15 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .sav-etat{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:999px;white-space:nowrap;background:#fdf3cf;color:#6b5510}
 .sav-etat.prete{background:#dff1e6;color:#1f6b43}
 .sav-etat.rendue{background:#ececec;color:#5f6b64}
+.anniv-row{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+#anniv-champ>label{margin-top:16px!important}
+.anniv-aide{font-size:12px;color:var(--ink-dim);margin-top:7px;line-height:1.45}
+.anniv-bloc{max-width:320px;margin:22px auto 0;text-align:left;border:1.5px dashed var(--green);border-radius:18px;padding:15px 16px 16px;background:#f6fbf8}
+.anniv-bloc .anniv-titre{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:5px}
+.anniv-bloc p{font-size:12.5px;color:var(--ink-dim);line-height:1.5;margin:0 0 11px}
+.anniv-bloc button{margin-top:11px;padding:12px}
+.anniv-bloc .anniv-msg{display:none;margin-top:10px;font-size:13px;font-weight:700;color:var(--green)}
+.anniv-bloc .anniv-msg.err{color:var(--error)}
 </style>
 </head>
 <body>
@@ -143,6 +152,15 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
         <label for="email">Email (facultatif)</label>
         <input type="email" id="email" name="email" placeholder="vous@exemple.fr" autocomplete="email">
 
+        <div id="anniv-champ" style="display:none;">
+          <label for="anniv-jour">Votre anniversaire (facultatif)</label>
+          <div class="anniv-row">
+            <div class="select-wrap"><select id="anniv-jour" aria-label="Jour"><option value="">Jour</option></select></div>
+            <div class="select-wrap"><select id="anniv-mois" aria-label="Mois"><option value="">Mois</option></select></div>
+          </div>
+          <div class="anniv-aide">🎂 Un petit cadeau vous attend par SMS le jour de votre anniversaire.</div>
+        </div>
+
         <label for="boutique">Votre boutique</label>
         <div class="select-wrap">
           <select id="boutique" name="boutique" required>
@@ -161,7 +179,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       </form>
 
       <p class="legal">
-        En vous inscrivant, vos données (prénom, téléphone, email le cas échéant) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
+        En vous inscrivant, vos données (prénom, téléphone, email et date d'anniversaire le cas échéant) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
         Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique.
       </p>
     </div>
@@ -194,6 +212,17 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     <div class="sav-bloc" id="sav-bloc" style="display:none;">
       <div class="sav-titre">Mes réparations et commandes</div>
       <div id="sav-liste"></div>
+    </div>
+    <!-- Cadeau d'anniversaire : affiché si la boutique le propose et que la date n'est pas encore connue -->
+    <div class="anniv-bloc" id="anniv-bloc" style="display:none;">
+      <div class="anniv-titre">🎂 Un cadeau pour votre anniversaire</div>
+      <p>Indiquez votre date : le jour J, vous recevrez un SMS avec une pile ou une clé plate offerte, ou −20&nbsp;% en boutique, au choix.</p>
+      <div class="anniv-row">
+        <div class="select-wrap"><select id="anniv-bloc-jour" aria-label="Jour"><option value="">Jour</option></select></div>
+        <div class="select-wrap"><select id="anniv-bloc-mois" aria-label="Mois"><option value="">Mois</option></select></div>
+      </div>
+      <button type="button" id="anniv-bloc-btn">Enregistrer ma date</button>
+      <div class="anniv-msg" id="anniv-bloc-msg"></div>
     </div>
 
     <!-- Overlay plein écran, affiché uniquement quand un palier vient d'être débloqué -->
@@ -291,6 +320,78 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     } catch (e) {
       bloc.style.display = "none";
     }
+  }
+
+  // --- Anniversaire : jour + mois (sans l'année), cadeau envoyé par SMS le jour J ---
+  const MOIS_NOMS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  function remplirDates(idJour, idMois) {
+    const j = document.getElementById(idJour), m = document.getElementById(idMois);
+    if (j.options.length > 1) return;
+    for (let i = 1; i <= 31; i++) j.add(new Option(String(i), String(i)));
+    MOIS_NOMS.forEach((nom, i) => m.add(new Option(nom, String(i + 1))));
+  }
+  // null = rien choisi ; "incomplet" / "invalide" = à corriger ; sinon { jour, mois }
+  function lireDate(idJour, idMois) {
+    const jour = Number(document.getElementById(idJour).value) || 0;
+    const mois = Number(document.getElementById(idMois).value) || 0;
+    if (!jour && !mois) return null;
+    if (!jour || !mois) return "incomplet";
+    if (jour > [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mois - 1]) return "invalide";
+    return { jour, mois };
+  }
+  async function etatAnniversaire(boutiqueId, clientId) {
+    try {
+      const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "anniversaire_etat", boutique_id: boutiqueId, client_id: clientId || null }) });
+      return res.ok ? await res.json() : { actif: false };
+    } catch (e) { return { actif: false }; }
+  }
+  async function enregistrerAnniversaire(clientId, boutiqueId, d) {
+    try {
+      const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "anniversaire_enregistrer", client_id: clientId, boutique_id: boutiqueId, jour: d.jour, mois: d.mois }) });
+      return res.ok;
+    } catch (e) { return false; }
+  }
+  // Formulaire : le champ n'apparaît que si la boutique choisie propose le cadeau
+  async function majChampAnniversaire() {
+    const champ = document.getElementById("anniv-champ");
+    const b = boutiqueSelect.value || preselectedBoutique;
+    if (!b) { champ.style.display = "none"; return; }
+    const etat = await etatAnniversaire(b, null);
+    if ((boutiqueSelect.value || preselectedBoutique) !== b) return;
+    if (etat.actif) remplirDates("anniv-jour", "anniv-mois");
+    champ.style.display = etat.actif ? "block" : "none";
+  }
+  // Écran carte : encart pour les clients inscrits avant (ou qui n'ont pas donné leur date)
+  async function afficherBlocAnniversaire(clientId, boutiqueId) {
+    const bloc = document.getElementById("anniv-bloc");
+    bloc.style.display = "none";
+    const etat = await etatAnniversaire(boutiqueId, clientId);
+    if (!etat.actif || etat.renseigne) return;
+    remplirDates("anniv-bloc-jour", "anniv-bloc-mois");
+    const msg = document.getElementById("anniv-bloc-msg");
+    const btn = document.getElementById("anniv-bloc-btn");
+    msg.style.display = "none";
+    btn.disabled = false;
+    btn.style.display = "flex";
+    btn.onclick = async () => {
+      const d = lireDate("anniv-bloc-jour", "anniv-bloc-mois");
+      if (!d || typeof d === "string") {
+        msg.className = "anniv-msg err";
+        msg.textContent = d === "invalide" ? "Cette date n'existe pas, vérifiez le jour." : "Choisissez le jour et le mois.";
+        msg.style.display = "block";
+        return;
+      }
+      btn.disabled = true;
+      const ok = await enregistrerAnniversaire(clientId, boutiqueId, d);
+      msg.className = ok ? "anniv-msg" : "anniv-msg err";
+      msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer pour le moment, réessayez plus tard.";
+      msg.style.display = "block";
+      if (ok) { btn.style.display = "none"; document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true; }
+      else btn.disabled = false;
+    };
+    bloc.style.display = "block";
   }
 
   const boutiqueSelect = document.getElementById("boutique");
@@ -423,10 +524,11 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     if (savedClientId && preselectedBoutique) {
       showCheckinScreen(savedClientId, preselectedBoutique);
     } else {
-      loadBoutiques();
+      loadBoutiques().then(majChampAnniversaire);
       showScreen("form-screen");
     }
   }
+  boutiqueSelect.addEventListener("change", majChampAnniversaire);
   init();
 
   // --- Parcours 1 : première inscription ---
@@ -445,6 +547,15 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
         : "Numéro de téléphone incomplet ou incorrect. Tapez vos 10 chiffres, par exemple 06 12 34 56 78.";
       errorMsg.style.display = "block";
       document.getElementById("telephone").focus();
+      return;
+    }
+
+    const dateAnniv = document.getElementById("anniv-champ").style.display === "none" ? null : lireDate("anniv-jour", "anniv-mois");
+    if (typeof dateAnniv === "string") {
+      errorMsg.textContent = dateAnniv === "invalide"
+        ? "Cette date d'anniversaire n'existe pas : vérifiez le jour."
+        : "Pour votre anniversaire, choisissez le jour et le mois (ou laissez les deux vides).";
+      errorMsg.style.display = "block";
       return;
     }
 
@@ -478,6 +589,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       // On mémorise ce client sur CE téléphone, pour les prochains scans du QR boutique
       if (result.clientId) {
         localStorage.setItem("fidloop_client_id", result.clientId);
+        if (dateAnniv) await enregistrerAnniversaire(result.clientId, boutiqueSelect.value, dateAnniv);
       }
 
       // On envoie directement le client sur son écran de points (le bouton Wallet
@@ -554,7 +666,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       if (result.error === "client_introuvable") {
         localStorage.removeItem("fidloop_client_id");
       }
-      loadBoutiques();
+      loadBoutiques().then(majChampAnniversaire);
       showScreen("form-screen");
       return;
     }
@@ -567,6 +679,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
     updateCheckinDial(result.nb_passages_cycle_actuel);
     chargerReparations(clientId, boutiqueId);
+    afficherBlocAnniversaire(clientId, boutiqueId);
 
     const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
