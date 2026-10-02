@@ -354,6 +354,28 @@
   .demo-dots .demo-dot.on { background: var(--d-green); }
 
   #scene-review { align-items: center; justify-content: center; padding: 28px; }
+  .demo-nfc { margin-top: 14px; font-size: 11px; color: var(--d-yellow); font-family: "IBM Plex Mono", monospace; letter-spacing: .3px; }
+  #scene-carte { padding: 34px 16px 16px; gap: 10px; background: var(--d-paper); }
+  .demo-carte-head { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
+  .demo-carte-pts { width: 54px; height: 54px; border-radius: 50%; border: 4px solid var(--d-yellow-deep); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--d-ink-dim); flex-shrink: 0; }
+  .demo-carte-pts b { font-size: 17px; color: var(--d-ink); }
+  .demo-carte-nom { font-family: "Fraunces", serif; font-size: 16px; font-weight: 700; color: var(--d-ink); }
+  .demo-carte-sub { font-size: 10.5px; color: var(--d-ink-dim); }
+  .demo-bloc { background: var(--d-paper-dim); border-radius: 12px; padding: 9px 12px; }
+  .demo-bloc-t { font-size: 8.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--d-green); margin-bottom: 3px; }
+  .demo-li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid rgba(28,23,18,0.08); font-size: 11.5px; font-weight: 600; color: var(--d-ink); }
+  .demo-li:nth-child(2) { border-top: 0; }
+  .demo-li small { display: block; font-size: 9.5px; font-weight: 400; color: var(--d-ink-dim); margin-top: 2px; }
+  .demo-li-d { font-size: 10px; font-weight: 400; color: var(--d-ink-dim); white-space: nowrap; }
+  .demo-etat { font-size: 9.5px; font-weight: 800; padding: 4px 8px; border-radius: 999px; background: #fdf3cf; color: #6b5510; white-space: nowrap; transition: background .4s, color .4s; }
+  .demo-etat.prete { background: #dff1e6; color: #1f6b43; }
+  .demo-toast { position: absolute; bottom: 18px; left: 10px; right: 10px; background: #1c1712; color: #fff; font-size: 11px; padding: 10px 12px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.25); opacity: 0; transform: translateY(10px); transition: opacity .35s, transform .35s; z-index: 3; }
+  .demo-toast.show { opacity: 1; transform: none; }
+  #scene-anniv { background: #f2f2f6; padding: 40px 16px 16px; }
+  .demo-sms-head { text-align: center; font-size: 12px; font-weight: 700; color: #1c1712; margin-bottom: 2px; }
+  .demo-sms-from { text-align: center; font-size: 10.5px; color: #8a8a8e; margin-bottom: 18px; }
+  .demo-sms { background: #e5e5ea; color: #111; font-size: 12.5px; line-height: 1.45; padding: 11px 13px; border-radius: 16px 16px 16px 4px; max-width: 88%; }
+  .demo-sms-time { font-size: 9.5px; color: #8a8a8e; margin-top: 6px; }
   .demo-review-card { background: var(--d-paper-dim); border: 2px solid var(--d-ink); border-radius: 12px; padding: 20px; text-align: center; width: 100%; }
   .demo-review-title { font-size: 13px; color: var(--d-ink-dim); margin-bottom: 14px; }
 
@@ -434,12 +456,12 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">Fidélité dématérialisée · un seul geste : scanner</div>
+    <div class="eyebrow">Fidélité dématérialisée · un seul geste : scanner ou approcher son téléphone</div>
     <h1>Toute la fidélité de votre réseau tient dans <em>un QR code</em></h1>
     <p class="sub">
-      Un QR affiché en caisse, et c'est tout. Le client scanne, son téléphone le reconnaît
-      automatiquement à chaque passage, sa carte se met à jour en direct. Aucune appli à installer,
-      aucune carte plastique à imprimer, aucun boîtier en caisse.
+      Un QR affiché en caisse — ou un tag NFC sans contact : le client scanne ou approche simplement
+      son téléphone. Il est reconnu automatiquement à chaque passage, sa carte se met à jour en direct.
+      Aucune appli à installer, aucune carte plastique à imprimer, aucun boîtier en caisse.
     </p>
     <div class="actions">
       <a class="btn-primary" href="#contact">Demander une démo</a>
@@ -449,10 +471,13 @@
       Bientôt : la carte aussi dans Google Wallet &amp; Apple Wallet.
     </p>
 
-    <div class="trio-label">Un seul QR code, 3 en 1</div>
+    <div class="trio-label">Un seul QR code ou tag NFC, tout en 1</div>
     <div class="trio">
       <span>🎫 Carte de fidélité</span>
+      <span>📲 Sans contact NFC</span>
       <span>⭐ Avis Google intégré</span>
+      <span>🎂 Cadeau d'anniversaire</span>
+      <span>🔧 Suivi des réparations</span>
       <span>📊 Tableau de bord</span>
     </div>
 
@@ -477,7 +502,7 @@
     <div class="section-head">
       <span class="tag">Voir en action</span>
       <h2>Le parcours client, en direct</h2>
-      <p>Le vrai système, tel qu'il tourne en boutique — scan, inscription, points, récompense.</p>
+      <p>Le vrai système, tel qu'il tourne en boutique — scan ou NFC, inscription, points, récompense, suivi des réparations, anniversaire.</p>
     </div>
 
     <div class="demo-embed">
@@ -505,6 +530,7 @@
             </div>
             <h3>Boutique du Lien</h3>
             <p>Scannez pour votre carte de fidélité</p>
+            <div class="demo-nfc">((•)) ou approchez votre téléphone du tag NFC</div>
           </div>
 
           <div class="demo-scene" id="scene-form">
@@ -525,6 +551,10 @@
               <div class="demo-field">
                 <label>Email (facultatif)</label>
                 <div class="demo-value" id="type-email"></div>
+              </div>
+              <div class="demo-field">
+                <label>Anniversaire (facultatif)</label>
+                <div class="demo-value" id="type-anniv"></div>
               </div>
               <div class="demo-field">
                 <label>Boutique</label>
@@ -561,6 +591,31 @@
             </div>
           </div>
 
+          <div class="demo-scene" id="scene-carte">
+            <div class="demo-toast" id="carte-toast">📱 Boutique du Lien : votre montre est prête !</div>
+            <div class="demo-carte-head">
+              <div class="demo-carte-pts"><b>7</b>/10</div>
+              <div><div class="demo-carte-nom">Camille</div><div class="demo-carte-sub">Votre carte de fidélité</div></div>
+            </div>
+            <div class="demo-bloc">
+              <div class="demo-bloc-t">Mes derniers passages</div>
+              <div class="demo-li"><span>Pile</span><span class="demo-li-d">28 sept.</span></div>
+              <div class="demo-li"><span>Double de clé</span><span class="demo-li-d">12 sept.</span></div>
+              <div class="demo-li"><span>Passage en boutique</span><span class="demo-li-d">2 sept.</span></div>
+            </div>
+            <div class="demo-bloc">
+              <div class="demo-bloc-t">Mes réparations et commandes</div>
+              <div class="demo-li"><span>Montre — révision<small>Ticket 1201 · suivi en direct</small></span><span class="demo-etat" id="carte-etat">En réparation</span></div>
+            </div>
+          </div>
+
+          <div class="demo-scene" id="scene-anniv">
+            <div class="demo-sms-head">Messages</div>
+            <div class="demo-sms-from">Boutique du Lien</div>
+            <div class="demo-sms">Boutique du Lien : Joyeux anniversaire Camille ! 🎁 Un cadeau vous attend en boutique, valable 15 jours sur présentation de ce SMS.</div>
+            <div class="demo-sms-time">Aujourd'hui · 10:00</div>
+          </div>
+
           <div id="demo-reward-overlay">
             <div class="demo-reward-emoji">🎉</div>
             <div class="demo-reward-label">Récompense débloquée</div>
@@ -589,8 +644,8 @@
     <div class="steps">
       <div class="step">
         <div class="num mono">01</div>
-        <h3>Scan du QR en caisse</h3>
-        <p>Un QR fixe, imprimé, affiché à l'accueil. Le client scanne avec son propre téléphone — aucune appli à télécharger.</p>
+        <h3>Scan du QR ou NFC en caisse</h3>
+        <p>Un QR fixe, imprimé, affiché à l'accueil — ou un tag NFC : le client approche son propre téléphone. Aucune appli à télécharger.</p>
       </div>
       <div class="step">
         <div class="num mono">02</div>
@@ -895,13 +950,15 @@
 <script>
   const demoCaptionEl = document.getElementById("demo-caption");
   const demoDotsEl = document.getElementById("demo-dots");
-  const demoScenes = ["scene-qr", "scene-form", "scene-success", "scene-checkin", "scene-review"];
+  const demoScenes = ["scene-qr", "scene-form", "scene-success", "scene-checkin", "scene-review", "scene-carte", "scene-anniv"];
   const demoCaptions = {
-    "scene-qr": "Le client scanne le QR affiché en caisse",
-    "scene-form": "Inscription en 30 secondes",
+    "scene-qr": "Le client scanne le QR — ou approche son téléphone du tag NFC",
+    "scene-form": "Inscription en 30 secondes (anniversaire facultatif)",
     "scene-success": "Sa carte est prête, ajoutée en un tap",
     "scene-checkin": "Aux paliers que vous définissez : récompense automatique",
     "scene-review": "Au 1er point et à chaque palier : invitation à laisser un avis",
+    "scene-carte": "Sur sa carte : ses passages et ses réparations, suivis en direct",
+    "scene-anniv": "Le jour de son anniversaire, un SMS cadeau part tout seul",
   };
 
   demoScenes.forEach(() => {
@@ -957,7 +1014,9 @@
     await new Promise((resolve) => {
       demoTypeText(document.getElementById("type-prenom"), "Camille", 70, () => {
         demoTypeText(document.getElementById("type-tel"), "06 12 34 56 78", 55, () => {
-          demoTypeText(document.getElementById("type-email"), "camille@exemple.fr", 45, resolve);
+          demoTypeText(document.getElementById("type-email"), "camille@exemple.fr", 45, () => {
+            demoTypeText(document.getElementById("type-anniv"), "14 juillet", 60, resolve);
+          });
         });
       });
     });
@@ -996,6 +1055,23 @@
     }
 
     await demoWait(600);
+
+    // Carte du client : passages + réparation suivie en direct
+    const etat = document.getElementById("carte-etat");
+    const toast = document.getElementById("carte-toast");
+    etat.textContent = "En réparation"; etat.classList.remove("prete"); toast.classList.remove("show");
+    demoShowScene("scene-carte");
+    await demoWait(1800);
+    toast.classList.add("show");
+    etat.textContent = "Prête, à récupérer"; etat.classList.add("prete");
+    await demoWait(2600);
+    toast.classList.remove("show");
+    await demoWait(400);
+
+    // Anniversaire : SMS cadeau
+    demoShowScene("scene-anniv");
+    await demoWait(3200);
+
     demoPlaySequence();
   }
 
