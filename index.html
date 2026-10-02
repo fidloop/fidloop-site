@@ -348,6 +348,8 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   }
 
   // --- Anniversaire : jour + mois (sans l'année), cadeau envoyé par SMS le jour J ---
+  // Boutique de démonstration (boutiques.mode_test) : l'encart anniversaire reste rejouable à volonté
+  let modeDemo = false;
   const MOIS_NOMS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
   function remplirDates(idJour, idMois) {
     const j = document.getElementById(idJour), m = document.getElementById(idMois);
@@ -454,14 +456,22 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     const bloc = document.getElementById("anniv-bloc");
     bloc.style.display = "none";
     const etat = await etatAnniversaire(boutiqueId, clientId);
-    if (!etat.actif || etat.renseigne) return;
+    if (!etat.actif || (etat.renseigne && !modeDemo)) return;
     remplirDates("anniv-bloc-jour", "anniv-bloc-mois");
     const msg = document.getElementById("anniv-bloc-msg");
     const btn = document.getElementById("anniv-bloc-btn");
-    msg.style.display = "none";
-    btn.disabled = false;
-    btn.style.display = "flex";
-    btn.onclick = async () => {
+    // Remise à zéro de l'encart (au chargement, et en démo pour rejouer)
+    const reinitialiser = () => {
+      ["anniv-bloc-jour", "anniv-bloc-mois"].forEach((id) => { const sel = document.getElementById(id); sel.disabled = false; sel.selectedIndex = 0; });
+      document.querySelectorAll("#anniv-bloc .roues").forEach((x) => x.classList.remove("fige"));
+      document.querySelectorAll("#anniv-bloc .roue").forEach((x) => x.scrollTo({ top: 0, behavior: "smooth" }));
+      msg.style.display = "none";
+      btn.textContent = "Enregistrer ma date";
+      btn.disabled = false;
+      btn.style.display = "flex";
+      btn.onclick = enregistrer;
+    };
+    const enregistrer = async () => {
       const d = lireDate("anniv-bloc-jour", "anniv-bloc-mois");
       if (!d || typeof d === "string") {
         msg.className = "anniv-msg err";
@@ -474,9 +484,15 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       msg.className = ok ? "anniv-msg" : "anniv-msg err";
       msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour === 1 ? "1er" : d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer pour le moment, réessayez plus tard.";
       msg.style.display = "block";
-      if (ok) { btn.style.display = "none"; document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true; document.querySelectorAll("#anniv-bloc .roues").forEach((x) => x.classList.add("fige")); }
+      if (ok) {
+        document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true;
+        document.querySelectorAll("#anniv-bloc .roues").forEach((x) => x.classList.add("fige"));
+        if (modeDemo) { btn.textContent = "↻ Recommencer (démo)"; btn.disabled = false; btn.onclick = reinitialiser; }
+        else btn.style.display = "none";
+      }
       else btn.disabled = false;
     };
+    reinitialiser();
     bloc.style.display = "block";
   }
 
@@ -601,7 +617,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
         .maybeSingle();
 
       // Boutique de démonstration : bandeau « Version test » (points sans délai côté serveur)
-      if (boutique && boutique.mode_test === true) document.getElementById("mode-test").style.display = "block";
+      if (boutique && boutique.mode_test === true) { modeDemo = true; document.getElementById("mode-test").style.display = "block"; }
 
       if (boutique && boutique.actif === false) {
         showScreen("unavailable-screen");
