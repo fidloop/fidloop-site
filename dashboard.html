@@ -79,17 +79,17 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  .ap-titre p{font-size:15pt;line-height:1.35;margin:4mm 0 0;color:#111;font-weight:700}
  .ap-paliers{display:flex;justify-content:center;gap:5mm;margin-top:3mm}
  .ap-paliers span{background:#F6D94A;border-radius:3mm;padding:2.5mm 5mm;font-size:15pt;font-weight:600}.ap-paliers b{color:#3E8E33;font-weight:800}
- .ap-centre{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:9mm;padding:8mm 18mm 0;align-items:center}
+ .ap-centre{position:relative;display:grid;grid-template-columns:1fr 15mm 1fr;column-gap:3mm;padding:8mm 18mm 0;align-items:start}.ap-carte{grid-column:1;grid-row:1}
  .ap-carte{background:#fff;border:1.2mm solid #111;border-radius:6mm;padding:6mm;text-align:center;box-shadow:0 2mm 0 #5BB24A}
  #poster-print-qr{width:56mm;height:56mm;margin:0 auto}
  #poster-print-qr img,#poster-print-qr canvas{width:56mm!important;height:56mm!important;display:block}
  #poster-print-qr canvas+img{display:block}
  .ap-lib{font-size:16pt;font-weight:700;margin-top:4mm}
- .ap-nfc{text-align:center}
+ .ap-nfc{text-align:center;grid-column:3;grid-row:1;margin-top:7mm}
  .ap-rond{width:56mm;height:56mm;border-radius:50%;margin:0 auto;border:1.2mm dashed #5BB24A;background:#f3faf1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm}
  .ap-ondes{font-size:22pt;color:#3E8E33;font-weight:700;letter-spacing:.1em}
  .ap-rond span{font-size:11pt;color:#4a4a4a;line-height:1.3;padding:0 8mm}
- .ap-ou{position:absolute;left:50%;top:36mm;transform:translate(-50%,-50%);background:#F6D94A;width:13mm;height:13mm;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11pt}
+ .ap-ou{grid-column:2;grid-row:1;margin:28.5mm auto 0;transform:translateX(5.2mm);background:#F6D94A;width:13mm;height:13mm;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11pt}
  .ap-etapes{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;padding:7mm 16mm 4mm}
  .ap-etapes div{background:#fafafa;border-radius:4mm;padding:5mm 4mm;text-align:center;border-top:1.4mm solid #5BB24A}
  .ap-etapes b{display:block;font-size:24pt;color:#3E8E33;line-height:1}.ap-etapes p{font-size:11.5pt;line-height:1.3;margin:2mm 0 0}
