@@ -208,6 +208,11 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     </div>
     <div class="error-msg" id="checkin-error" style="max-width:280px; margin:14px auto 0;"></div>
     <div class="reward-banner" id="checkin-reward" style="display:none;"></div>
+    <!-- Derniers passages du client dans cette boutique -->
+    <div class="sav-bloc" id="passages-bloc" style="display:none;">
+      <div class="sav-titre">Mes derniers passages</div>
+      <div id="passages-liste"></div>
+    </div>
     <!-- Réparations en cours (liaison WatchTrack), affiché seulement si la boutique est reliée -->
     <div class="sav-bloc" id="sav-bloc" style="display:none;">
       <div class="sav-titre">Mes réparations et commandes</div>
@@ -392,6 +397,26 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       else btn.disabled = false;
     };
     bloc.style.display = "block";
+  }
+
+  // --- « Mes derniers passages » : les 5 derniers passages dans cette boutique ---
+  async function chargerPassages(clientId, boutiqueId) {
+    const bloc = document.getElementById("passages-bloc");
+    const liste = document.getElementById("passages-liste");
+    try {
+      const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "mes_passages", client_id: clientId, boutique_id: boutiqueId }) });
+      const data = await res.json();
+      if (!res.ok || !data.passages || data.passages.length === 0) { bloc.style.display = "none"; return; }
+      liste.innerHTML = data.passages.map((p) => {
+        const quand = new Date(p.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+        return `<div class="sav-item"><div><div class="sav-lib">${echapper(p.categorie || "Passage en boutique")}</div></div>` +
+          `<span class="sav-sub">${echapper(quand)}</span></div>`;
+      }).join("");
+      bloc.style.display = "block";
+    } catch (e) {
+      bloc.style.display = "none";
+    }
   }
 
   const boutiqueSelect = document.getElementById("boutique");
@@ -678,6 +703,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       ? "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !"
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
     updateCheckinDial(result.nb_passages_cycle_actuel);
+    chargerPassages(clientId, boutiqueId);
     chargerReparations(clientId, boutiqueId);
     afficherBlocAnniversaire(clientId, boutiqueId);
 
@@ -759,6 +785,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       }
 
       updateCheckinDial(result.client.nb_passages_cycle_actuel);
+      chargerPassages(clientId, boutiqueId);
       document.getElementById("checkin-text").textContent =
         "Point ajouté ! Merci de votre fidélité 🎉";
       btn.style.display = "none";
