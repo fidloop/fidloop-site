@@ -42,6 +42,7 @@ body{
 .banner::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent 42%);pointer-events:none}
 .banner::after{content:"";position:absolute;top:0;left:-60%;width:38%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-20deg);animation:shineSweep 1.5s ease-out .4s 1 both;pointer-events:none}
 .banner .eyebrow{position:relative;z-index:1;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#ffe36a;font-weight:800}
+.banner .boutique-nom{display:none;position:relative;z-index:1;margin-top:5px;font-size:13px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4)}
 .banner h1{position:relative;z-index:1;font-family:Georgia,"Times New Roman",serif;font-size:31px;line-height:1.12;font-weight:800;margin-top:8px;color:#fff;text-shadow:0 3px 18px rgba(0,0,0,.42)}
 .banner p{position:relative;z-index:1;color:rgba(255,255,255,.9);font-size:14px;margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
 .dial{width:76px;height:76px;margin:16px auto 0;position:relative;z-index:1}
@@ -133,7 +134,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   <!-- Écran formulaire -->
   <div id="form-screen">
     <div class="banner">
-      <div class="eyebrow">Pil'Vite</div>
+      <div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div>
       <h1>Votre carte de fidélité</h1>
       <p>Ajoutez-la à votre téléphone en 30&nbsp;secondes</p>
 
@@ -201,7 +202,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran retour client : déjà inscrit, gagner un point -->
   <div class="success" id="checkin-screen" style="display:none;">
-    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="mini-titre">Votre carte de fidélité</div></div>
+    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="dial" style="width:100px;height:100px;margin:0 auto 20px;">
       <svg viewBox="0 0 84 84">
         <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="6" stroke="#e6e2da"/>
@@ -282,7 +283,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran de succès -->
   <div class="success" id="success-screen">
-    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="mini-titre">Votre carte de fidélité</div></div>
+    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="check">✓</div>
     <h2>Votre carte est prête</h2>
     <p>Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.</p>
@@ -624,9 +625,18 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     if (preselectedBoutique) {
       const { data: boutique } = await supabaseClient
         .from("boutiques")
-        .select("actif, mode_test")
+        .select("actif, mode_test, nom, enseignes(nom)")
         .eq("id", preselectedBoutique)
         .maybeSingle();
+
+      // Nom de la boutique sous l'enseigne (« Pil'Vite Vaulx-en-Velin » → « 📍 Vaulx-en-Velin »)
+      if (boutique && boutique.nom) {
+        const ens = (boutique.enseignes && boutique.enseignes.nom) || "";
+        let lieu = boutique.nom.trim();
+        if (ens && lieu.toLowerCase().startsWith(ens.toLowerCase())) lieu = lieu.slice(ens.length).replace(/^[\s\-–—:·]+/, "");
+        if (!lieu) lieu = boutique.nom.trim();
+        document.querySelectorAll(".boutique-nom").forEach((el) => { el.textContent = "📍 " + lieu; el.style.display = "block"; });
+      }
 
       // Boutique de démonstration : bandeau « Version test » (points sans délai côté serveur)
       if (boutique && boutique.mode_test === true) { modeDemo = true; document.getElementById("mode-test").style.display = "block"; }
