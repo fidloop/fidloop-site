@@ -353,7 +353,16 @@
   .demo-dots .demo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-paper); transition: background 0.3s; }
   .demo-dots .demo-dot.on { background: var(--d-green); }
 
-  #scene-review { align-items: center; justify-content: center; padding: 28px; }
+  #scene-review { align-items: center; justify-content: center; padding: 28px; gap: 14px; }
+  .demo-gavis { width: 100%; background: #fff; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 6px 18px rgba(28,23,18,.12); opacity: 0; transform: translateY(8px); transition: opacity .35s, transform .35s; }
+  .demo-gavis.show { opacity: 1; transform: none; }
+  .demo-g-logo { font-family: Arial, sans-serif; font-size: 18px; letter-spacing: -.5px; }
+  .demo-g-nom { font-size: 11.5px; font-weight: 700; color: #202124; margin: 4px 0 6px; }
+  .demo-g-stars span { font-size: 22px; color: #dadce0; transition: color .2s; }
+  .demo-g-stars span.on { color: #fbbc05; }
+  .demo-g-txt { font-size: 10.5px; color: #5f6368; margin-top: 6px; line-height: 1.4; }
+  .demo-g-ok { font-size: 10.5px; font-weight: 700; color: #188038; margin-top: 8px; opacity: 0; transition: opacity .3s; }
+  .demo-g-ok.show { opacity: 1; }
   .demo-nfc { margin-top: 14px; font-size: 11px; color: var(--d-yellow); font-family: "IBM Plex Mono", monospace; letter-spacing: .3px; }
   #scene-carte { padding: 34px 16px 16px; gap: 10px; background: var(--d-paper); }
   .demo-carte-head { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
@@ -502,7 +511,7 @@
     <div class="section-head">
       <span class="tag">Voir en action</span>
       <h2>Le parcours client, en direct</h2>
-      <p>Le vrai système, tel qu'il tourne en boutique — scan ou NFC, inscription, points, récompense, suivi des réparations, anniversaire.</p>
+      <p>Le vrai système, tel qu'il tourne en boutique — scan ou NFC, inscription, points, avis Google, récompense, suivi des réparations, anniversaire.</p>
     </div>
 
     <div class="demo-embed">
@@ -587,25 +596,27 @@
           <div class="demo-scene" id="scene-review">
             <div class="demo-review-card">
               <div class="demo-review-title">Vous êtes satisfait de votre passage ?</div>
-              <div class="demo-btn" style="display:inline-flex; width:auto; padding:11px 20px;">⭐ Laisser un avis Google</div>
+              <div class="demo-btn" id="btn-avis" style="display:inline-flex; width:auto; padding:11px 20px;">⭐ Laisser un avis Google</div>
+            </div>
+            <div class="demo-gavis" id="demo-gavis">
+              <div class="demo-g-logo"><b style="color:#4285f4">G</b><b style="color:#ea4335">o</b><b style="color:#fbbc05">o</b><b style="color:#4285f4">g</b><b style="color:#34a853">l</b><b style="color:#ea4335">e</b></div>
+              <div class="demo-g-nom">Boutique du Lien</div>
+              <div class="demo-g-stars" id="demo-g-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+              <div class="demo-g-txt">« Accueil au top, et ma carte de fidélité en 30 secondes ! »</div>
+              <div class="demo-g-ok" id="demo-g-ok">✓ Avis publié — merci Camille !</div>
             </div>
           </div>
 
           <div class="demo-scene" id="scene-carte">
-            <div class="demo-toast" id="carte-toast">📱 Boutique du Lien : votre montre est prête !</div>
+            <div class="demo-toast" id="carte-toast">📱 Boutique du Lien : réparation prête !</div>
             <div class="demo-carte-head">
               <div class="demo-carte-pts"><b>7</b>/10</div>
               <div><div class="demo-carte-nom">Camille</div><div class="demo-carte-sub">Votre carte de fidélité</div></div>
             </div>
             <div class="demo-bloc">
-              <div class="demo-bloc-t">Mes derniers passages</div>
-              <div class="demo-li"><span>Pile</span><span class="demo-li-d">28 sept.</span></div>
-              <div class="demo-li"><span>Double de clé</span><span class="demo-li-d">12 sept.</span></div>
-              <div class="demo-li"><span>Passage en boutique</span><span class="demo-li-d">2 sept.</span></div>
-            </div>
-            <div class="demo-bloc">
               <div class="demo-bloc-t">Mes réparations et commandes</div>
-              <div class="demo-li"><span>Montre — révision<small>Ticket 1201 · suivi en direct</small></span><span class="demo-etat" id="carte-etat">En réparation</span></div>
+              <div class="demo-li"><span>Réparation<small>Ticket 1201 · suivi en direct</small></span><span class="demo-etat" id="carte-etat">En cours</span></div>
+              <div class="demo-li"><span>Commande<small>Ticket 1188 · depuis le 12 sept.</small></span><span class="demo-etat">En attente de pièce</span></div>
             </div>
           </div>
 
@@ -956,8 +967,8 @@
     "scene-form": "Inscription en 30 secondes (anniversaire facultatif)",
     "scene-success": "Sa carte est prête, ajoutée en un tap",
     "scene-checkin": "Aux paliers que vous définissez : récompense automatique",
-    "scene-review": "Au 1er point et à chaque palier : invitation à laisser un avis",
-    "scene-carte": "Sur sa carte : ses passages et ses réparations, suivis en direct",
+    "scene-review": "Au 1er point et à chaque palier : le client laisse un avis Google",
+    "scene-carte": "Sur sa carte : ses réparations et commandes, suivies en direct",
     "scene-anniv": "Le jour de son anniversaire, un SMS cadeau part tout seul",
   };
 
@@ -1039,8 +1050,20 @@
 
       if (cycle === 1) {
         await demoWait(300);
+        const gavis = document.getElementById("demo-gavis");
+        const etoiles = [...document.querySelectorAll("#demo-g-stars span")];
+        gavis.classList.remove("show"); etoiles.forEach((e) => e.classList.remove("on")); document.getElementById("demo-g-ok").classList.remove("show");
         demoShowScene("scene-review");
-        await demoWait(2200);
+        await demoWait(1200);
+        document.getElementById("btn-avis").classList.add("pressed");
+        await demoWait(200);
+        document.getElementById("btn-avis").classList.remove("pressed");
+        gavis.classList.add("show");
+        await demoWait(500);
+        for (const e of etoiles) { e.classList.add("on"); await demoWait(180); }
+        await demoWait(300);
+        document.getElementById("demo-g-ok").classList.add("show");
+        await demoWait(1600);
         demoShowScene("scene-checkin");
       }
       if (cycle === 6) { await demoWait(300); await demoShowReward("−10%", "FID-4K9X"); }
@@ -1056,10 +1079,10 @@
 
     await demoWait(600);
 
-    // Carte du client : passages + réparation suivie en direct
+    // Carte du client : réparations et commandes suivies en direct
     const etat = document.getElementById("carte-etat");
     const toast = document.getElementById("carte-toast");
-    etat.textContent = "En réparation"; etat.classList.remove("prete"); toast.classList.remove("show");
+    etat.textContent = "En cours"; etat.classList.remove("prete"); toast.classList.remove("show");
     demoShowScene("scene-carte");
     await demoWait(1800);
     toast.classList.add("show");
