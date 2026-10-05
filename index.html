@@ -152,7 +152,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     </div>
 
     <div class="body">
-      <div class="tiers">
+      <div class="tiers" id="tiers">
         <div class="tier"><span class="dot gold"></span> 6 passages = −10%</div>
         <div class="tier"><span class="dot dark"></span> 10 passages = −15%</div>
       </div>
@@ -355,6 +355,16 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   // --- Anniversaire : jour + mois (sans l'année), cadeau envoyé par SMS le jour J ---
   // Boutique de démonstration (boutiques.mode_test) : l'encart anniversaire reste rejouable à volonté
   let modeDemo = false;
+  // Paliers de la boutique (remplacés par ceux réglés dans le tableau de bord dès le chargement)
+  let PAL = { p1: 6, pct1: 10, p2: 10, pct2: 15 };
+  function appliquerPaliers() {
+    const pct = (x) => String(x).replace(".", ",");
+    const t = document.getElementById("tiers");
+    if (t) t.innerHTML = `<div class="tier"><span class="dot gold"></span> ${PAL.p1} passages = −${pct(PAL.pct1)}%</div>` +
+      (PAL.p2 ? `<div class="tier"><span class="dot dark"></span> ${PAL.p2} passages = −${pct(PAL.pct2)}%</div>` : "");
+    const n0 = document.querySelector("#form-screen .dial .n");
+    if (n0) n0.textContent = "0/" + PAL.p1;
+  }
   const MOIS_NOMS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
   function remplirDates(idJour, idMois) {
     const j = document.getElementById(idJour), m = document.getElementById(idMois);
@@ -625,9 +635,14 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     if (preselectedBoutique) {
       const { data: boutique } = await supabaseClient
         .from("boutiques")
-        .select("actif, mode_test, nom, enseignes(nom)")
+        .select("actif, mode_test, nom, enseignes(nom), palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
         .eq("id", preselectedBoutique)
         .maybeSingle();
+
+      if (boutique && boutique.palier_1_passages) {
+        PAL = { p1: boutique.palier_1_passages, pct1: boutique.palier_1_pourcentage, p2: boutique.palier_2_passages || null, pct2: boutique.palier_2_pourcentage || null };
+        appliquerPaliers();
+      }
 
       // Nom de la boutique sous l'enseigne (« Pil'Vite Vaulx-en-Velin » → « 📍 Vaulx-en-Velin »)
       if (boutique && boutique.nom) {
@@ -840,7 +855,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   }
 
   function updateCheckinDial(cycle) {
-    const denom = cycle <= 6 ? 6 : 10;
+    const denom = (cycle <= PAL.p1 || !PAL.p2) ? PAL.p1 : PAL.p2;
     document.getElementById("checkin-n").textContent = cycle + "/" + denom;
     const circumference = 226;
     const pct = Math.min(cycle / denom, 1);
