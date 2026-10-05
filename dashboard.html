@@ -1003,7 +1003,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     }
     return s;
   }
-  function printPoster(boutique, pal) {
+  async function printPoster(boutique, pal) {
+    // Paliers relus en base à l'impression : l'affiche suit toujours les derniers réglages
+    try {
+      const { data: frais } = await supabaseClient.from("boutiques")
+        .select("palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
+        .eq("id", boutique.id).maybeSingle();
+      if (frais && frais.palier_1_passages) {
+        pal = { p1: frais.palier_1_passages, pct1: frais.palier_1_pourcentage, p2: frais.palier_2_passages || null, pct2: frais.palier_2_pourcentage || null };
+      }
+    } catch (e) {}
     const qrBox = document.getElementById("poster-print-qr");
     qrBox.innerHTML = "";
     new QRCode(qrBox, {
@@ -1013,9 +1022,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       correctLevel: QRCode.CorrectLevel.H,
     });
     document.getElementById("poster-print-ville").textContent = boutique.nom;
-    const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pal.pct2} %</b></span>` : "";
+    const pct = (x) => String(x).replace(".", ",");
+    const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pct(pal.pct2)} %</b></span>` : "";
     document.getElementById("poster-print-paliers").innerHTML =
-      `<span>${pal.p1} passages = <b>−${pal.pct1} %</b></span>` + ligne2;
+      `<span>${pal.p1} passages = <b>−${pct(pal.pct1)} %</b></span>` + ligne2;
     window.print();
   }
 
