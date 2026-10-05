@@ -22,6 +22,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 #gate .note.show,#gate .err.show{display:block}.pwd-wrap{position:relative}.pwd-wrap input{padding-right:46px!important}.pwd-wrap .eye{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px!important;height:34px;margin:0!important;padding:0!important;background:none!important;border:0;font-size:16px;cursor:pointer;opacity:.55;line-height:1;box-shadow:none}
 .pwd-wrap .eye:hover{opacity:1}.remember{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:13px;font-size:12.5px;color:var(--ink-dim);cursor:pointer}.remember input{width:auto!important;margin:0!important;padding:0!important}.gate-links{margin-top:17px}.gate-link{background:none!important;border:0;padding:0!important;margin:0!important;width:auto!important;color:var(--ink-dim)!important;font-size:12.5px!important;text-decoration:underline;cursor:pointer;box-shadow:none!important}
 #gate .stack input+input{margin-top:9px}
+#gate a.cta-abo{display:block;margin-top:18px;padding:14px;border-radius:11px;background:var(--green);color:#fff;font-size:14.5px;font-weight:800;text-decoration:none}
+#gate .essai-detail{font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-top:14px}
+.essai-banner{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:-8px 0 22px;padding:12px 16px;border-radius:14px;background:#fff8dc;border:1px solid #f1d98a;font-size:13px;color:var(--ink)}
+.essai-banner a{color:var(--green);font-weight:800;text-decoration:none;white-space:nowrap}
 #dashboard{display:none;max-width:1120px;margin:0 auto;padding:28px 22px 70px}
 .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding:14px 0 16px;border-bottom:1px solid var(--border)}
 .topbar .who{font-size:13px;font-weight:800}.topbar-actions{display:flex;gap:16px;align-items:center}.link-btn{background:none;border:0;padding:0;cursor:pointer;font-size:12.5px;color:var(--ink-dim);text-decoration:underline;font-family:inherit}.link-btn:hover{color:var(--ink)}
@@ -172,6 +176,18 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       </div>
     </div>
 
+    <!-- Essai gratuit terminé (acces_dashboard.essai_fin dépassée) : invitation à s'abonner -->
+    <div id="panel-essai" style="display:none">
+      <h1>Votre essai est terminé 🌱</h1>
+      <p style="margin-bottom:6px">Merci d'avoir testé Ancrimo<span id="essai-fin-txt"></span> ! Vos clients et leurs points sont bien conservés.</p>
+      <p style="margin-bottom:0">Pour continuer à suivre votre programme de fidélité, relancer vos clients et imprimer vos affiches, il suffit de prendre l'abonnement.</p>
+      <a class="cta-abo" href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g" target="_blank" rel="noopener">Continuer avec Ancrimo — 39 € / mois</a>
+      <div class="essai-detail">Sans engagement. Votre accès est rétabli dès réception du paiement.<br>Une question ? <a href="mailto:contact@ancrimo.fr?subject=Abonnement%20Ancrimo" style="color:var(--green);font-weight:700">contact@ancrimo.fr</a></div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="essai-retour">&#8592; Retour à la connexion</button>
+      </div>
+    </div>
+
     <div id="panel-reset" style="display:none">
       <h1>Nouveau mot de passe</h1>
       <p>Choisissez un mot de passe d'au moins 8 caractères.</p>
@@ -223,6 +239,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <h1>Programme de fidélité</h1>
     <p id="top-sub">Vue d'ensemble</p>
   </div>
+  <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g" target="_blank" rel="noopener">Prendre l'abonnement →</a></div>
   <div class="totals" id="totals"></div>
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
 
@@ -531,7 +548,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     });
   }
   function montrerPanneau(id) {
-    ["panel-login", "panel-oubli", "panel-reset"].forEach((p) => {
+    ["panel-login", "panel-oubli", "panel-reset", "panel-essai"].forEach((p) => {
       const el = document.getElementById(p);
       if (el) el.style.display = (p === id ? "block" : "none");
     });
@@ -604,6 +621,13 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     try {
       const res = await api({ email: mail, password: val, longue_duree: persistant });
       const data = await res.json();
+      if (!res.ok && data.error === "essai_termine") {
+        btn.disabled = false;
+        btn.textContent = "Accéder";
+        document.getElementById("pwd").value = "";
+        montrerEssaiTermine(data.essai_fin);
+        return;
+      }
       if (!res.ok) {
         const messages = {
           identifiants_incorrects: "Email ou mot de passe incorrect.",
@@ -626,6 +650,18 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       btn.textContent = "Accéder";
     }
   }
+
+  // Dernier jour d'essai (essai_fin = minuit qui suit le dernier jour), en toutes lettres
+  function dernierJourEssai(fin) {
+    return new Date(new Date(fin).getTime() - 1000).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
+  }
+  function montrerEssaiTermine(fin) {
+    document.getElementById("essai-fin-txt").textContent = fin ? " jusqu'au " + dernierJourEssai(fin) : "";
+    document.getElementById("gate").style.display = "";
+    document.getElementById("dashboard").style.display = "none";
+    montrerPanneau("panel-essai");
+  }
+  document.getElementById("essai-retour").addEventListener("click", () => montrerPanneau("panel-login"));
 
   function ouvrirDashboard(data) {
     document.getElementById("gate").style.display = "none";
@@ -748,7 +784,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     if (!s) return;
     try {
       const res = await api({ token: s.token });
-      if (!res.ok) { effacerSession(); return; }
+      if (!res.ok) {
+        effacerSession();
+        try { const err = await res.json(); if (err.error === "essai_termine") montrerEssaiTermine(err.essai_fin); } catch (e) {}
+        return;
+      }
       const data = await res.json();
       SESSION_TOKEN = s.token;
       ouvrirDashboard(data);
@@ -758,6 +798,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   function renderDashboard(data) {
     // L'accès renvoyé par le serveur fait foi : identité, périmètre et droits.
     const acces = data.acces || {};
+    // Essai gratuit en cours : bandeau discret avec le nombre de jours restants
+    const bandeauEssai = document.getElementById("essai-banner");
+    if (acces.essai_fin && new Date(acces.essai_fin) > new Date()) {
+      const jours = Math.max(1, Math.ceil((new Date(acces.essai_fin) - new Date()) / 86400000));
+      document.getElementById("essai-banner-txt").textContent =
+        `🎁 Essai gratuit jusqu'au ${dernierJourEssai(acces.essai_fin)} — encore ${jours} jour${jours > 1 ? "s" : ""}.`;
+      bandeauEssai.style.display = "flex";
+    } else {
+      bandeauEssai.style.display = "none";
+    }
     document.getElementById("acces-nom").textContent = acces.nom || "Votre espace";
     const peutCampagnes = !!acces.peut_envoyer_campagnes;
     ACCES_ID = acces.id || null;
