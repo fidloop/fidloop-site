@@ -431,7 +431,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     if (later && !input.value) input.value = dateLocaleInput(dateParDefaut());
     input.min = dateLocaleInput(new Date(Date.now() + 10 * 60000));
     hint.textContent = CAMPAIGN_CANAL === "sms"
-      ? "Les SMS ne peuvent partir qu'entre 8h et 21h30. L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint."
+      ? "Les SMS ne peuvent partir que du lundi au samedi, entre 8h et 19h45 (pas le dimanche ni les jours fériés). L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint."
       : "L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint.";
     const btn = document.getElementById("campaign-send-btn");
     if (btn && !btn.textContent.startsWith("Envoi") && !btn.textContent.startsWith("Programmation")) btn.textContent = libelleEnvoi();
@@ -1243,7 +1243,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
           } else if (data.error === "date_trop_lointaine") {
             resultBox.textContent = "Un envoi peut être programmé au maximum 2 mois à l'avance.";
           } else if (data.error === "heure_sms_interdite") {
-            resultBox.textContent = "Les SMS ne peuvent partir qu'entre 8h et 21h30. Choisissez une autre heure.";
+            resultBox.textContent = "Les SMS ne partent que du lundi au samedi, entre 8h et 20h (pas le dimanche ni les jours fériés) : c'est la règle pour les SMS commerciaux. Programmez l'envoi pour plus tard.";
           } else if (data.error === "quota_depasse") {
             resultBox.textContent = `Quota mensuel atteint (${data.campagnes_utilisees}/${data.quota_total} campagnes ce mois). Contactez Ancrimo pour ajouter des campagnes supplémentaires.`;
           } else if (data.error === "limite_journaliere") {
