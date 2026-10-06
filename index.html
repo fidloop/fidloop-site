@@ -304,6 +304,22 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   const CLIENT_STATUS_URL = SUPABASE_URL + "/functions/v1/get-client-status";
   const SAV_URL = SUPABASE_URL + "/functions/v1/sav-event";
 
+  // Clé de la carte (audit de sécurité du 06/10/2026) : prouve que ce téléphone est celui qui a créé
+  // la carte. Sans elle, on voit ses points mais pas ses réparations, et on ne peut pas changer sa date.
+  const CLE_CARTE = "fidloop_cle_carte";
+  function lireCle() { try { return localStorage.getItem(CLE_CARTE) || ""; } catch (e) { return ""; } }
+  function ecrireCle(c) { try { if (c) localStorage.setItem(CLE_CARTE, c); else localStorage.removeItem(CLE_CARTE); } catch (e) {} }
+  // Cartes créées avant la clé : le téléphone habituel du client reçoit la sienne à la première ouverture.
+  async function adopterCle(clientId) {
+    if (lireCle()) return;
+    try {
+      const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "obtenir_cle", client_id: clientId }) });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.cle) ecrireCle(d.cle);
+    } catch (e) {}
+  }
+
   // --- « Mes réparations » : réparations WatchTrack liées au numéro du client ---
   function echapper(t) {
     return String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -315,9 +331,14 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       const res = await fetch(SAV_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "mes_reparations", client_id: clientId, boutique_id: boutiqueId }),
+        body: JSON.stringify({ action: "mes_reparations", client_id: clientId, boutique_id: boutiqueId, cle: lireCle() }),
       });
       const data = await res.json();
+      if (res.ok && data.protege) {
+        liste.innerHTML = '<div class="sav-sub">Vos réparations s\'affichent sur le téléphone avec lequel vous avez créé votre carte.</div>';
+        bloc.style.display = "block";
+        return;
+      }
       if (!res.ok || !data.actif || !data.reparations || data.reparations.length === 0) {
         bloc.style.display = "none";
         return;
@@ -452,7 +473,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   async function enregistrerAnniversaire(clientId, boutiqueId, d) {
     try {
       const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "anniversaire_enregistrer", client_id: clientId, boutique_id: boutiqueId, jour: d.jour, mois: d.mois }) });
+        body: JSON.stringify({ action: "anniversaire_enregistrer", client_id: clientId, boutique_id: boutiqueId, jour: d.jour, mois: d.mois, cle: lireCle() }) });
       return res.ok;
     } catch (e) { return false; }
   }
@@ -500,7 +521,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       btn.disabled = true;
       const ok = await enregistrerAnniversaire(clientId, boutiqueId, d);
       msg.className = ok ? "anniv-msg" : "anniv-msg err";
-      msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour === 1 ? "1er" : d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer pour le moment, réessayez plus tard.";
+      msg.textContent = ok ? `Merci, c'est noté pour le ${d.jour === 1 ? "1er" : d.jour} ${MOIS_NOMS[d.mois - 1]} ! 🎉` : "Impossible d'enregistrer ici : utilisez le téléphone avec lequel vous avez créé votre carte, ou réessayez plus tard.";
       msg.style.display = "block";
       if (ok) {
         document.getElementById("anniv-bloc-jour").disabled = true; document.getElementById("anniv-bloc-mois").disabled = true;
@@ -730,6 +751,9 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
       // On mémorise ce client sur CE téléphone, pour les prochains scans du QR boutique
       if (result.clientId) {
+        const ancienId = localStorage.getItem("fidloop_client_id");
+        if (result.cleCarte) ecrireCle(result.cleCarte);
+        else if (ancienId !== result.clientId) ecrireCle("");
         localStorage.setItem("fidloop_client_id", result.clientId);
         if (dateAnniv) await enregistrerAnniversaire(result.clientId, boutiqueSelect.value, dateAnniv);
       }
@@ -807,6 +831,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       // dans les deux cas, on repart sur le formulaire d'inscription.
       if (result.error === "client_introuvable") {
         localStorage.removeItem("fidloop_client_id");
+        ecrireCle("");
       }
       loadBoutiques().then(majChampAnniversaire);
       showScreen("form-screen");
@@ -820,6 +845,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       ? "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !"
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
     updateCheckinDial(result.nb_passages_cycle_actuel);
+    await adopterCle(clientId);
     chargerReparations(clientId, boutiqueId);
     afficherBlocAnniversaire(clientId, boutiqueId);
 
