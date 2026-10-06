@@ -914,7 +914,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
-        <h3>${boutique.nom}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
+        <h3>${echapHtml(boutique.nom)}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
         <button class="poster-btn" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">🖨 Affiche</button>
         <div class="shop-stats">
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
@@ -955,7 +955,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
                   .map(
                     (a) => `
             <div class="detail-row">
-              <span class="name">${(clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?"}</span>
+              <span class="name">${echapHtml((clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?")}</span>
               <span class="cycle">${a.nb_passages_cycle_actuel}/${pal.p2 && a.nb_passages_cycle_actuel > pal.p1 ? pal.p2 : pal.p1} · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
             </div>`
                   )
@@ -1046,8 +1046,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
     if (peutCampagnes) initCampaignBox(boutiques);
   }
+  // Échappe le texte avant de l'insérer dans du HTML (prénoms saisis par les clients, noms…)
+  function echapHtml(t) {
+    return String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
   function csvEscape(val) {
-    const s = (val === null || val === undefined) ? "" : String(val);
+    let s = (val === null || val === undefined) ? "" : String(val);
+    // Neutralise les formules Excel (=, +, -, @) glissées dans un prénom ou un email
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
     if (s.includes(";") || s.includes('"') || s.includes("\n")) {
       return '"' + s.replace(/"/g, '""') + '"';
     }
@@ -1088,7 +1095,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     ];
     const rows = adhesionsList.map((a) => {
       const c = clientsById[a.client_id] || {};
-      const telephoneTexte = c.telephone ? `="${c.telephone}"` : "";
+      const telephoneTexte = c.telephone ? `="${String(c.telephone).replace(/[^0-9+ ]/g, "")}"` : "";
       const otherFields = [
         c.prenom || "",
         c.email || "",
@@ -1119,7 +1126,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   function initCampaignBox(boutiques) {
     const select = document.getElementById("campaign-boutique");
     select.innerHTML = '<option value="">Tout le réseau</option>' +
-      boutiques.map((b) => `<option value="${b.id}">${b.nom}</option>`).join("");
+      boutiques.map((b) => `<option value="${echapHtml(b.id)}">${echapHtml(b.nom)}</option>`).join("");
     const categorieSelect = document.getElementById("campaign-categorie");
     select.addEventListener("change", async () => {
       await refreshCategorieOptions();
