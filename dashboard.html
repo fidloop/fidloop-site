@@ -176,6 +176,22 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       </div>
     </div>
 
+        <!-- Double authentification : code à 6 chiffres reçu par e-mail (appareil inconnu) -->
+    <div id="panel-code" style="display:none">
+      <h1>Vérification</h1>
+      <p>Pour protéger votre espace, nous venons d'envoyer un code à 6 chiffres à <strong id="code-email"></strong>.</p>
+      <input type="text" id="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="Code à 6 chiffres">
+      <label class="remember">
+        <input type="checkbox" id="code-confiance" checked> Se souvenir de cet appareil (30 jours)
+      </label>
+      <button id="code-btn">Valider</button>
+      <div class="err" id="code-err"></div>
+      <div class="essai-detail">Pas reçu ? Regardez dans vos courriers indésirables. Le code reste valable 10 minutes.</div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="code-retour">&#8592; Retour à la connexion</button>
+      </div>
+    </div>
+
     <!-- Essai gratuit terminé (acces_dashboard.essai_fin dépassée) : invitation à s'abonner -->
     <div id="panel-essai" style="display:none">
       <h1>Votre essai est terminé 🌱</h1>
@@ -356,6 +372,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   // lui seul qui est stocké, et le serveur revérifie tout à chaque appel.
   const CLE_SESSION = "ancrimo_session";
   const CLE_EMAIL = "ancrimo_email";
+  // Double authentification : jeton « appareil reconnu » (30 jours), distinct de la session.
+  const CLE_APPAREIL = "ancrimo_appareil";
+  let DEFI_CODE = null;
+  let PERSISTANT_CODE = false;
   const INACTIVITE_MINUTES = 30;
 
   let SESSION_TOKEN = null;
@@ -537,6 +557,12 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   function effacerSession() {
     try { localStorage.removeItem(CLE_SESSION); sessionStorage.removeItem(CLE_SESSION); } catch (e) {}
   }
+  function lireAppareil() {
+    try { return localStorage.getItem(CLE_APPAREIL) || ""; } catch (e) { return ""; }
+  }
+  function ecrireAppareil(jeton) {
+    try { localStorage.setItem(CLE_APPAREIL, jeton); } catch (e) {}
+  }
   function api(corps) {
     return fetch(NETWORK_STATS_URL, {
       method: "POST",
@@ -548,7 +574,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     });
   }
   function montrerPanneau(id) {
-    ["panel-login", "panel-oubli", "panel-reset", "panel-essai"].forEach((p) => {
+    ["panel-login", "panel-oubli", "panel-reset", "panel-essai", "panel-code"].forEach((p) => {
       const el = document.getElementById(p);
       if (el) el.style.display = (p === id ? "block" : "none");
     });
@@ -619,7 +645,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     btn.disabled = true;
     btn.textContent = "Vérification...";
     try {
-      const res = await api({ email: mail, password: val, longue_duree: persistant });
+      const res = await api({ email: mail, password: val, longue_duree: persistant, appareil: lireAppareil() });
       const data = await res.json();
       if (!res.ok && data.error === "essai_termine") {
         btn.disabled = false;
@@ -628,9 +654,25 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
         montrerEssaiTermine(data.essai_fin);
         return;
       }
+      // Appareil inconnu : le serveur a envoyé un code par e-mail (double authentification).
+      if (res.ok && data.etape === "code") {
+        DEFI_CODE = data.defi;
+        PERSISTANT_CODE = persistant;
+        btn.disabled = false;
+        btn.textContent = "Accéder";
+        document.getElementById("pwd").value = "";
+        document.getElementById("code-email").textContent = mail;
+        document.getElementById("code-input").value = "";
+        afficher("code-err", "");
+        montrerPanneau("panel-code");
+        document.getElementById("code-input").focus();
+        return;
+      }
       if (!res.ok) {
         const messages = {
           identifiants_incorrects: "Email ou mot de passe incorrect.",
+          envoi_code_impossible: "Le code de vérification n'a pas pu être envoyé. Réessayez dans quelques minutes, ou écrivez à contact@ancrimo.fr.",
+          trop_de_codes: "Trop de codes demandés. Réessayez dans une heure.",
           trop_de_tentatives: "Trop de tentatives. Réessayez dans " + (data.minutes || 15) + " minutes.",
         };
         afficher("pwd-err", messages[data.error] || "Email ou mot de passe incorrect.");
@@ -650,6 +692,66 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       btn.textContent = "Accéder";
     }
   }
+
+    // --- Double authentification : code reçu par e-mail ---
+  async function verifierCode() {
+    const code = document.getElementById("code-input").value.replace(/\D/g, "");
+    const btn = document.getElementById("code-btn");
+    afficher("code-err", "");
+    if (!DEFI_CODE) {
+      afficher("code-err", "Ce code n'est plus valable. Revenez à la connexion pour en recevoir un nouveau.");
+      return;
+    }
+    if (code.length !== 6) {
+      afficher("code-err", "Saisissez les 6 chiffres reçus par e-mail.");
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Vérification...";
+    try {
+      const confiance = document.getElementById("code-confiance").checked;
+      const res = await api({ action: "verifier_code", defi: DEFI_CODE, code, longue_duree: PERSISTANT_CODE, se_souvenir: confiance });
+      const data = await res.json();
+      btn.disabled = false;
+      btn.textContent = "Valider";
+      if (!res.ok && data.error === "essai_termine") {
+        DEFI_CODE = null;
+        montrerEssaiTermine(data.essai_fin);
+        return;
+      }
+      if (!res.ok) {
+        if (data.error === "code_expire") {
+          DEFI_CODE = null;
+          afficher("code-err", "Ce code n'est plus valable. Revenez à la connexion pour en recevoir un nouveau.");
+        } else if (data.error === "trop_de_tentatives") {
+          afficher("code-err", "Trop de tentatives. Réessayez dans " + (data.minutes || 15) + " minutes.");
+        } else {
+          afficher("code-err", "Code incorrect. Vérifiez les 6 chiffres reçus par e-mail.");
+        }
+        return;
+      }
+      DEFI_CODE = null;
+      if (data.appareil) ecrireAppareil(data.appareil);
+      SESSION_TOKEN = data.token || null;
+      ecrireSession({ token: data.token, expire_le: data.expire_le }, PERSISTANT_CODE);
+      try { localStorage.setItem(CLE_EMAIL, document.getElementById("login-email").value.trim()); } catch (e) {}
+      document.getElementById("code-input").value = "";
+      ouvrirDashboard(data);
+    } catch (err) {
+      afficher("code-err", "Erreur de connexion. Réessayez.");
+      btn.disabled = false;
+      btn.textContent = "Valider";
+    }
+  }
+  document.getElementById("code-btn").addEventListener("click", verifierCode);
+  document.getElementById("code-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") verifierCode();
+  });
+  document.getElementById("code-retour").addEventListener("click", () => {
+    DEFI_CODE = null;
+    montrerPanneau("panel-login");
+    document.getElementById("pwd").focus();
+  });
 
   // Dernier jour d'essai (essai_fin = minuit qui suit le dernier jour), en toutes lettres
   function dernierJourEssai(fin) {
