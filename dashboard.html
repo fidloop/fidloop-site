@@ -114,6 +114,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .anniv-switch input:checked+span::before{transform:translateX(21px)}
 .anniv-switch input:disabled+span{opacity:.5;cursor:wait}
 .anniv-switch input:focus-visible+span{outline:3px solid rgba(47,143,91,.35);outline-offset:2px}
+.st-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.st-chip{font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;cursor:help}
+.st-badge{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:999px;margin-left:7px;vertical-align:1px}
+.st-nouveau{background:#e3f0ff;color:#1d5fa8}.st-vip{background:#fff1c2;color:#8a6200}.st-regulier{background:#e2f4e9;color:#1f6b43}
+.st-occasionnel{background:#eef1ef;color:#55645c}.st-risque{background:#ffe9d6;color:#a2520f}.st-perdu{background:#fbe1de;color:#a3352a}
+.auto-boutique{padding:12px 0;border-top:1px solid var(--border)}.auto-boutique:first-child{border-top:0;padding-top:2px}
+.auto-ligne{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:9px}
+.auto-titre{font-size:13px;font-weight:800}
+.auto-reglages{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;font-size:12px;color:var(--ink-dim)}
+.auto-reglages select{padding:4px 6px;border:1px solid var(--border);border-radius:7px;font:inherit;font-size:12px;background:#fff;color:var(--ink)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
 </head>
@@ -349,7 +359,14 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <div class="sub">Le jour de leur anniversaire, vers 10 h, vos clients reçoivent un SMS : une pile ou une clé plate offerte, ou −20 % en boutique, au choix, valable 15 jours. 1 crédit par SMS, pris sur cet accès. Seuls les clients qui ont donné leur date sur leur carte, et qui n'ont pas demandé STOP, le reçoivent.</div>
     <div id="anniv-liste"><div class="campaign-count">Chargement…</div></div>
     <div class="credits-msg" id="anniv-msg"></div>
-  </div>
+</div>
+
+<div class="credits-box" id="auto-box">
+<h2>🔁 Relance des clients &amp; 🎁 offre de bienvenue</h2>
+<div class="sub"><strong>Relance « client perdu »</strong> : vers 10 h 30, du lundi au samedi (hors jours fériés), les clients qui ne sont pas revenus depuis le délai choisi reçoivent un SMS avec une remise sur leur prochain passage, valable 15 jours. Un seul SMS par client tant qu'il ne revient pas. 1 crédit par SMS, pris sur cet accès. Seuls les clients qui ont accepté les offres, et qui n'ont pas demandé STOP, le reçoivent.<br><strong>Offre de bienvenue</strong> : au tout premier passage, la carte du client affiche une remise à utiliser tout de suite en caisse. Gratuit.</div>
+<div id="auto-liste"><div class="campaign-count">Chargement…</div></div>
+<div class="credits-msg" id="auto-msg"></div>
+</div>
 
   <div class="grid" id="grid">
     <div class="loading">Chargement des données...</div>
@@ -922,9 +939,12 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       if (crb) crb.remove();
       const anb = document.getElementById("anniv-box");
       if (anb) anb.remove();
+ const aub = document.getElementById("auto-box");
+ if (aub) aub.remove();
     } else {
       updateCreditsSolde(acces.solde_credits);
       chargerAnniversaires();
+ chargerAutomatismes();
       // Message éventuel laissé par un retour de paiement Stripe (voir demarrer()).
       try {
         const achatMsg = sessionStorage.getItem("ancrimo_achat_message");
@@ -1022,7 +1042,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
           <div><div class="n">${passages}</div><div class="l">Passages</div></div>
         </div>
-        <div class="bar-track">
+        <div class="st-chips" id="st-${boutique.id}"></div>
+ <div class="bar-track">
           <div class="bar-seg-6" style="width:${pct6}%"></div>
           <div class="bar-seg-10" style="width:${pct10}%"></div>
         </div>
@@ -1057,7 +1078,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
                   .map(
                     (a) => `
             <div class="detail-row">
-              <span class="name">${echapHtml((clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?")}</span>
+              <span class="name">${echapHtml((clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?")}<span class="st-badge" data-st="${a.client_id}|${boutique.id}" hidden></span></span>
               <span class="cycle">${a.nb_passages_cycle_actuel}/${pal.p2 && a.nb_passages_cycle_actuel > pal.p1 ? pal.p2 : pal.p1} · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
             </div>`
                   )
@@ -1146,7 +1167,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
         ? `Vue d'ensemble de ${boutiques.length} boutiques`
         : (boutiques[0] ? boutiques[0].nom : "Aucune boutique");
 
-    if (peutCampagnes) initCampaignBox(boutiques);
+    chargerStatuts(adhesions);
+ if (peutCampagnes) initCampaignBox(boutiques);
   }
   // Échappe le texte avant de l'insérer dans du HTML (prénoms saisis par les clients, noms…)
   function echapHtml(t) {
@@ -1637,7 +1659,117 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     catch (e) { liste.innerHTML = '<div class="campaign-count">Réglage indisponible pour le moment.</div>'; }
   }
 
-  // --- Solde de crédits + achat de packs ---
+  // --- Statuts des clients (nouveau, VIP, régulier, occasionnel, à risque, perdu) ---
+const STATUTS = [
+  ["nouveau", "nouveaux", "Nouveau", "Inscrit depuis moins de 30 jours"],
+  ["vip", "VIP", "VIP", "Au moins 10 passages, venu dans les 90 derniers jours"],
+  ["regulier", "réguliers", "Régulier", "Au moins 3 passages, venu dans les 60 derniers jours"],
+  ["occasionnel", "occasionnels", "Occasionnel", "Venu dans les 60 derniers jours"],
+  ["risque", "à risque", "À risque", "Pas revenu depuis 60 à 120 jours"],
+  ["perdu", "perdus", "Perdu", "Pas revenu depuis plus de 120 jours"],
+];
+function statutClient(a, dernier) {
+  const jours = (t) => (Date.now() - new Date(t).getTime()) / 86400000;
+  if (jours(a.date_inscription) < 30) return "nouveau";
+  const d = jours(dernier || a.date_inscription);
+  const total = a.nb_passages_total || 0;
+  if (total >= 10 && d < 90) return "vip";
+  if (d < 60) return total >= 3 ? "regulier" : "occasionnel";
+  return d < 120 ? "risque" : "perdu";
+}
+async function chargerStatuts(adhesions) {
+  if (!SESSION_TOKEN) return;
+  let lignes;
+  try {
+    const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "statuts_clients", token: SESSION_TOKEN }) });
+    if (!res.ok) return;
+    lignes = (await res.json()).lignes || [];
+  } catch (e) { return; }
+  const dernier = {};
+  lignes.forEach((l) => { dernier[l[0] + "|" + l[1]] = l[2]; });
+  const parBoutique = {};
+  adhesions.forEach((a) => {
+    const cle = a.client_id + "|" + a.boutique_id;
+    const st = statutClient(a, dernier[cle]);
+    const n = (parBoutique[a.boutique_id] = parBoutique[a.boutique_id] || {});
+    n[st] = (n[st] || 0) + 1;
+    const def = STATUTS.find((s) => s[0] === st);
+    document.querySelectorAll('[data-st="' + cle + '"]').forEach((el) => {
+      el.className = "st-badge st-" + st; el.textContent = def[2]; el.title = def[3]; el.hidden = false;
+    });
+  });
+  Object.entries(parBoutique).forEach(([id, n]) => {
+    const box = document.getElementById("st-" + id);
+    if (box) box.innerHTML = STATUTS.filter((s) => n[s[0]]).map((s) => `<span class="st-chip st-${s[0]}" title="${s[3]}">${n[s[0]]} ${n[s[0]] === 1 ? (s[0] === "vip" ? "VIP" : s[2].toLowerCase()) : s[1]}</span>`).join("");
+  });
+}
+
+// --- Relance « client perdu » et offre de bienvenue ---
+async function appelAutomatismes(corps) {
+  const res = await fetch(SAV_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "automatismes_reglages", token: SESSION_TOKEN, ...corps }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "erreur");
+  return data;
+}
+function afficherAutomatismes(data) {
+  const liste = document.getElementById("auto-liste");
+  if (!liste) return;
+  const echap = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const boutiques = data.boutiques || [];
+  if (boutiques.length === 0) { liste.innerHTML = '<div class="campaign-count">Aucune boutique.</div>'; return; }
+  const options = (vals, cur, suffixe) => vals.map((v) => `<option value="${v}" ${v === cur ? "selected" : ""}>${v}${suffixe}</option>`).join("");
+  const interrupteur = (b, cle, actif, titre) => `<label class="anniv-switch" title="${titre}"><input type="checkbox" data-b="${echap(b.id)}" data-k="${cle}" ${actif ? "checked" : ""} aria-label="${titre}"><span></span></label>`;
+  const clients = (n) => (n === 0 ? "aucun client" : n === 1 ? "1 client" : `${n} clients`);
+  liste.innerHTML = boutiques.map((b) => {
+    const info = b.relance_actif
+      ? `${clients(b.a_relancer)} à relancer au prochain envoi · ${b.relances_30j} relancé${b.relances_30j > 1 ? "s" : ""} ces 30 derniers jours${b.relance_paye_par_autre_acces ? " · activé depuis un autre accès, qui paie les SMS" : ""}`
+      : `Si vous l'activez : ${clients(b.a_relancer)} relancé${b.a_relancer > 1 ? "s" : ""} au prochain envoi (${b.a_relancer} crédit${b.a_relancer > 1 ? "s" : ""}).`;
+    return `<div class="auto-boutique"><div class="anniv-nom">${echap(b.nom)}</div>` +
+      `<div class="auto-ligne"><div><div class="auto-titre">🔁 Relance « client perdu »</div><div class="anniv-info">${info}</div>` +
+      `<div class="auto-reglages">Après <select data-b="${echap(b.id)}" data-k="relance_jours" aria-label="Délai sans venir">${options([45, 60, 90, 120, 180], b.relance_jours, " jours")}</select> sans venir, offrir <select data-b="${echap(b.id)}" data-k="relance_pourcentage" aria-label="Remise de relance">${options([5, 10, 15, 20, 25, 30], b.relance_pourcentage, " %")}</select></div></div>` +
+      interrupteur(b, "relance_actif", b.relance_actif, "Relance client perdu " + echap(b.nom)) + `</div>` +
+      `<div class="auto-ligne"><div><div class="auto-titre">🎁 Offre de bienvenue</div>` +
+      `<div class="auto-reglages">Au premier passage : <select data-b="${echap(b.id)}" data-k="bienvenue_pourcentage" aria-label="Remise de bienvenue">${options([5, 10, 15, 20, 25, 30], b.bienvenue_pourcentage, " %")}</select> sur l'achat en cours</div></div>` +
+      interrupteur(b, "bienvenue_actif", b.bienvenue_actif, "Offre de bienvenue " + echap(b.nom)) + `</div></div>`;
+  }).join("");
+  const msg = document.getElementById("auto-msg");
+  const enregistrer = async (el, valeur, retour) => {
+    el.disabled = true;
+    try {
+      const d = await appelAutomatismes({ boutique_id: el.dataset.b, reglages: { [el.dataset.k]: valeur } });
+      afficherAutomatismes(d);
+      const b = (d.boutiques || []).find((x) => x.id === el.dataset.b) || {};
+      msg.className = "credits-msg ok";
+      msg.textContent = el.dataset.k === "relance_actif"
+        ? (valeur ? `Relance activée : ${clients(b.a_relancer || 0)} au prochain envoi, vers 10 h 30.` : "Relance désactivée.")
+        : el.dataset.k === "bienvenue_actif" ? (valeur ? "Offre de bienvenue activée." : "Offre de bienvenue désactivée.") : "Réglage enregistré.";
+    } catch (e) {
+      retour();
+      el.disabled = false;
+      msg.className = "credits-msg error";
+      msg.textContent = e.message === "session_invalide" ? "Session expirée : reconnectez-vous." : "Impossible d'enregistrer, réessayez.";
+    }
+  };
+  liste.querySelectorAll("input[data-k]").forEach((inp) => {
+    inp.addEventListener("change", () => enregistrer(inp, inp.checked, () => { inp.checked = !inp.checked; }));
+  });
+  liste.querySelectorAll("select[data-k]").forEach((sel) => {
+    const avant = sel.value;
+    sel.addEventListener("change", () => enregistrer(sel, Number(sel.value), () => { sel.value = avant; }));
+  });
+}
+async function chargerAutomatismes() {
+  const liste = document.getElementById("auto-liste");
+  if (!liste) return;
+  try { afficherAutomatismes(await appelAutomatismes({})); }
+  catch (e) { liste.innerHTML = '<div class="campaign-count">Réglage indisponible pour le moment.</div>'; }
+}
+
+// --- Solde de crédits + achat de packs ---
   function updateCreditsSolde(n) {
     const el = document.getElementById("credits-solde");
     if (el) el.textContent = (n === null || n === undefined) ? "—" : n;
