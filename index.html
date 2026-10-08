@@ -239,7 +239,14 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       <button type="button" id="anniv-bloc-btn">Enregistrer ma date</button>
       <div class="anniv-msg" id="anniv-bloc-msg"></div>
     </div>
-    <!-- Démo uniquement : date déjà donnée → simple lien pour la rejouer, sans encombrer la carte -->
+    <!-- Notifications gratuites sur ce téléphone (réparation prête…) : affiché si le navigateur le permet -->
+<div class="anniv-bloc" id="notif-bloc" style="display:none;">
+<div class="anniv-titre">🔔 Être prévenu sur ce téléphone</div>
+<p id="notif-texte">Recevez une notification gratuite quand votre réparation est prête, sans attendre de SMS.</p>
+<button type="button" id="notif-btn">Activer les notifications</button>
+<div class="anniv-msg" id="notif-msg"></div>
+</div>
+<!-- Démo uniquement : date déjà donnée → simple lien pour la rejouer, sans encombrer la carte -->
     <button type="button" class="anniv-demo-lien" id="anniv-demo-lien" style="display:none;">🎂 Modifier ma date d'anniversaire (démo)</button>
 
     <!-- Overlay plein écran, affiché uniquement quand un palier vient d'être débloqué -->
@@ -320,7 +327,60 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     } catch (e) {}
   }
 
-  // --- « Mes réparations » : réparations WatchTrack liées au numéro du client ---
+  // --- Notifications web push gratuites (08/10/2026) ---
+const CLE_PUBLIQUE_PUSH = "BB8u2k1X3Y_gcx9w4EjzhCTiqqc2jQ5Wmzo1RFtiRudf5rNyYlMAABv6F9Hf9c0ewAYu-KlCg-g3sU-_tJEGMwQ";
+function pushPossible() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window && window.isSecureContext; }
+function b64uVersOctets(s) {
+const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
+return Uint8Array.from(b, (c) => c.charCodeAt(0));
+}
+async function enregistrerAbonnement(abonnement, clientId, boutiqueId, test) {
+const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ action: "push_abonner", client_id: clientId, boutique_id: boutiqueId, cle: lireCle(), test, abonnement: abonnement.toJSON() }) });
+return res.ok;
+}
+async function afficherBlocNotifications(clientId, boutiqueId) {
+const bloc = document.getElementById("notif-bloc");
+if (!bloc) return;
+bloc.style.display = "none";
+if (!pushPossible() || Notification.permission === "denied") return;
+let reg;
+try { reg = await navigator.serviceWorker.register("/sw.js"); await navigator.serviceWorker.ready; } catch (e) { return; }
+const texte = document.getElementById("notif-texte");
+const btn = document.getElementById("notif-btn");
+const msg = document.getElementById("notif-msg");
+const montrerActive = () => { texte.textContent = "Notifications activées sur ce téléphone ✅"; btn.style.display = "none"; };
+const existant = await reg.pushManager.getSubscription().catch(() => null);
+bloc.style.display = "block";
+if (existant && Notification.permission === "granted") {
+montrerActive();
+enregistrerAbonnement(existant, clientId, boutiqueId, false).catch(() => {});
+return;
+}
+btn.style.display = "";
+btn.disabled = false;
+btn.onclick = async () => {
+btn.disabled = true;
+msg.style.display = "none"; msg.className = "anniv-msg";
+try {
+const permission = await Notification.requestPermission();
+if (permission !== "granted") {
+msg.textContent = "Notifications non autorisées. Vous pourrez les activer plus tard dans les réglages du navigateur.";
+msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = false; return;
+}
+const abonnement = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uVersOctets(CLE_PUBLIQUE_PUSH) });
+if (!(await enregistrerAbonnement(abonnement, clientId, boutiqueId, true))) throw new Error("enregistrement");
+montrerActive();
+msg.textContent = "C'est activé ! Une notification de test vient de vous être envoyée.";
+msg.style.display = "block";
+} catch (e) {
+msg.textContent = "Impossible d'activer les notifications sur ce téléphone.";
+msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = false;
+}
+};
+}
+
+// --- « Mes réparations » : réparations WatchTrack liées au numéro du client ---
   function echapper(t) {
     return String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
@@ -848,8 +908,9 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     await adopterCle(clientId);
     chargerReparations(clientId, boutiqueId);
     afficherBlocAnniversaire(clientId, boutiqueId);
+afficherBlocNotifications(clientId, boutiqueId);
 
-    const btn = document.getElementById("checkin-btn");
+const btn = document.getElementById("checkin-btn");
     btn.disabled = false;
     btn.textContent = "J'ai fait un achat, +1 point";
 
