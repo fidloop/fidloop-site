@@ -124,6 +124,19 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .auto-titre{font-size:13px;font-weight:800}
 .auto-reglages{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;font-size:12px;color:var(--ink-dim)}
 .auto-reglages select{padding:4px 6px;border:1px solid var(--border);border-radius:7px;font:inherit;font-size:12px;background:#fff;color:var(--ink)}
+.onglets{position:relative;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 0 20px;padding:2px 0 4px}
+.onglets::-webkit-scrollbar{display:none}
+.onglet{flex:0 0 auto;border:1px solid var(--border);background:#fff;color:var(--ink);font-family:inherit;font-size:13.5px;font-weight:800;padding:10px 16px;border-radius:999px;cursor:pointer;white-space:nowrap}
+@media (max-width:560px){.onglet{font-size:13px;padding:9px 13px}}
+.onglet:hover{border-color:var(--green)}
+.onglet.actif{background:var(--green);border-color:var(--green);color:#fff}
+.onglets[hidden],.onglet[hidden]{display:none}
+.hors-onglet{display:none!important}
+.onglet .cadenas{font-size:11px;margin-left:4px;opacity:.85}
+.verrou{position:relative}
+.verrou>*:not(.verrou-bandeau){opacity:.5;pointer-events:none;user-select:none}
+.verrou-bandeau{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff8dc;border:1px solid #f1d98a;font-size:13px;font-weight:800;color:var(--ink)}
+.verrou-bandeau a{color:var(--green);text-decoration:none;white-space:nowrap}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
 </head>
@@ -266,7 +279,13 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <p id="top-sub">Vue d'ensemble</p>
   </div>
   <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g" target="_blank" rel="noopener">Prendre l'abonnement →</a></div>
-  <div class="totals" id="totals"></div>
+  <nav class="onglets" id="onglets" role="tablist" aria-label="Sections du tableau de bord">
+<button type="button" class="onglet actif" role="tab" data-onglet="apercu" aria-selected="true">📊 Vue d'ensemble</button>
+<button type="button" class="onglet" role="tab" data-onglet="campagnes" aria-selected="false">📣 Campagnes</button>
+<button type="button" class="onglet" role="tab" data-onglet="credits" aria-selected="false">💳 Crédits SMS</button>
+<button type="button" class="onglet" role="tab" data-onglet="auto" aria-selected="false">🔁 Automatismes</button>
+</nav>
+<div class="totals" id="totals"></div>
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
 
   <div class="campaign-box" id="campaign-box">
@@ -932,8 +951,13 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     ACCES_ID = acces.id || null;
 
     // Sans le droit campagnes, les blocs campagne et crédits sont retirés du DOM — pas seulement masqués.
-    if (!peutCampagnes) {
-      const cb = document.getElementById("campaign-box");
+    // Essai gratuit sans le droit campagnes : tout est visible, mais verrouillé (« Disponible avec l'abonnement »).
+// Le serveur refuse de toute façon ces actions sans le droit : ce n'est qu'un affichage.
+const essaiSansCampagnes = !peutCampagnes && acces.essai_fin && new Date(acces.essai_fin) > new Date();
+if (essaiSansCampagnes) {
+verrouillerPourEssai();
+} else if (!peutCampagnes) {
+const cb = document.getElementById("campaign-box");
       if (cb) cb.remove();
       const crb = document.getElementById("credits-box");
       if (crb) crb.remove();
@@ -1168,6 +1192,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
         : (boutiques[0] ? boutiques[0].nom : "Aucune boutique");
 
     chargerStatuts(adhesions);
+initOnglets();
  if (peutCampagnes) initCampaignBox(boutiques);
   }
   // Échappe le texte avant de l'insérer dans du HTML (prénoms saisis par les clients, noms…)
@@ -1659,7 +1684,90 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     catch (e) { liste.innerHTML = '<div class="campaign-count">Réglage indisponible pour le moment.</div>'; }
   }
 
-  // --- Statuts des clients (nouveau, VIP, régulier, occasionnel, à risque, perdu) ---
+  // --- Onglets du tableau de bord (au lieu d'une seule page très longue) ---
+const SECTIONS_ONGLETS = {
+"totals": "apercu", "export-all-btn": "apercu", "grid": "apercu",
+"campaign-box": "campagnes", "credits-box": "credits", "anniv-box": "auto", "auto-box": "auto",
+};
+function montrerOnglet(nom) {
+Object.entries(SECTIONS_ONGLETS).forEach(([id, onglet]) => {
+const el = document.getElementById(id);
+if (el) el.classList.toggle("hors-onglet", onglet !== nom);
+});
+document.querySelectorAll("#onglets .onglet").forEach((b) => {
+const actif = b.dataset.onglet === nom;
+b.classList.toggle("actif", actif);
+b.setAttribute("aria-selected", actif ? "true" : "false");
+// Sur téléphone, l'onglet choisi reste visible dans la bande défilante
+const n = b.parentElement;
+if (actif && n && (b.offsetLeft < n.scrollLeft || b.offsetLeft + b.offsetWidth > n.scrollLeft + n.clientWidth)) n.scrollLeft = Math.max(0, b.offsetLeft - 8);
+});
+try { sessionStorage.setItem("ancrimo_onglet", nom); } catch (e) {}
+}
+function initOnglets() {
+const nav = document.getElementById("onglets");
+if (!nav) return;
+const presents = new Set(Object.entries(SECTIONS_ONGLETS)
+.filter(([id]) => document.getElementById(id)).map(([, o]) => o));
+const boutons = [...nav.querySelectorAll(".onglet")];
+boutons.forEach((b) => {
+b.hidden = !presents.has(b.dataset.onglet);
+if (!b.dataset.pret) {
+b.dataset.pret = "1";
+b.addEventListener("click", () => {
+montrerOnglet(b.dataset.onglet);
+const haut = nav.getBoundingClientRect().top;
+if (haut < 0) window.scrollBy({ top: haut - 12, behavior: "smooth" });
+});
+}
+});
+const visibles = boutons.filter((b) => !b.hidden).map((b) => b.dataset.onglet);
+nav.hidden = visibles.length < 2;
+let choix = "apercu";
+try { const s = sessionStorage.getItem("ancrimo_onglet"); if (s && visibles.includes(s)) choix = s; } catch (e) {}
+// Retour d'un paiement de crédits : on ouvre directement l'onglet Crédits pour afficher le message
+const msgCredits = document.getElementById("credits-msg");
+if (msgCredits && msgCredits.textContent.trim() && visibles.includes("credits")) choix = "credits";
+montrerOnglet(visibles.includes(choix) ? choix : (visibles[0] || "apercu"));
+}
+function verrouillerPourEssai() {
+const lienBandeau = document.querySelector("#essai-banner a");
+const lien = lienBandeau ? lienBandeau.href : "";
+const texteListe = (quoi) => `<div class="campaign-count">${quoi} : disponible avec l'abonnement.</div>`;
+const al = document.getElementById("anniv-liste");
+if (al) al.innerHTML = texteListe("Réglage des SMS d'anniversaire par boutique");
+const ul = document.getElementById("auto-liste");
+if (ul) ul.innerHTML = texteListe("Réglage de la relance et de l'offre de bienvenue par boutique");
+["campaign-box", "credits-box", "anniv-box", "auto-box"].forEach((id) => {
+const box = document.getElementById(id);
+if (!box || box.classList.contains("verrou")) return;
+box.classList.add("verrou");
+box.setAttribute("aria-disabled", "true");
+box.querySelectorAll("input, button, select, textarea").forEach((el) => { el.disabled = true; });
+box.querySelectorAll("a").forEach((el) => { el.tabIndex = -1; });
+const bandeau = document.createElement("div");
+bandeau.className = "verrou-bandeau";
+const txt = document.createElement("span");
+txt.textContent = "🔒 Disponible avec l'abonnement";
+bandeau.appendChild(txt);
+if (lien) {
+const a = document.createElement("a");
+a.href = lien; a.target = "_blank"; a.rel = "noopener";
+a.textContent = "Prendre l'abonnement →";
+bandeau.appendChild(a);
+}
+box.insertBefore(bandeau, box.firstChild);
+});
+document.querySelectorAll("#onglets .onglet").forEach((b) => {
+if (b.dataset.onglet !== "apercu" && !b.querySelector(".cadenas")) {
+const c = document.createElement("span");
+c.className = "cadenas"; c.textContent = "🔒";
+b.appendChild(c);
+}
+});
+}
+
+// --- Statuts des clients (nouveau, VIP, régulier, occasionnel, à risque, perdu) ---
 const STATUTS = [
   ["nouveau", "nouveaux", "Nouveau", "Inscrit depuis moins de 30 jours"],
   ["vip", "VIP", "VIP", "Au moins 10 passages, venu dans les 90 derniers jours"],
