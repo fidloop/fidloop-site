@@ -137,6 +137,24 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .verrou>*:not(.verrou-bandeau){opacity:.5;pointer-events:none;user-select:none}
 .verrou-bandeau{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:10px 14px;border-radius:12px;background:#fff8dc;border:1px solid #f1d98a;font-size:13px;font-weight:800;color:var(--ink)}
 .verrou-bandeau a{color:var(--green);text-decoration:none;white-space:nowrap}
+.comptoir-form{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin:12px 0 6px}
+.comptoir-form input,.comptoir-form select,#comptoir-recherche{font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;min-width:0}
+.comptoir-form select[hidden]{display:none}
+.comptoir-accord{grid-column:1/-1;display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-dim)}
+.comptoir-form button{grid-column:1/-1;justify-self:start;font:inherit;font-weight:800;font-size:14px;padding:10px 16px;border:0;border-radius:10px;background:var(--green);color:#fff;cursor:pointer}
+.comptoir-form button:disabled{opacity:.6}
+#comptoir-recherche{width:100%;margin:12px 0 8px}
+.cpt-ligne{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border)}
+.cpt-info{min-width:0}.cpt-info strong{font-size:15px}
+.cpt-sub{color:var(--ink-dim);font-size:12.5px}
+.cpt-barre{font-size:12.5px;margin-top:3px}
+.cpt-remise{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;padding:6px 10px;border-radius:10px;background:#fff8dc;border:1px solid #f1d98a;font-size:13px;font-weight:700}
+.cpt-remise button,.cpt-plus{font:inherit;cursor:pointer;border-radius:10px}
+.cpt-remise button{font-size:12px;padding:4px 10px;border:1px solid var(--border);background:#fff}
+.cpt-plus{flex:0 0 auto;font-size:15px;font-weight:800;padding:12px 16px;border:0;background:var(--green);color:#fff}
+.cpt-plus:disabled{opacity:.6}
+.cpt-gagne{margin-top:6px;padding:12px 14px;border-radius:12px;background:#fff8dc;border:2px solid #e2b93b;font-size:15px;font-weight:800;color:var(--ink)}
+@media (max-width:560px){.comptoir-form{grid-template-columns:1fr}.cpt-plus{padding:12px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
 </head>
@@ -281,6 +299,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/28E8wP6uEb0667v6fU6g80g" target="_blank" rel="noopener">Prendre l'abonnement →</a></div>
   <nav class="onglets" id="onglets" role="tablist" aria-label="Sections du tableau de bord">
 <button type="button" class="onglet actif" role="tab" data-onglet="apercu" aria-selected="true">📊 Vue d'ensemble</button>
+<button type="button" class="onglet" role="tab" data-onglet="comptoir" aria-selected="false">📇 Sans smartphone</button>
 <button type="button" class="onglet" role="tab" data-onglet="campagnes" aria-selected="false">📣 Campagnes</button>
 <button type="button" class="onglet" role="tab" data-onglet="credits" aria-selected="false">💳 Crédits SMS</button>
 <button type="button" class="onglet" role="tab" data-onglet="auto" aria-selected="false">🔁 Automatismes</button>
@@ -288,7 +307,22 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 <div class="totals" id="totals"></div>
   <button class="export-all" id="export-all-btn">⬇ Exporter tous les clients (CSV)</button>
 
-  <div class="campaign-box" id="campaign-box">
+  <div class="credits-box" id="comptoir-box">
+<h2>📇 Clients sans smartphone</h2>
+<div class="sub">Pour les clients qui n'ont pas de téléphone, ou qui ne savent pas s'en servir : inscrivez-les ici, puis cliquez « +1 passage » à chaque visite. Leurs remises s'affichent ici, à appliquer en caisse. Un point toutes les 4 h au maximum, comme avec la carte.</div>
+<form id="comptoir-form" class="comptoir-form" autocomplete="off">
+<input id="comptoir-prenom" placeholder="Prénom et initiale du nom *" maxlength="40" required>
+<input id="comptoir-tel" placeholder="Téléphone (facultatif)" inputmode="tel" maxlength="25">
+<select id="comptoir-boutique" aria-label="Boutique"></select>
+<label class="comptoir-accord"><input type="checkbox" id="comptoir-accord"> Le client accepte de recevoir les offres de la boutique par SMS (à cocher seulement s'il l'a dit).</label>
+<button type="submit" id="comptoir-ajouter">+ Inscrire le client</button>
+</form>
+<div class="credits-msg" id="comptoir-msg"></div>
+<input id="comptoir-recherche" placeholder="🔍 Retrouver un client (prénom ou téléphone)" autocomplete="off">
+<div id="comptoir-liste"><div class="campaign-count">Chargement…</div></div>
+</div>
+
+<div class="campaign-box" id="campaign-box">
     <h2>Envoyer une campagne</h2>
     <div class="sub" id="campaign-sub">Envoyé par email aux clients ayant donné leur consentement marketing et ayant un email renseigné. Gratuit dans la limite de 2 campagnes par mois, puis 1 crédit par envoi.</div>
     <div class="campaign-canal-toggle">
@@ -1188,6 +1222,7 @@ const cb = document.getElementById("campaign-box");
         : (boutiques[0] ? boutiques[0].nom : "Aucune boutique");
 
     chargerStatuts(adhesions);
+initComptoir(boutiques);
 initOnglets();
  if (peutCampagnes) initCampaignBox(boutiques);
   }
@@ -1680,10 +1715,120 @@ initOnglets();
     catch (e) { liste.innerHTML = '<div class="campaign-count">Réglage indisponible pour le moment.</div>'; }
   }
 
-  // --- Onglets du tableau de bord (au lieu d'une seule page très longue) ---
+  // --- Clients sans smartphone (« au comptoir ») : inscription, +1 passage, remises à appliquer ---
+let COMPTOIR = [];
+let COMPTOIR_BOUTIQUES = [];
+async function appelComptoir(corps) {
+const res = await fetch(SAV_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...corps, token: SESSION_TOKEN }) });
+let j = {};
+try { j = await res.json(); } catch (e) {}
+return { ok: res.ok, status: res.status, j };
+}
+function messageComptoir(html, type) {
+const m = document.getElementById("comptoir-msg");
+if (!m) return;
+m.className = "credits-msg" + (type ? " " + type : "");
+m.innerHTML = html;
+}
+function initComptoir(boutiques) {
+const sel = document.getElementById("comptoir-boutique");
+if (!sel) return;
+COMPTOIR_BOUTIQUES = boutiques || [];
+sel.innerHTML = COMPTOIR_BOUTIQUES.map((b) => `<option value="${echapHtml(b.id)}">${echapHtml(b.nom)}</option>`).join("");
+sel.hidden = COMPTOIR_BOUTIQUES.length < 2;
+const form = document.getElementById("comptoir-form");
+if (!form.dataset.pret) {
+form.dataset.pret = "1";
+form.addEventListener("submit", ajouterComptoir);
+document.getElementById("comptoir-recherche").addEventListener("input", afficherComptoir);
+document.getElementById("comptoir-liste").addEventListener("click", (e) => {
+const plus = e.target.closest("[data-passage]");
+if (plus) return passageComptoir(plus);
+const rem = e.target.closest("[data-remise]");
+if (rem) return remiseComptoir(rem);
+});
+}
+chargerComptoir();
+}
+async function chargerComptoir() {
+const liste = document.getElementById("comptoir-liste");
+if (!liste || !SESSION_TOKEN) return;
+try {
+const r = await appelComptoir({ action: "comptoir_liste" });
+if (!r.ok) { liste.innerHTML = '<div class="campaign-count">Liste indisponible pour le moment.</div>'; return; }
+COMPTOIR = r.j.clients || [];
+afficherComptoir();
+} catch (e) { liste.innerHTML = '<div class="campaign-count">Erreur de connexion.</div>'; }
+}
+function afficherComptoir() {
+const liste = document.getElementById("comptoir-liste");
+if (!liste) return;
+const q = (document.getElementById("comptoir-recherche").value || "").trim().toLowerCase();
+const qc = q.replace(/\D/g, "");
+const plusieurs = COMPTOIR_BOUTIQUES.length > 1;
+if (!COMPTOIR.length) { liste.innerHTML = '<div class="campaign-count">Aucun client inscrit pour l\'instant.</div>'; return; }
+const lignes = COMPTOIR.filter((c) => !q || String(c.prenom || "").toLowerCase().includes(q) || (qc.length >= 3 && String(c.telephone || "").replace(/\D/g, "").includes(qc)));
+if (!lignes.length) { liste.innerHTML = '<div class="campaign-count">Aucun client trouvé.</div>'; return; }
+liste.innerHTML = lignes.map((c) => {
+const sous = [c.telephone, plusieurs ? c.boutique : ""].filter(Boolean).map(echapHtml).join(" · ");
+const remises = (c.remises || []).map((r) => `<div class="cpt-remise">🎁 −${Number(r.pourcentage) || 0} % ${r.type === "bienvenue" ? "(bienvenue)" : "(fidélité)"} — jusqu'au ${dernierJourEssai(r.expire)} <button type="button" data-remise="${echapHtml(r.id)}">✓ Appliquée</button></div>`).join("");
+return `<div class="cpt-ligne"><div class="cpt-info"><strong>${echapHtml(c.prenom)}</strong>${sous ? ` <span class="cpt-sub">${sous}</span>` : ""}<div class="cpt-barre">${Number(c.cycle) || 0} / ${Number(c.objectif) || 0} passages · ${Number(c.total) || 0} au total</div>${remises}</div><button type="button" class="cpt-plus" data-passage="${echapHtml(c.client_id)}" data-boutique="${echapHtml(c.boutique_id)}">+1 passage</button></div>`;
+}).join("");
+}
+async function passageComptoir(btn) {
+btn.disabled = true;
+const c = COMPTOIR.find((x) => x.client_id === btn.dataset.passage && x.boutique_id === btn.dataset.boutique) || {};
+try {
+const r = await appelComptoir({ action: "comptoir_passage", client_id: btn.dataset.passage, boutique_id: btn.dataset.boutique });
+if (!r.ok) {
+messageComptoir(echapHtml(r.j.message || (r.j.error === "client_non_comptoir" ? "Ce client a une carte : il valide son passage avec son téléphone." : "Passage non enregistré.")), "error");
+btn.disabled = false;
+return;
+}
+let html = `✓ Passage compté pour <strong>${echapHtml(r.j.prenom || c.prenom || "")}</strong> : ${Number(r.j.cycle) || 0} / ${Number(r.j.objectif) || 0}.`;
+if (r.j.remise) html += `<div class="cpt-gagne">🎉 Remise de ${Number(r.j.remise.pourcentage) || 0} % à appliquer${r.j.remise.type === "bienvenue" ? " (offre de bienvenue)" : ""} — valable jusqu'au ${dernierJourEssai(r.j.remise.expire)}.</div>`;
+messageComptoir(html, "ok");
+} catch (e) { messageComptoir("Erreur de connexion. Réessayez.", "error"); }
+await chargerComptoir();
+}
+async function remiseComptoir(btn) {
+btn.disabled = true;
+try {
+const r = await appelComptoir({ action: "comptoir_remise", remise_id: btn.dataset.remise });
+if (!r.ok) { messageComptoir("La remise n'a pas pu être notée comme appliquée.", "error"); btn.disabled = false; return; }
+messageComptoir("✓ Remise notée comme appliquée.", "ok");
+} catch (e) { messageComptoir("Erreur de connexion. Réessayez.", "error"); btn.disabled = false; return; }
+await chargerComptoir();
+}
+async function ajouterComptoir(e) {
+e.preventDefault();
+const bouton = document.getElementById("comptoir-ajouter");
+const prenom = document.getElementById("comptoir-prenom").value.trim();
+const telephone = document.getElementById("comptoir-tel").value.trim();
+const boutique_id = document.getElementById("comptoir-boutique").value;
+if (!prenom) return;
+bouton.disabled = true;
+try {
+const r = await appelComptoir({ action: "comptoir_ajouter", prenom, telephone, boutique_id, consentement: document.getElementById("comptoir-accord").checked });
+if (!r.ok) {
+const msg = r.j.error === "telephone_existant"
+? `Ce numéro est déjà inscrit${r.j.prenom ? ` (${echapHtml(r.j.prenom)})` : ""}${r.j.comptoir ? " : il est dans la liste ci-dessous." : " : ce client a déjà sa carte sur son téléphone."}`
+: r.j.error === "telephone_invalide" ? "Numéro de téléphone invalide (ou laissez la case vide)." : "Inscription impossible pour le moment.";
+messageComptoir(msg, "error");
+} else {
+messageComptoir(`✓ <strong>${echapHtml(r.j.prenom)}</strong> est inscrit. Cliquez « +1 passage » pour compter sa visite d'aujourd'hui.`, "ok");
+document.getElementById("comptoir-form").reset();
+document.getElementById("comptoir-recherche").value = r.j.prenom || "";
+}
+} catch (err) { messageComptoir("Erreur de connexion. Réessayez.", "error"); }
+bouton.disabled = false;
+await chargerComptoir();
+}
+
+// --- Onglets du tableau de bord (au lieu d'une seule page très longue) ---
 const SECTIONS_ONGLETS = {
 "totals": "apercu", "export-all-btn": "apercu", "grid": "apercu",
-"campaign-box": "campagnes", "credits-box": "credits", "anniv-box": "auto", "auto-box": "auto",
+"campaign-box": "campagnes", "credits-box": "credits", "anniv-box": "auto", "auto-box": "auto", "comptoir-box": "comptoir",
 };
 function montrerOnglet(nom) {
 Object.entries(SECTIONS_ONGLETS).forEach(([id, onglet]) => {
