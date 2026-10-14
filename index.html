@@ -11,7 +11,7 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carte de fidélité Pil'Vite</title>
+<title>Carte de fidélité</title>
 <style>
 :root{
   --ink:#14211a;--ink-dim:#64736b;--paper:#ffffff;--paper-dim:#f3f7f4;
@@ -35,7 +35,7 @@ body{
 }
 .banner{
   background-image:linear-gradient(180deg,rgba(7,22,14,.18),rgba(7,22,14,.72)),
-    url('https://xreqpkzovokiheichauf.supabase.co/storage/v1/object/public/logos-cartes/pilvite-hero-v8-final.png');
+    linear-gradient(135deg,#2f8f5b,#14211a);
   background-size:cover;background-position:right center;min-height:270px;padding:30px 26px 26px;
   text-align:center;position:relative;display:flex;flex-direction:column;justify-content:flex-end;
 }
@@ -134,7 +134,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   <!-- Écran formulaire -->
   <div id="form-screen">
     <div class="banner">
-      <div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div>
+      <div class="eyebrow">Votre commerçant</div><div class="boutique-nom"></div>
       <h1>Votre carte de fidélité</h1>
       <p>Ajoutez-la à votre téléphone en 30&nbsp;secondes</p>
 
@@ -185,7 +185,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
         <label class="consent" for="consentement_marketing" style="text-transform:none; letter-spacing:normal; font-weight:400;">
           <input type="checkbox" id="consentement_marketing" name="consentement_marketing">
-          <span>J'accepte de recevoir des offres et actualités Pil'Vite par SMS et/ou email. Vous pouvez vous désinscrire à tout moment.</span>
+          <span>J'accepte de recevoir des offres et actualités Votre commerçant par SMS et/ou email. Vous pouvez vous désinscrire à tout moment.</span>
         </label>
 
         <div class="error-msg" id="error-msg"></div>
@@ -194,7 +194,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       </form>
 
       <p class="legal">
-        En vous inscrivant, vos données (prénom, téléphone, email et date d'anniversaire le cas échéant) sont utilisées par Pil'Vite pour gérer votre programme de fidélité.
+        En vous inscrivant, vos données (prénom, téléphone, email et date d'anniversaire le cas échéant) sont utilisées par Votre commerçant pour gérer votre programme de fidélité.
         Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique.
       </p>
     </div>
@@ -202,7 +202,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran retour client : déjà inscrit, gagner un point -->
   <div class="success" id="checkin-screen" style="display:none;">
-    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
+    <div class="banner banner-mini"><div class="eyebrow">Votre commerçant</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="dial" style="width:100px;height:100px;margin:0 auto 20px;">
       <svg viewBox="0 0 84 84">
         <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="6" stroke="#e6e2da"/>
@@ -290,7 +290,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 
   <!-- Écran de succès -->
   <div class="success" id="success-screen">
-    <div class="banner banner-mini"><div class="eyebrow">Pil'Vite</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
+    <div class="banner banner-mini"><div class="eyebrow">Votre commerçant</div><div class="boutique-nom"></div><div class="mini-titre">Votre carte de fidélité</div></div>
     <div class="check">✓</div>
     <h2>Votre carte est prête</h2>
     <p>Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.</p>
@@ -644,13 +644,19 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
   }
 
   // --- Habillage aux couleurs de l enseigne ---
-  const ENSEIGNE_PAR_DEFAUT = "Pil'Vite";
+  const ENSEIGNE_PAR_DEFAUT = "Votre commerçant";
+
+  // Boutique sans enseigne : on affiche simplement le nom de la boutique
+  function nomSansEnseigne(liste, id) {
+    const b = id ? (liste || []).find((x) => String(x.id) === String(id)) : null;
+    return b && b.nom ? { nom: b.nom } : null;
+  }
 
   function appliquerEnseigne(e) {
     if (!e || !e.nom) return;
 
     if (e.nom !== ENSEIGNE_PAR_DEFAUT) {
-      document.title = document.title.split(ENSEIGNE_PAR_DEFAUT).join(e.nom);
+      document.title = "Carte de fidélité " + e.nom;
       const marcheur = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       const aChanger = [];
       let n;
@@ -672,7 +678,7 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
         b.style.backgroundImage = voile + ", url(" + JSON.stringify(e.hero_url) + ")";
       } else {
         b.style.backgroundImage = voile;
-        b.style.backgroundColor = e.couleur;
+        b.style.backgroundColor = e.couleur || "#2f8f5b";
       }
     });
   }
@@ -707,7 +713,7 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
       boutiqueSelect.appendChild(opt);
     });
 
-    appliquerEnseigne(enseigneActive);
+    appliquerEnseigne(enseigneActive || nomSansEnseigne(data, preselectedBoutique));
   }
 
   // --- Point d'entrée : ce téléphone est-il déjà reconnu ? ---
