@@ -99,6 +99,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  .ap-etapes b{display:block;font-size:24pt;color:#3E8E33;line-height:1}.ap-etapes p{font-size:11.5pt;line-height:1.3;margin:2mm 0 0}
  .ap-bas{position:relative;margin-top:auto;background:#5BB24A;color:#fff;padding:7mm 16mm;text-align:center}
  .ap-gros{font-size:22pt;font-weight:700;line-height:1.15}.ap-fin{font-size:9pt;margin-top:3mm;opacity:.85}
+ /* Affiche neutre (boutique hors enseigne Pil'Vite) : couleurs Ancrimo */
+ #poster-print.neutre{color:#1c1712}
+ #poster-print.neutre .ap-soleil,#poster-print.neutre .ap-soleil2{background:#c98a3a}
+ #poster-print.neutre .ap-titre{margin-top:18mm}
+ #poster-print.neutre .ap-petit,#poster-print.neutre .ap-paliers b,#poster-print.neutre .ap-ondes,#poster-print.neutre .ap-etapes b{color:#b23b20}
+ #poster-print.neutre .ap-paliers span,#poster-print.neutre .ap-ou{background:#efd9b0}
+ #poster-print.neutre .ap-carte{border-color:#1c1712;box-shadow:0 2mm 0 #b23b20}
+ #poster-print.neutre .ap-rond{border-color:#b23b20;background:#fbf3ea}
+ #poster-print.neutre .ap-etapes div{border-top-color:#b23b20;background:#faf6ef}
+ #poster-print.neutre .ap-bas{background:#1c1712;color:#f1e9d8}
  @page{size:A4;margin:0}
 }
 @media(max-width:720px){#dashboard{padding:20px 14px 50px}.totals{grid-template-columns:repeat(2,1fr)}.top h1{font-size:28px}.topbar{align-items:flex-start}.topbar-actions{gap:11px}.grid{grid-template-columns:1fr}}
@@ -1264,6 +1274,7 @@ initOnglets();
     // Logo de l'enseigne uniquement pour les boutiques de cette enseigne ; sinon affiche neutre
     const avecLogo = marque.trim().toLowerCase() === "pil'vite";
     document.getElementById("poster-print-haut").style.display = avecLogo ? "" : "none";
+    document.getElementById("poster-print").classList.toggle("neutre", !avecLogo);
     document.getElementById("poster-print-marque").textContent = "Carte de fidélité " + (marque || boutique.nom);
     const pct = (x) => String(x).replace(".", ",");
     const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pct(pal.pct2)} %</b></span>` : "";
