@@ -71,8 +71,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .campaign-canal-toggle{display:flex;gap:7px;margin-bottom:13px}.campaign-canal-toggle button{flex:1;padding:9px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink-dim);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}.campaign-canal-toggle button.active{border-color:var(--green);color:var(--ink);background:var(--paper-dim)}
 .poster-print{display:none}
 @media print{
- body *{visibility:hidden}#poster-print,#poster-print *{visibility:visible}
- #poster-print{display:flex!important;position:absolute;top:0;left:0;width:210mm;height:297mm;overflow:hidden;flex-direction:column;background:#fff;color:#111;font-family:Inter,Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{margin:0!important;padding:0!important;height:auto!important;min-height:0!important;background:#fff!important}
+ body>*:not(#poster-print){display:none!important}
+ #poster-print{display:flex!important;position:relative;width:210mm;height:296mm;overflow:hidden;break-after:avoid;page-break-after:avoid;break-inside:avoid;flex-direction:column;background:#fff;color:#111;font-family:Inter,Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  #poster-print *{box-sizing:border-box}
  .ap-soleil{position:absolute;width:120mm;height:120mm;border-radius:50%;background:#F6D94A;opacity:.25;right:-60mm;top:95mm}
  .ap-soleil2{position:absolute;width:90mm;height:90mm;border-radius:50%;background:#F6D94A;opacity:.22;left:-40mm;bottom:40mm}
@@ -102,7 +103,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  /* Affiche neutre (boutique hors enseigne Pil'Vite) : couleurs Ancrimo */
  #poster-print.neutre{color:#1c1712}
  #poster-print.neutre .ap-soleil,#poster-print.neutre .ap-soleil2{background:#c98a3a}
- #poster-print.neutre .ap-titre{margin-top:18mm}
+ #poster-print.neutre .ap-titre{margin-top:24mm}
+ #poster-print.neutre .ap-petit{font-size:16pt}
+ #poster-print.neutre .ap-centre{padding-top:14mm}
+ #poster-print.neutre .ap-etapes{padding-top:14mm}
  #poster-print.neutre .ap-petit,#poster-print.neutre .ap-paliers b,#poster-print.neutre .ap-ondes,#poster-print.neutre .ap-etapes b{color:#b23b20}
  #poster-print.neutre .ap-paliers span,#poster-print.neutre .ap-ou{background:#efd9b0}
  #poster-print.neutre .ap-carte{border-color:#1c1712;box-shadow:0 2mm 0 #b23b20}
