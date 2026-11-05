@@ -1016,12 +1016,13 @@ const btn = document.getElementById("checkin-btn");
         lancerConfetti(document.getElementById("reward-overlay"));
       }
 
-      // Invitation à laisser un avis Google : uniquement au tout premier point,
-      // puis à chaque palier atteint (6e et 10e passage du cycle)
-      const estLePremierPoint = result.client.nb_passages_total === 1;
-      const vientDeDebloquerUnPalier = !!result.remise;
+      // Invitation à laisser un avis Google : à chaque passage, tant que le client
+      // n'a pas cliqué sur le bouton (mémorisé sur son téléphone, par boutique)
+      const cleAvis = "ancrimo_avis_clique_" + boutiqueId;
+      let avisDejaClique = false;
+      try { avisDejaClique = localStorage.getItem(cleAvis) === "1"; } catch (e) {}
 
-      if (estLePremierPoint || vientDeDebloquerUnPalier) {
+      if (!avisDejaClique) {
         const { data: boutique } = await supabaseClient
           .from("boutiques")
           .select("lien_avis_google")
@@ -1029,7 +1030,9 @@ const btn = document.getElementById("checkin-btn");
           .single();
 
         if (boutique && boutique.lien_avis_google) {
-          document.getElementById("review-link").href = boutique.lien_avis_google;
+          const lienAvis = document.getElementById("review-link");
+          lienAvis.href = boutique.lien_avis_google;
+          lienAvis.onclick = () => { try { localStorage.setItem(cleAvis, "1"); } catch (e) {} };
           document.getElementById("review-invite").style.display = "block";
           // On amène l'invitation à l'écran : sinon elle reste en bas, hors de vue
           setTimeout(() => {
