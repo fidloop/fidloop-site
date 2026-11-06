@@ -100,6 +100,8 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .avis-texte{font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.88);margin-bottom:18px}
 .avis-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1c1712;text-decoration:none;padding:17px 18px;border-radius:15px;font-weight:800;font-size:17px;box-shadow:0 10px 22px rgba(0,0,0,.28);animation:avisPulse 2.2s ease-in-out 1.2s infinite}
 @keyframes avisPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+.avis-bloc .avis-plus-tard{display:block;width:auto;margin:12px auto 0;background:none;box-shadow:none;border:0;padding:8px 12px;color:rgba(255,255,255,.78);font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.avis-bloc .avis-plus-tard:hover:not(:disabled){transform:none;box-shadow:none;color:#fff}
 @media (prefers-reduced-motion:reduce){.avis-bloc,.avis-btn{animation:none}}
 .sav-bloc{max-width:320px;margin:24px auto 0;text-align:left;border:1px solid var(--border);border-radius:18px;padding:14px 16px 6px;background:var(--paper-dim)}
 .sav-titre{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:4px}
@@ -285,6 +287,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
       <div class="avis-titre">Vous êtes satisfait ?</div>
       <div class="avis-texte">Votre avis Google aide énormément la boutique.<br>Ça prend 30 secondes.</div>
       <a href="#" id="review-link" target="_blank" rel="noopener" class="avis-btn">⭐ Laisser un avis Google</a>
+      <button type="button" id="review-later" class="avis-plus-tard">Plus tard</button>
     </div>
   </div>
 
@@ -1006,6 +1009,14 @@ const btn = document.getElementById("checkin-btn");
       btn.style.display = "none";
       if (catWrap) catWrap.style.display = "none";
 
+      // Démonstration (boutiques.mode_test) : on peut enchaîner les points sans recharger la page
+      if (modeDemo) {
+        btn.disabled = false;
+        btn.textContent = "↻ Point suivant (démo)";
+        btn.onclick = () => showCheckinScreen(clientId, boutiqueId, false);
+        btn.style.display = "flex";
+      }
+
       if (result.remise) {
         const titreRemise = document.getElementById("reward-overlay-titre");
  if (titreRemise) titreRemise.textContent = result.remise.type === "bienvenue" ? "Offre de bienvenue" : "Récompense débloquée";
@@ -1022,7 +1033,8 @@ const btn = document.getElementById("checkin-btn");
       let avisDejaClique = false;
       try { avisDejaClique = localStorage.getItem(cleAvis) === "1"; } catch (e) {}
 
-      if (!avisDejaClique) {
+      // En démonstration, l'invitation revient à chaque point, même après un clic
+      if (!avisDejaClique || modeDemo) {
         const { data: boutique } = await supabaseClient
           .from("boutiques")
           .select("lien_avis_google")
@@ -1034,6 +1046,11 @@ const btn = document.getElementById("checkin-btn");
           lienAvis.href = boutique.lien_avis_google;
           lienAvis.onclick = () => { try { localStorage.setItem(cleAvis, "1"); } catch (e) {} };
           document.getElementById("review-invite").style.display = "block";
+          // « Plus tard » : le client ferme l'invitation sans laisser d'avis, elle reviendra au prochain passage
+          document.getElementById("review-later").onclick = () => {
+            document.getElementById("review-invite").style.display = "none";
+            if (modeDemo) btn.scrollIntoView({ behavior: "smooth", block: "center" });
+          };
           // On amène l'invitation à l'écran : sinon elle reste en bas, hors de vue
           setTimeout(() => {
             const bloc = document.getElementById("review-invite");
