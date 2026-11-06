@@ -80,6 +80,9 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .cat-chip:hover:not(:disabled){background:var(--green);color:#fff;transform:translateY(-1px)}
 .error-msg{display:none;margin-top:13px;padding:12px 13px;background:rgba(201,74,58,.07);border:1px solid rgba(201,74,58,.24);border-radius:10px;font-size:13px;color:var(--error)}
 .success{display:none;padding:48px 25px;text-align:center}.success .check{width:68px;height:68px;border-radius:50%;background:rgba(178,59,32,.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:29px;color:var(--green);animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.banner-logo{position:relative;z-index:1;align-self:center;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 12px;padding:8px 14px;background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.banner-logo img{display:block;max-width:190px;max-height:58px;object-fit:contain}
+.banner-mini .banner-logo{margin-bottom:8px;padding:6px 11px}.banner-mini .banner-logo img{max-width:150px;max-height:42px}
 .banner.banner-mini{min-height:0;padding:24px 20px 22px;margin:-48px -25px 28px;justify-content:center;background-size:cover !important;background-position:center !important}
 .banner-mini .mini-titre{position:relative;z-index:1;font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:800;color:#fff;margin-top:6px;text-shadow:0 3px 14px rgba(0,0,0,.42)}
 .success h2{font-family:Georgia,serif;font-size:23px;margin-bottom:10px;color:var(--ink)}.success p{color:var(--ink-dim);font-size:14px;line-height:1.65;margin-bottom:26px}
@@ -739,7 +742,7 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
     if (preselectedBoutique) {
       const { data: boutique } = await supabaseClient
         .from("boutiques")
-        .select("actif, mode_test, nom, enseignes(nom), palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
+        .select("actif, mode_test, nom, logo_url, enseignes(nom), palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
         .eq("id", preselectedBoutique)
         .maybeSingle();
 
@@ -755,6 +758,21 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
         if (ens && lieu.toLowerCase().startsWith(ens.toLowerCase())) lieu = lieu.slice(ens.length).replace(/^[\s\-–—:·]+/, "");
         if (!lieu) lieu = boutique.nom.trim();
         document.querySelectorAll(".boutique-nom").forEach((el) => { el.textContent = "📍 " + lieu; el.style.display = "block"; });
+      }
+
+      // Logo du commerçant (06/11/2026), envoyé depuis son tableau de bord : en tête de chaque écran
+      if (boutique && /^https:\/\/xreqpkzovokiheichauf\.supabase\.co\/storage\/v1\/object\/public\/logos\//.test(boutique.logo_url || "")) {
+        document.querySelectorAll(".banner").forEach((b) => {
+          if (b.querySelector(".banner-logo")) return;
+          const cadre = document.createElement("div");
+          cadre.className = "banner-logo";
+          const img = document.createElement("img");
+          img.src = boutique.logo_url;
+          img.alt = boutique.nom || "Logo du commerçant";
+          img.onerror = () => cadre.remove();
+          cadre.appendChild(img);
+          b.insertBefore(cadre, b.firstChild);
+        });
       }
 
       // Boutique de démonstration : bandeau « Version test » (points sans délai côté serveur)
