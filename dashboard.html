@@ -23,6 +23,109 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .pwd-wrap .eye:hover{opacity:1}.remember{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:13px;font-size:12.5px;color:var(--ink-dim);cursor:pointer}.remember input{width:auto!important;margin:0!important;padding:0!important}.gate-links{margin-top:17px}.gate-link{background:none!important;border:0;padding:0!important;margin:0!important;width:auto!important;color:var(--ink-dim)!important;font-size:12.5px!important;text-decoration:underline;cursor:pointer;box-shadow:none!important}
 #gate .stack input+input{margin-top:9px}
 #gate .stack .pwd-wrap{margin-top:9px}.ins-couleur{margin-top:14px;font-size:12.5px;color:var(--ink-dim)}.ins-pastilles{display:flex;justify-content:center;gap:8px;margin:8px 0 4px;flex-wrap:wrap}#gate .ins-pastille{width:28px;height:28px;margin:0;padding:0;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #d9ccb4;cursor:pointer}#gate .ins-pastille.choisie{box-shadow:0 0 0 2.5px var(--ink)}#gate #ins-couleur{width:46px;height:32px;padding:2px;margin-top:4px;cursor:pointer}.ins-cgv a{color:inherit}
+
+/* ===== Inscription à l'image du commerçant + aperçu + révélation + apparence (06/11/2026) ===== */
+#gate .box.large{max-width:980px;text-align:left;padding:34px 34px 30px}
+#gate .box.large input{text-align:left}
+.ins-grille{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:38px;align-items:start}
+.ins-apercu{position:sticky;top:20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ins-apercu-legende{font-size:12px;color:var(--ink-dim);text-align:center}
+.ins-points{display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:12px;font-weight:800;color:var(--ink-dim)}
+.ins-points span{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#efe6d6;color:var(--ink-dim);transition:.25s}
+.ins-points span.on{background:var(--green);color:#fff}.ins-points i{flex:0 0 26px;height:2px;background:#e6dcc8}
+#gate .ins-etape h1{font-size:27px;margin-bottom:6px}#gate .ins-etape>p{margin-bottom:18px}
+#gate #ins-logo-note{color:#2f7a3d;margin-top:8px}
+.edt-label,#gate .edt-label{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--green);margin:18px 0 9px}
+#gate .ins-metiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#gate .ins-metier{width:auto;margin:0;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:14px;background:#fdfaf4;border:1.5px solid #e2d6c0;color:var(--ink);font-size:12.5px;font-weight:700;box-shadow:none;transition:transform .15s,border-color .15s,box-shadow .15s}
+#gate .ins-metier span{font-size:23px;line-height:1.1}
+#gate .ins-metier:hover{transform:translateY(-2px);border-color:var(--green)}
+#gate .ins-metier.choisi{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(178,59,32,.14)}
+.ins-conseil{margin-top:12px;padding:11px 13px;border-radius:12px;background:#fbf3ea;font-size:12.5px;line-height:1.5;color:var(--ink)}
+#gate .ins-nav{display:flex;gap:10px;align-items:center;margin-top:20px}
+#gate .ins-nav button{margin-top:0}
+#gate .ins-retour-etape{width:auto;flex:none;padding:13px 16px;background:transparent;border:1.5px solid #e2d6c0;color:var(--ink-dim);font-weight:700}
+#gate .ins-suivant{margin-top:20px;background:var(--ins-bouton,var(--yellow));color:#fff;box-shadow:0 8px 18px rgba(28,23,18,.18);transition:background .3s}
+#gate .ins-points span.on{background:var(--ins-c1,var(--green))}
+#gate .ins-nav .ins-suivant{flex:1}
+.ins-logo-zone,#gate .ins-logo-zone{display:flex;align-items:center;gap:14px;padding:14px 16px;border:2px dashed #d9ccb4;border-radius:16px;background:#fdfaf4;cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);transition:border-color .15s}
+.ins-logo-zone:hover{border-color:var(--green)}
+.ins-logo-zone img{max-width:110px;max-height:52px;object-fit:contain;border-radius:6px;background:#fff}
+.lien-discret,#gate .lien-discret{width:auto;margin:8px 0 0;padding:0;background:none;border:0;box-shadow:none;color:var(--ink-dim);font-size:12.5px;font-weight:600;text-decoration:underline;cursor:pointer}
+.edt-pastilles,.edt-sugg{display:flex;flex-wrap:wrap;gap:8px}
+.edt-pastille,#gate .edt-pastille{width:30px;height:30px;margin:0;padding:0;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #d9ccb4;cursor:pointer;transition:transform .12s}
+.edt-pastille.grande,#gate .edt-pastille.grande{width:40px;height:40px}
+.edt-pastille:hover{transform:scale(1.1)}.edt-pastille.choisie,#gate .edt-pastille.choisie{box-shadow:0 0 0 2.5px var(--ink)}
+.edt-perso{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--ink-dim)}
+.edt-perso label{display:flex;align-items:center;gap:8px}
+.edt-perso input[type=color],#gate .edt-perso input[type=color]{width:46px;height:32px;padding:2px;margin:0;border:1.5px solid #d9ccb4;border-radius:8px;background:#fff;cursor:pointer}
+.edt-tuiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.edt-tuiles button,#gate .edt-tuiles button{width:auto;margin:0;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;border-radius:12px;background:#fdfaf4;border:1.5px solid #e2d6c0;color:var(--ink);font-size:12px;font-weight:700;box-shadow:none;cursor:pointer}
+.edt-tuiles button span{font-size:22px;line-height:1.1;color:var(--ink)}
+.edt-tuiles button.choisi,#gate .edt-tuiles button.choisi{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(178,59,32,.14)}
+.edt-mini{display:block;width:100%;height:26px;border-radius:7px}
+.tel{width:270px;height:540px;border-radius:42px;border:11px solid #1c1712;background:#fff;box-shadow:0 30px 60px rgba(28,23,18,.25),0 0 0 1px rgba(0,0,0,.05);position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.16,1,.3,1);transform:perspective(1200px) rotateY(-6deg) rotateX(2deg)}
+.tel:hover{transform:none}
+.tel.flash{animation:telFlash .45s ease}
+@keyframes telFlash{0%{filter:brightness(1)}40%{filter:brightness(1.12)}100%{filter:brightness(1)}}
+.tel-encoche{position:absolute;top:0;left:50%;transform:translateX(-50%);width:96px;height:22px;background:#1c1712;border-radius:0 0 14px 14px;z-index:3}
+.tel-ecran{height:100%;overflow:hidden;background:#fff}
+.apc-banniere{padding:40px 16px 20px;text-align:center;color:#fff;transition:background-color .4s}
+.apc-logo{display:inline-flex;padding:6px 10px;background:#fff;border-radius:11px;box-shadow:0 5px 14px rgba(0,0,0,.25);margin-bottom:9px}
+.apc-logo img{display:block;max-width:130px;max-height:36px;object-fit:contain}
+.apc-sur{font-size:9px;letter-spacing:2.4px;text-transform:uppercase;color:#f0d29a;font-weight:800;padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.apc-titre{font-family:var(--police);font-weight:800;margin-top:5px;text-shadow:0 2px 12px rgba(0,0,0,.35);line-height:1.15}
+.apc-corps{padding:18px 16px 16px;text-align:center}
+.apc-dial{position:relative;width:76px;height:76px;margin:0 auto 12px}
+.apc-dial svg{width:76px;height:76px}.apc-dial div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.apc-dial b{font-size:17px;color:#1c1712}.apc-dial small{font-size:7px;letter-spacing:1px;color:#6b6153}
+.apc-bonjour{font-family:var(--police);font-weight:800;color:#1c1712;line-height:1.2}
+.apc-bouton{margin:14px 4px 0;padding:14px 8px;border-radius:14px;color:#fff;font-weight:900;font-size:13px;box-shadow:0 10px 22px rgba(var(--t1rgb),.38)}
+.apc-paliers{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-size:10.5px;font-weight:700;color:#1c1712}
+.apc-paliers span{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 8px;border-radius:999px;background:#f7f1e6}
+.apc-paliers i{width:7px;height:7px;border-radius:50%}
+.revel[hidden],.modale[hidden]{display:none!important}
+.revel{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(28,23,18,.72);backdrop-filter:blur(4px);overflow-y:auto}
+.revel-boite{position:relative;width:100%;max-width:880px;background:#fffdf9;border-radius:28px;padding:34px;box-shadow:0 40px 90px rgba(0,0,0,.35);overflow:hidden;animation:revelIn .6s cubic-bezier(.16,1,.3,1) both}
+@keyframes revelIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.revel-grille{position:relative;z-index:1;display:grid;grid-template-columns:300px minmax(0,1fr);gap:36px;align-items:center}
+.revel-tel .tel{animation:telApparait 1s cubic-bezier(.16,1,.3,1) .15s both}
+@keyframes telApparait{from{opacity:0;transform:perspective(1200px) rotateY(-35deg) translateY(30px) scale(.9)}to{opacity:1;transform:perspective(1200px) rotateY(-6deg) rotateX(2deg)}}
+.revel-sur{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--green)}
+.revel h2{font-family:Georgia,serif;font-size:34px;line-height:1.1;margin:6px 0 10px;color:var(--ink)}
+.revel p{color:var(--ink-dim);font-size:14.5px;line-height:1.55}
+.revel-etapes{margin:16px 0 18px 20px;color:var(--ink);font-size:14px;line-height:1.55}.revel-etapes li{margin-bottom:6px}
+.revel-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.revel-qr{padding:8px;background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(28,23,18,.12)}
+.revel-qr img,.revel-qr canvas{display:block;width:132px;height:132px}
+.revel-qr-leg{font-size:11.5px;color:var(--ink-dim);text-align:center;margin-top:6px}
+.revel-boutons{display:flex;flex-direction:column;gap:10px;flex:1;min-width:200px}
+.revel-boutons button,.app-actions button{padding:14px 18px;border-radius:13px;border:0;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#d0502f,#b23b20 50%,#7a2814);color:#fff;box-shadow:0 8px 20px rgba(178,59,32,.3)}
+.revel-boutons button.secondaire{background:#f3ece0;color:var(--ink);box-shadow:none}
+.revel-confettis{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.revel-confettis i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;opacity:.95;animation:revelConfetti linear both}
+@keyframes revelConfetti{from{transform:translate(0,0) rotate(0)}to{transform:translate(var(--derive,0),110vh) rotate(540deg);opacity:0}}
+.modale{position:fixed;inset:0;z-index:2500;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;background:rgba(28,23,18,.6);overflow-y:auto}
+.modale-boite{position:relative;width:100%;max-width:900px;background:#fffdf9;border-radius:24px;padding:30px;box-shadow:0 30px 80px rgba(0,0,0,.3);margin:auto}
+.modale-x{position:absolute;top:12px;right:14px;width:38px;height:38px;border-radius:50%;border:0;background:#f3ece0;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+.modale h2{font-family:Georgia,serif;font-size:26px;margin-bottom:2px}
+.app-sous{color:var(--ink-dim);font-size:13.5px;margin-bottom:6px}
+.app-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.app-msg{font-size:13px;font-weight:700}.app-msg.ok{color:#2f7a3d}.app-msg.error{color:var(--error)}
+@media (max-width:820px){
+  .ins-grille,.revel-grille{grid-template-columns:1fr;gap:22px}
+  .ins-apercu{position:sticky;top:0;z-index:5;order:-1;height:212px;overflow:hidden;margin:-26px -18px 0;padding-top:10px;background:#fff;box-shadow:0 10px 14px -12px rgba(28,23,18,.25)}
+  .modale .ins-apercu{margin:-24px -18px 0}
+  .ins-apercu .tel{transform:scale(.5);transform-origin:top center}
+  .ins-apercu .tel:hover{transform:scale(.5)}
+  .ins-apercu-legende{display:none}
+  .revel-tel .tel{transform:scale(.72);transform-origin:top center;margin-bottom:-150px}
+  .revel-tel{display:flex;justify-content:center}
+  #gate .box.large{padding:26px 18px}
+  .revel-boite,.modale-boite{padding:24px 18px}
+  .revel h2{font-size:28px}
+}
+@media (prefers-reduced-motion:reduce){.tel,.revel-boite,.revel-tel .tel,.revel-confettis i{animation:none!important;transition:none!important}}
 .bienvenue-banner{position:relative;margin:0 0 16px;padding:14px 44px 14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid rgba(178,59,32,.25);font-size:13.5px;line-height:1.55}.bienvenue-banner button{position:absolute;right:10px;top:8px;background:none;border:0;font-size:20px;line-height:1;cursor:pointer;color:var(--ink-dim)}
 #gate a.cta-abo{display:block;margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,#d0502f 0%,#b23b20 50%,#7a2814 100%);color:#fff;font-size:15.5px;font-weight:900;text-decoration:none;box-shadow:0 8px 20px rgba(178,59,32,.35)}
 #gate .essai-detail{font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-top:14px}
@@ -132,7 +235,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  #poster-print.neutre .ap-carte{border-color:#1c1712;box-shadow:0 2mm 0 var(--ap-accent,#b23b20)}
  #poster-print.neutre .ap-rond{border-color:var(--ap-accent,#b23b20);background:#fbf3ea;background:color-mix(in srgb,var(--ap-accent,#b23b20) 7%,#fff)}
  #poster-print.neutre .ap-etapes div{border-top-color:var(--ap-accent,#b23b20);background:#faf6ef;background:color-mix(in srgb,var(--ap-accent,#b23b20) 5%,#fff)}
- #poster-print.neutre .ap-bas{background:#1c1712;color:#f1e9d8}
+ #poster-print.neutre .ap-bas{background:#1c1712;background:var(--ap-fonce,#1c1712);color:#f1e9d8}
+ #poster-print.neutre .ap-titre h1{font-family:var(--ap-police,Inter,Arial,Helvetica,sans-serif);font-size:var(--ap-h1,35pt)}
  #poster-print .ap-logo-perso{display:none;position:relative;text-align:center;padding:7mm 16mm 0}
  #poster-print.avec-logo-perso .ap-logo-perso{display:block}
  #poster-print .ap-logo-perso img{display:inline-block;max-width:75mm;max-height:18mm;object-fit:contain}
@@ -254,26 +358,49 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     </div>
 
     <div id="panel-inscription" style="display:none">
-      <h1>Essai gratuit</h1>
-      <p>30 jours offerts, sans carte bancaire. Votre carte de fidélité et votre affiche sont prêtes en 5 minutes.</p>
-      <div class="stack">
-        <input type="text" id="ins-nom" placeholder="Nom de votre commerce" maxlength="60" autocomplete="organization">
-        <input type="text" id="ins-ville" placeholder="Ville" maxlength="60" autocomplete="address-level2">
-      </div>
-      <div class="ins-couleur">
-        <span>Couleur de votre affiche</span>
-        <div class="ins-pastilles" id="ins-pastilles"></div>
-        <input type="color" id="ins-couleur" value="#b23b20" aria-label="Choisir une autre couleur">
-      </div>
-      <div class="stack">
-        <input type="email" id="ins-email" placeholder="Adresse email" autocomplete="username" style="margin-top:12px">
-        <div class="pwd-wrap"><input type="password" id="ins-pwd" placeholder="Mot de passe (8 caractères min.)" autocomplete="new-password"></div>
-      </div>
-      <label class="remember ins-cgv"><input type="checkbox" id="ins-cgv"> J'accepte les <a href="cgv.html" target="_blank" rel="noopener">conditions générales</a></label>
-      <button id="ins-btn">Créer mon espace</button>
-      <div class="err" id="ins-err"></div>
-      <div class="gate-links">
-        <button type="button" class="gate-link" id="ins-retour">J'ai déjà un espace : me connecter</button>
+      <div class="ins-grille">
+        <div class="ins-form">
+          <div class="ins-points" id="ins-points" aria-hidden="true"><span class="on">1</span><i></i><span>2</span><i></i><span>3</span></div>
+          <section class="ins-etape" data-etape="1">
+            <h1>Créez votre carte de fidélité</h1>
+            <p>30 jours offerts, sans carte bancaire. Regardez-la prendre forme en direct.</p>
+            <div class="stack">
+              <input type="text" id="ins-nom" placeholder="Nom de votre commerce" maxlength="60" autocomplete="organization">
+              <input type="text" id="ins-ville" placeholder="Ville" maxlength="60" autocomplete="address-level2">
+            </div>
+            <div class="edt-label">Votre activité</div>
+            <div class="ins-metiers" id="ins-metiers"></div>
+            <div class="ins-conseil" id="ins-conseil" hidden></div>
+            <button type="button" id="ins-suivant-1" class="ins-suivant">Continuer →</button>
+          </section>
+          <section class="ins-etape" data-etape="2" hidden>
+            <h1>À votre image</h1>
+            <p>Votre logo, vos couleurs, votre style. Tout reste modifiable ensuite.</p>
+            <label class="ins-logo-zone"><input type="file" id="ins-logo" accept="image/png,image/jpeg,image/webp" hidden><img id="ins-logo-img" alt="Votre logo" hidden><span id="ins-logo-txt">＋ Ajouter votre logo</span></label>
+            <button type="button" class="lien-discret" id="ins-logo-retirer" hidden>Retirer le logo</button>
+            <div class="note" id="ins-logo-note"></div>
+            <div id="ins-editeur"></div>
+            <div class="ins-nav"><button type="button" class="ins-retour-etape" data-vers="1">←</button><button type="button" id="ins-suivant-2" class="ins-suivant">Continuer →</button></div>
+          </section>
+          <section class="ins-etape" data-etape="3" hidden>
+            <h1>Votre accès</h1>
+            <p>Pour retrouver votre espace, vos clients et vos statistiques.</p>
+            <div class="stack">
+              <input type="email" id="ins-email" placeholder="Adresse email" autocomplete="username">
+              <div class="pwd-wrap"><input type="password" id="ins-pwd" placeholder="Mot de passe (8 caractères min.)" autocomplete="new-password"></div>
+            </div>
+            <label class="remember ins-cgv"><input type="checkbox" id="ins-cgv"> J'accepte les <a href="cgv.html" target="_blank" rel="noopener">conditions générales</a></label>
+            <div class="ins-nav"><button type="button" class="ins-retour-etape" data-vers="2">←</button><button type="button" id="ins-btn" class="ins-suivant">Créer ma carte ✨</button></div>
+          </section>
+          <div class="err" id="ins-err"></div>
+          <div class="gate-links">
+            <button type="button" class="gate-link" id="ins-retour">J'ai déjà un espace : me connecter</button>
+          </div>
+        </div>
+        <div class="ins-apercu">
+          <div id="ins-apercu"></div>
+          <div class="ins-apercu-legende">Aperçu de la carte de vos clients</div>
+        </div>
       </div>
     </div>
 
@@ -367,6 +494,51 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <div class="eyebrow" id="top-eyebrow">Votre espace</div>
     <h1>Programme de fidélité</h1>
     <p id="top-sub">Vue d'ensemble</p>
+  </div>
+  <div class="revel" id="revelation" hidden role="dialog" aria-modal="true" aria-labelledby="revel-titre">
+    <div class="revel-boite">
+      <div class="revel-confettis" id="revel-confettis" aria-hidden="true"></div>
+      <div class="revel-grille">
+        <div class="revel-tel" id="revel-apercu"></div>
+        <div>
+          <div class="revel-sur">Bienvenue sur Ancrimo</div>
+          <h2 id="revel-titre">Votre carte est prête 🎉</h2>
+          <p>Vos clients peuvent l'ajouter à leur téléphone dès maintenant. Trois gestes pour démarrer :</p>
+          <ol class="revel-etapes">
+            <li><b>Testez-la</b> : scannez ce QR code avec votre téléphone.</li>
+            <li><b>Imprimez votre affiche</b> et posez-la près de la caisse.</li>
+            <li><b>Proposez-la</b> à chaque client : « Vous voulez la carte de fidélité ? »</li>
+          </ol>
+          <div class="revel-actions">
+            <div><div class="revel-qr" id="revel-qr"></div><div class="revel-qr-leg">À scanner pour tester</div></div>
+            <div class="revel-boutons">
+              <button type="button" id="revel-affiche">🖨 Imprimer mon affiche</button>
+              <button type="button" id="revel-fermer" class="secondaire">Découvrir mon espace →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modale" id="apparence" hidden role="dialog" aria-modal="true" aria-labelledby="app-titre">
+    <div class="modale-boite">
+      <button type="button" class="modale-x" id="app-x" aria-label="Fermer">×</button>
+      <div class="ins-grille">
+        <div>
+          <h2 id="app-titre">Apparence de votre carte</h2>
+          <div class="app-sous" id="app-sous"></div>
+          <div class="edt-label">Votre logo</div>
+          <label class="ins-logo-zone"><input type="file" id="app-logo" accept="image/png,image/jpeg,image/webp" hidden><img id="app-logo-img" alt="Votre logo" hidden><span id="app-logo-txt">＋ Ajouter votre logo</span></label>
+          <button type="button" class="lien-discret" id="app-logo-retirer" hidden>Retirer le logo</button>
+          <div id="app-editeur"></div>
+          <div class="app-actions"><button type="button" id="app-enregistrer">Enregistrer</button><span class="app-msg" id="app-msg" aria-live="polite"></span></div>
+        </div>
+        <div class="ins-apercu">
+          <div id="app-apercu"></div>
+          <div class="ins-apercu-legende">Ce que voient vos clients</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/00w7sL8CM6JQanL6fU6g80j" target="_blank" rel="noopener">S'abonner · 29 € / mois →</a></div>
   <div class="bienvenue-banner" id="bienvenue-banner" style="display:none"><strong>Bienvenue sur Ancrimo !</strong> Votre carte de fidélité est prête. Imprimez votre affiche avec le bouton <b>🖨 Affiche</b> de votre boutique et placez-la près de la caisse : vos clients s'inscrivent en scannant le QR code. <button type="button" id="bienvenue-fermer" aria-label="Fermer">×</button></div>
@@ -713,6 +885,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     });
   }
   function montrerPanneau(id) {
+    const boiteGate = document.querySelector("#gate .box");
+    if (boiteGate) { boiteGate.classList.toggle("large", id === "panel-inscription"); if (id !== "panel-inscription") boiteGate.style.borderTopColor = ""; }
+    if (id === "panel-inscription" && typeof majApercuIns === "function") setTimeout(majApercuIns, 0);
     ["panel-login", "panel-oubli", "panel-reset", "panel-essai", "panel-code", "panel-inscription"].forEach((p) => {
       const el = document.getElementById(p);
       if (el) el.style.display = (p === id ? "block" : "none");
@@ -893,28 +1068,438 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   });
 
   // --- Inscription en libre-service : essai gratuit, boutique et affiche créées tout de suite ---
-  const PASTILLES = ["#b23b20", "#1f3a5f", "#2f6b3a", "#7a1f3d", "#1c1712", "#b8862e", "#5b3a8c", "#1f7a7a"];
-  (function initPastilles() {
-    const zone = document.getElementById("ins-pastilles");
-    const champ = document.getElementById("ins-couleur");
-    if (!zone || !champ) return;
-    const marquer = () => zone.querySelectorAll(".ins-pastille").forEach((b) => b.classList.toggle("choisie", b.dataset.c === champ.value.toLowerCase()));
-    PASTILLES.forEach((c) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "ins-pastille";
-      b.dataset.c = c;
-      b.style.background = c;
-      b.setAttribute("aria-label", "Couleur " + c);
-      b.addEventListener("click", () => { champ.value = c; marquer(); });
-      zone.appendChild(b);
+  // --- Thème de la carte (06/11/2026) : même calcul sur la carte client et dans le tableau de bord ---
+  // Couleur principale et secondaire (assombries si trop claires pour un texte blanc), style de titre, fond.
+  const POLICES_THEME = "https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Outfit:wght@600;800&display=swap";
+  function chargerPolicesTheme() {
+    if (document.getElementById("polices-theme")) return;
+    const l = document.createElement("link");
+    l.id = "polices-theme"; l.rel = "stylesheet"; l.href = POLICES_THEME;
+    document.head.appendChild(l);
+  }
+  function calculerTheme(t) {
+    t = t || {};
+    const hexOk = (h) => /^#[0-9a-f]{6}$/i.test(h || "");
+    const versRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const versHex = (r) => "#" + r.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+    const lum = (h) => {
+      const c = versRgb(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    const melanger = (h, cible, p) => { const a = versRgb(h), b = versRgb(cible); return versHex(a.map((v, i) => v + (b[i] - v) * p)); };
+    const lisible = (h) => { let x = h; for (let i = 0; i < 14 && lum(x) > 0.18; i++) x = melanger(x, "#000000", 0.1); return x; };
+    const c1 = lisible(hexOk(t.couleur) ? t.couleur.toLowerCase() : "#b23b20");
+    const c2 = lisible(hexOk(t.couleur2) ? t.couleur2.toLowerCase() : melanger(c1, "#000000", 0.55));
+    const fond = ["degrade", "uni", "motif"].includes(t.fond_carte) ? t.fond_carte : "degrade";
+    const style = ["classique", "moderne", "artisanal"].includes(t.style_carte) ? t.style_carte : "classique";
+    const motif = 'url("data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26'><circle cx='4' cy='4' r='1.7' fill='white' fill-opacity='.2'/><circle cx='17' cy='17' r='1.7' fill='white' fill-opacity='.2'/></svg>") + '")';
+    const degrade = "linear-gradient(135deg, " + c1 + " 0%, " + c2 + " 100%)";
+    const voile = "linear-gradient(180deg, rgba(0,0,0,.04) 0%, rgba(0,0,0,.3) 100%)";
+    return {
+      c1, c2, style, fond,
+      rgb1: versRgb(c1).join(","), rgb2: versRgb(c2).join(","),
+      fondBanniere: fond === "uni" ? voile + ", linear-gradient(" + c1 + ", " + c1 + ")"
+        : fond === "motif" ? voile + ", " + motif + ", " + degrade : voile + ", " + degrade,
+      tailleBanniere: fond === "motif" ? "100% 100%, 26px 26px, 100% 100%" : "100% 100%, 100% 100%",
+      police: { classique: "Georgia, 'Times New Roman', serif", moderne: "'Outfit', Inter, Arial, sans-serif", artisanal: "'Caveat', Georgia, serif" }[style],
+      echelle: style === "artisanal" ? 1.22 : 1,
+      bouton: "linear-gradient(135deg, " + melanger(c1, "#ffffff", 0.16) + " 0%, " + c1 + " 50%, " + melanger(c1, "#000000", 0.3) + " 100%)",
+      clair: melanger(c1, "#ffffff", 0.9),
+    };
+  }
+  // =====================================================================
+  // Carte à l'image du commerçant (06/11/2026) : métiers, logo → couleurs,
+  // style, fond, aperçu en direct, révélation finale et panneau « Apparence ».
+  // =====================================================================
+  const METIERS_THEME = [
+    { id: "boulangerie", label: "Boulangerie", emoji: "🥐", couleur: "#b8732a", couleur2: "#4a2c17", style_carte: "classique", fond_carte: "degrade", paliers: [10, 10, 20, 20] },
+    { id: "fleuriste", label: "Fleuriste", emoji: "🌷", couleur: "#b83f6e", couleur2: "#2f5d3a", style_carte: "artisanal", fond_carte: "motif", paliers: [5, 10, 10, 15] },
+    { id: "caviste", label: "Caviste", emoji: "🍷", couleur: "#7a1f3d", couleur2: "#2b1810", style_carte: "classique", fond_carte: "degrade", paliers: [5, 10, 10, 15] },
+    { id: "coiffeur", label: "Coiffure", emoji: "✂️", couleur: "#2a2420", couleur2: "#b8862e", style_carte: "moderne", fond_carte: "uni", paliers: [5, 10, 10, 20] },
+    { id: "cafe", label: "Café", emoji: "☕", couleur: "#6f4e37", couleur2: "#c98a3a", style_carte: "artisanal", fond_carte: "motif", paliers: [8, 10, 15, 20] },
+    { id: "restaurant", label: "Restaurant", emoji: "🍽️", couleur: "#b23b20", couleur2: "#1c1712", style_carte: "classique", fond_carte: "degrade", paliers: [6, 10, 12, 15] },
+    { id: "mode", label: "Mode", emoji: "👗", couleur: "#1f3a5f", couleur2: "#c9a227", style_carte: "moderne", fond_carte: "degrade", paliers: [4, 10, 8, 15] },
+    { id: "beaute", label: "Beauté", emoji: "💅", couleur: "#9d5c73", couleur2: "#3d2b3d", style_carte: "moderne", fond_carte: "degrade", paliers: [5, 10, 10, 15] },
+    { id: "autre", label: "Autre", emoji: "✨", couleur: "#b23b20", couleur2: "#1c1712", style_carte: "classique", fond_carte: "degrade", paliers: [6, 15, 10, 20] },
+  ];
+  const PALETTE_THEME = ["#b23b20", "#b8732a", "#c9a227", "#2f6b3a", "#1f7a7a", "#1f3a5f", "#5b3a8c", "#7a1f3d", "#b83f6e", "#9d5c73", "#6f4e37", "#2a2420"];
+  const pctTheme = (x) => String(x).replace(".", ",");
+  function echapTheme(t) { const d = document.createElement("div"); d.textContent = t == null ? "" : String(t); return d.innerHTML; }
+
+  // Aperçu « téléphone » de la carte client, fidèle à la vraie carte (écran de passage)
+  function rendreApercu(el, etat) {
+    if (!el) return;
+    const th = calculerTheme(etat);
+    if (th.style !== "classique") chargerPolicesTheme();
+    const p = etat.paliers || [6, 15, 10, 20];
+    const logo = etat.logo || etat.logo_url || "";
+    const nom = (etat.nom || "").trim() || "Votre commerce";
+    const deja = el.querySelector(".tel");
+    const html = `
+      <div class="tel">
+        <div class="tel-encoche"></div>
+        <div class="tel-ecran">
+          <div class="apc-banniere">
+            ${logo ? `<div class="apc-logo"><img src="${echapTheme(logo)}" alt=""></div>` : ""}
+            <div class="apc-sur">${echapTheme(nom)}</div>
+            <div class="apc-titre" style="font-size:${Math.round(19 * th.echelle)}px">Votre carte de fidélité</div>
+          </div>
+          <div class="apc-corps">
+            <div class="apc-dial"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="#e6e2da" stroke-width="6"/><circle cx="42" cy="42" r="36" fill="none" stroke="${th.c1}" stroke-width="6" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="${226 - 226 * Math.min(3 / p[0], 1)}" transform="rotate(-90 42 42)"/></svg><div><b>3/${p[0]}</b><small>POINTS</small></div></div>
+            <div class="apc-bonjour" style="font-size:${Math.round(15 * th.echelle)}px">Content de vous revoir, Camille !</div>
+            <div class="apc-bouton" style="background:${th.bouton}">J'ai fait un achat, +1 point</div>
+            <div class="apc-paliers"><span><i style="background:${th.c1}"></i>${p[0]} passages = −${pctTheme(p[1])} %</span>${p[2] ? `<span><i style="background:${th.c2}"></i>${p[2]} passages = −${pctTheme(p[3])} %</span>` : ""}</div>
+          </div>
+        </div>
+      </div>`;
+    el.innerHTML = html;
+    const tel = el.querySelector(".tel");
+    tel.style.setProperty("--t1rgb", th.rgb1);
+    tel.style.setProperty("--police", th.police);
+    const ban = el.querySelector(".apc-banniere");
+    ban.style.backgroundImage = th.fondBanniere;
+    ban.style.backgroundSize = th.tailleBanniere;
+    ban.style.backgroundColor = th.c1;
+    if (deja) { const t = el.querySelector(".tel"); t.classList.add("flash"); setTimeout(() => t.classList.remove("flash"), 450); }
+  }
+
+  // Couleurs dominantes d'un logo (data URL) : pixels opaques, ni blancs ni gris neutres en priorité
+  function couleursDuLogo(dataUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const n = 48, c = document.createElement("canvas");
+          c.width = n; c.height = n;
+          const ctx = c.getContext("2d");
+          ctx.drawImage(img, 0, 0, n, n);
+          const px = ctx.getImageData(0, 0, n, n).data;
+          const seaux = {};
+          for (let i = 0; i < px.length; i += 4) {
+            const [r, g, b, a] = [px[i], px[i + 1], px[i + 2], px[i + 3]];
+            if (a < 200) continue;
+            if (r > 236 && g > 236 && b > 236) continue;
+            const k = (r >> 4) + "," + (g >> 4) + "," + (b >> 4);
+            const s = seaux[k] || (seaux[k] = { n: 0, r: 0, g: 0, b: 0 });
+            s.n++; s.r += r; s.g += g; s.b += b;
+          }
+          const liste = Object.values(seaux).map((s) => {
+            const r = s.r / s.n, g = s.g / s.n, b = s.b / s.n;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            const sat = max === 0 ? 0 : (max - min) / max;
+            return { r, g, b, pale: (max + min) / 510 > 0.86, score: s.n * (0.25 + sat) };
+          }).sort((a, b) => b.score - a.score);
+          const nettes = liste.filter((x) => !x.pale);
+          if (nettes.length) liste.splice(0, liste.length, ...nettes);
+          const choisies = [];
+          for (const c2 of liste) {
+            if (choisies.every((x) => Math.hypot(x.r - c2.r, x.g - c2.g, x.b - c2.b) > 70)) choisies.push(c2);
+            if (choisies.length === 4) break;
+          }
+          const hex = (v) => Math.round(v).toString(16).padStart(2, "0");
+          resolve(choisies.map((x) => "#" + hex(x.r) + hex(x.g) + hex(x.b)));
+        } catch (e) { resolve([]); }
+      };
+      img.onerror = () => resolve([]);
+      img.src = dataUrl;
     });
-    champ.addEventListener("input", marquer);
-    marquer();
+  }
+
+  // Réglages de couleurs, style et fond (inscription et panneau « Apparence »)
+  function creerEditeurTheme(racine, etat, auChangement) {
+    racine.innerHTML = `
+      <div class="edt-bloc edt-sugg-bloc" hidden>
+        <div class="edt-label">✨ Les couleurs de votre logo</div>
+        <div class="edt-sugg"></div>
+      </div>
+      <div class="edt-bloc">
+        <div class="edt-label">Couleur principale</div>
+        <div class="edt-pastilles"></div>
+        <div class="edt-perso">
+          <label>Principale <input type="color" data-champ="couleur"></label>
+          <label>Secondaire <input type="color" data-champ="couleur2"></label>
+        </div>
+      </div>
+      <div class="edt-bloc">
+        <div class="edt-label">Style des titres</div>
+        <div class="edt-tuiles" data-champ="style_carte">
+          <button type="button" data-v="classique"><span style="font-family:Georgia,serif">Aa</span>Classique</button>
+          <button type="button" data-v="moderne"><span style="font-family:Outfit,Inter,sans-serif;font-weight:800">Aa</span>Moderne</button>
+          <button type="button" data-v="artisanal"><span style="font-family:Caveat,Georgia,serif;font-size:27px">Aa</span>Artisanal</button>
+        </div>
+      </div>
+      <div class="edt-bloc">
+        <div class="edt-label">Fond du bandeau</div>
+        <div class="edt-tuiles" data-champ="fond_carte">
+          <button type="button" data-v="degrade"><i class="edt-mini"></i>Dégradé</button>
+          <button type="button" data-v="uni"><i class="edt-mini"></i>Uni</button>
+          <button type="button" data-v="motif"><i class="edt-mini"></i>Motif</button>
+        </div>
+      </div>`;
+    chargerPolicesTheme();
+    const pastilles = racine.querySelector(".edt-pastilles");
+    PALETTE_THEME.forEach((c) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "edt-pastille"; b.dataset.c = c; b.style.background = c;
+      b.setAttribute("aria-label", "Couleur " + c);
+      b.addEventListener("click", () => { etat.couleur = c; changer(); });
+      pastilles.appendChild(b);
+    });
+    racine.querySelectorAll("input[type=color]").forEach((inp) => {
+      inp.addEventListener("input", () => { etat[inp.dataset.champ] = inp.value.toLowerCase(); changer(); });
+    });
+    racine.querySelectorAll(".edt-tuiles").forEach((zone) => {
+      zone.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { etat[zone.dataset.champ] = b.dataset.v; changer(); }));
+    });
+    function rafraichir() {
+      const th = calculerTheme(etat);
+      pastilles.querySelectorAll(".edt-pastille").forEach((b) => b.classList.toggle("choisie", b.dataset.c === (etat.couleur || "").toLowerCase()));
+      racine.querySelector('[data-champ="couleur"]').value = /^#[0-9a-f]{6}$/i.test(etat.couleur || "") ? etat.couleur : th.c1;
+      racine.querySelector('[data-champ="couleur2"]').value = /^#[0-9a-f]{6}$/i.test(etat.couleur2 || "") ? etat.couleur2 : th.c2;
+      racine.querySelectorAll(".edt-tuiles").forEach((zone) => {
+        const v = etat[zone.dataset.champ] || (zone.dataset.champ === "style_carte" ? "classique" : "degrade");
+        zone.querySelectorAll("button").forEach((b) => {
+          b.classList.toggle("choisi", b.dataset.v === v);
+          b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false");
+          const mini = b.querySelector(".edt-mini");
+          if (mini) { const t2 = calculerTheme({ ...etat, fond_carte: b.dataset.v }); mini.style.backgroundImage = t2.fondBanniere; mini.style.backgroundSize = b.dataset.v === "motif" ? "100% 100%, 13px 13px, 100% 100%" : "100% 100%, 100% 100%"; mini.style.backgroundColor = t2.c1; }
+        });
+      });
+    }
+    function changer() { rafraichir(); auChangement(); }
+    function proposerCouleurs(liste, appliquer) {
+      const bloc = racine.querySelector(".edt-sugg-bloc");
+      const zone = racine.querySelector(".edt-sugg");
+      zone.innerHTML = "";
+      if (!liste || !liste.length) { bloc.hidden = true; return; }
+      liste.forEach((c, i) => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "edt-pastille grande"; b.style.background = c; b.setAttribute("aria-label", "Couleur du logo " + c);
+        b.addEventListener("click", () => { etat.couleur = c; changer(); });
+        zone.appendChild(b);
+      });
+      bloc.hidden = false;
+      if (appliquer) {
+        const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+        const ecart = (a, b) => { const x = rgb(a), y = rgb(b); return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]); };
+        etat.couleur = liste[0];
+        etat.couleur2 = liste.slice(1).find((c) => ecart(c, liste[0]) > 120) || "";
+        changer();
+      }
+    }
+    rafraichir();
+    return { rafraichir, proposerCouleurs };
+  }
+
+  // ---------- Inscription en 3 étapes avec aperçu en direct ----------
+  const etatIns = { nom: "", ville: "", metier: "", couleur: "#b23b20", couleur2: "#1c1712", style_carte: "classique", fond_carte: "degrade", paliers: [6, 15, 10, 20], logo: "" };
+  let editeurIns = null;
+  let etapeIns = 1;
+  function majApercuIns() {
+    rendreApercu(document.getElementById("ins-apercu"), etatIns);
+    // Le formulaire prend lui aussi les couleurs choisies
+    const th = calculerTheme(etatIns);
+    const panneau = document.getElementById("panel-inscription");
+    if (panneau) { panneau.style.setProperty("--ins-bouton", th.bouton); panneau.style.setProperty("--ins-c1", th.c1); }
+    const boite = document.querySelector("#gate .box.large");
+    if (boite) boite.style.borderTopColor = th.c1;
+  }
+  function allerEtapeIns(n) {
+    etapeIns = n;
+    document.querySelectorAll("#panel-inscription .ins-etape").forEach((s) => { s.hidden = Number(s.dataset.etape) !== n; });
+    document.querySelectorAll("#ins-points span").forEach((s, i) => { s.classList.toggle("on", i < n); });
+    afficher("ins-err", "");
+    const premier = document.querySelector(`#panel-inscription .ins-etape[data-etape="${n}"] input, #panel-inscription .ins-etape[data-etape="${n}"] button`);
+    if (premier && n !== 1) setTimeout(() => premier.focus({ preventScroll: true }), 30);
+  }
+  (function initInscription() {
+    const zoneMetiers = document.getElementById("ins-metiers");
+    if (!zoneMetiers) return;
+    METIERS_THEME.forEach((m) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "ins-metier"; b.dataset.id = m.id;
+      b.innerHTML = `<span aria-hidden="true">${m.emoji}</span>${m.label}`;
+      b.addEventListener("click", () => {
+        etatIns.metier = m.id;
+        Object.assign(etatIns, { couleur: m.couleur, couleur2: m.couleur2, style_carte: m.style_carte, fond_carte: m.fond_carte, paliers: m.paliers.slice() });
+        zoneMetiers.querySelectorAll(".ins-metier").forEach((x) => x.classList.toggle("choisi", x === b));
+        const conseil = document.getElementById("ins-conseil");
+        conseil.textContent = `Pour une activité « ${m.label} », on vous propose ${m.paliers[0]} passages = −${pctTheme(m.paliers[1])} % puis ${m.paliers[2]} passages = −${pctTheme(m.paliers[3])} %. Vous pourrez le changer à tout moment.`;
+        conseil.hidden = false;
+        if (editeurIns) editeurIns.rafraichir();
+        majApercuIns();
+      });
+      zoneMetiers.appendChild(b);
+    });
+    editeurIns = creerEditeurTheme(document.getElementById("ins-editeur"), etatIns, majApercuIns);
+    ["ins-nom", "ins-ville"].forEach((id) => document.getElementById(id).addEventListener("input", (e) => {
+      etatIns[id === "ins-nom" ? "nom" : "ville"] = e.target.value;
+      if (id === "ins-nom") majApercuIns();
+    }));
+    document.getElementById("ins-suivant-1").addEventListener("click", () => {
+      if (document.getElementById("ins-nom").value.trim().length < 2) return afficher("ins-err", "Indiquez le nom de votre commerce.");
+      if (document.getElementById("ins-ville").value.trim().length < 2) return afficher("ins-err", "Indiquez votre ville.");
+      if (!etatIns.metier) return afficher("ins-err", "Choisissez votre activité (ou « Autre »).");
+      allerEtapeIns(2);
+    });
+    document.getElementById("ins-suivant-2").addEventListener("click", () => allerEtapeIns(3));
+    document.querySelectorAll("#panel-inscription .ins-retour-etape").forEach((b) => b.addEventListener("click", () => allerEtapeIns(Number(b.dataset.vers))));
+    const fichier = document.getElementById("ins-logo");
+    fichier.addEventListener("change", async () => {
+      const f = fichier.files && fichier.files[0];
+      fichier.value = "";
+      if (!f) return;
+      if (!/^image\/(png|jpeg|webp)$/.test(f.type)) return afficher("ins-err", "Format non reconnu : utilisez un PNG ou un JPG.");
+      afficher("ins-err", "");
+      try {
+        etatIns.logo = await preparerLogo(f);
+        document.getElementById("ins-logo-img").src = etatIns.logo;
+        document.getElementById("ins-logo-img").hidden = false;
+        document.getElementById("ins-logo-txt").textContent = "Changer de logo";
+        document.getElementById("ins-logo-retirer").hidden = false;
+        majApercuIns();
+        const couleurs = await couleursDuLogo(etatIns.logo);
+        editeurIns.proposerCouleurs(couleurs, true);
+        if (couleurs.length) afficher("ins-logo-note", "On a repris les couleurs de votre logo. Touchez une pastille pour essayer une autre combinaison.", "note");
+      } catch (e) {
+        afficher("ins-err", e.message || "Ce logo n'a pas pu être lu.");
+      }
+    });
+    document.getElementById("ins-logo-retirer").addEventListener("click", () => {
+      etatIns.logo = "";
+      document.getElementById("ins-logo-img").hidden = true;
+      document.getElementById("ins-logo-txt").textContent = "＋ Ajouter votre logo";
+      document.getElementById("ins-logo-retirer").hidden = true;
+      afficher("ins-logo-note", "");
+      editeurIns.proposerCouleurs([], false);
+      majApercuIns();
+    });
+    majApercuIns();
   })();
+
+  // ---------- Révélation : « Votre carte est prête » ----------
+  function montrerRevelation(data) {
+    const b = (data.boutiques || [])[0];
+    const boite = document.getElementById("revelation");
+    if (!b || !boite) return false;
+    const etat = { nom: b.nom, couleur: b.couleur, couleur2: b.couleur2, style_carte: b.style_carte, fond_carte: b.fond_carte, logo_url: b.logo_url,
+      paliers: [b.palier_1_passages || 6, b.palier_1_pourcentage || 15, b.palier_2_passages || null, b.palier_2_pourcentage || null] };
+    rendreApercu(document.getElementById("revel-apercu"), etat);
+    const qr = document.getElementById("revel-qr");
+    qr.innerHTML = "";
+    try { new QRCode(qr, { text: "https://ancrimo.fr/?boutique=" + b.id, width: 132, height: 132, correctLevel: QRCode.CorrectLevel.M }); } catch (e) {}
+    const th = calculerTheme(etat);
+    const confettis = document.getElementById("revel-confettis");
+    confettis.innerHTML = "";
+    const couleurs = [th.c1, th.c2, "#f2c14e", "#ffffff"];
+    for (let i = 0; i < 70; i++) {
+      const s = document.createElement("i");
+      s.style.left = Math.random() * 100 + "%";
+      s.style.background = couleurs[i % couleurs.length];
+      s.style.animationDelay = (Math.random() * 0.9).toFixed(2) + "s";
+      s.style.animationDuration = (2.2 + Math.random() * 1.6).toFixed(2) + "s";
+      s.style.setProperty("--derive", (Math.random() * 160 - 80).toFixed(0) + "px");
+      confettis.appendChild(s);
+    }
+    boite.hidden = false;
+    document.body.style.overflow = "hidden";
+    document.getElementById("revel-affiche").onclick = () => {
+      const pal = { p1: etat.paliers[0], pct1: etat.paliers[1], p2: etat.paliers[2], pct2: etat.paliers[3] };
+      printPoster(b, pal);
+    };
+    const fermer = () => { boite.hidden = true; document.body.style.overflow = ""; };
+    document.getElementById("revel-fermer").onclick = fermer;
+    boite.onkeydown = (e) => { if (e.key === "Escape") fermer(); };
+    setTimeout(() => document.getElementById("revel-fermer").focus({ preventScroll: true }), 60);
+    return true;
+  }
+
+  // ---------- Panneau « Apparence » d'une boutique (tableau de bord) ----------
+  let editeurApp = null;
+  function ouvrirApparence(boutique) {
+    const modale = document.getElementById("apparence");
+    if (!modale) return;
+    const etat = { nom: boutique.nom, couleur: boutique.couleur || "#b23b20", couleur2: boutique.couleur2 || "", style_carte: boutique.style_carte || "classique",
+      fond_carte: boutique.fond_carte || "degrade", logo_url: boutique.logo_url || "",
+      paliers: [boutique.palier_1_passages || 6, boutique.palier_1_pourcentage || 15, boutique.palier_2_passages || null, boutique.palier_2_pourcentage || null] };
+    const maj = () => rendreApercu(document.getElementById("app-apercu"), etat);
+    document.getElementById("app-sous").textContent = boutique.nom;
+    editeurApp = creerEditeurTheme(document.getElementById("app-editeur"), etat, maj);
+    const msg = document.getElementById("app-msg");
+    msg.textContent = ""; msg.className = "app-msg";
+    const img = document.getElementById("app-logo-img");
+    const txt = document.getElementById("app-logo-txt");
+    const retirer = document.getElementById("app-logo-retirer");
+    const montrerLogo = () => {
+      img.hidden = !etat.logo_url; if (etat.logo_url) img.src = etat.logo_url;
+      txt.textContent = etat.logo_url ? "Changer de logo" : "＋ Ajouter votre logo";
+      retirer.hidden = !etat.logo_url;
+    };
+    montrerLogo();
+    if (etat.logo_url) couleursDuLogoUrl(etat.logo_url).then((c) => editeurApp && editeurApp.proposerCouleurs(c, false));
+    const dire = (t, cl) => { msg.textContent = t; msg.className = "app-msg" + (cl ? " " + cl : ""); };
+    const envoyerLogo = async (corps) => {
+      const res = await api({ token: SESSION_TOKEN, action: "logo", boutique_id: boutique.id, ...corps });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error === "trop_lourd" ? "Image trop lourde (500 Ko maximum)." : data.error === "format_invalide" ? "Format non reconnu : utilisez un PNG ou un JPG." : "L'envoi n'a pas abouti, réessayez dans un instant.");
+      return data;
+    };
+    const fichier = document.getElementById("app-logo");
+    fichier.onchange = async () => {
+      const f = fichier.files && fichier.files[0];
+      fichier.value = "";
+      if (!f) return;
+      if (!/^image\/(png|jpeg|webp)$/.test(f.type)) return dire("Format non reconnu : utilisez un PNG ou un JPG.", "error");
+      dire("Envoi du logo…");
+      try {
+        const image = await preparerLogo(f);
+        const data = await envoyerLogo({ image });
+        etat.logo_url = data.logo_url; boutique.logo_url = data.logo_url;
+        montrerLogo(); maj();
+        const couleurs = await couleursDuLogo(image);
+        editeurApp.proposerCouleurs(couleurs, true);
+        dire(couleurs.length ? "Logo enregistré. On vous propose ses couleurs : enregistrez pour les garder." : "Logo enregistré.", "ok");
+      } catch (e) { dire(e.message || "L'envoi n'a pas abouti.", "error"); }
+    };
+    retirer.onclick = async () => {
+      dire("Suppression…");
+      try {
+        await envoyerLogo({ supprimer: true });
+        etat.logo_url = ""; boutique.logo_url = null;
+        montrerLogo(); maj(); editeurApp.proposerCouleurs([], false);
+        dire("Logo retiré.", "ok");
+      } catch (e) { dire(e.message || "La suppression n'a pas abouti.", "error"); }
+    };
+    document.getElementById("app-enregistrer").onclick = async () => {
+      const bouton = document.getElementById("app-enregistrer");
+      bouton.disabled = true; dire("Enregistrement…");
+      try {
+        const res = await api({ token: SESSION_TOKEN, action: "apparence", boutique_id: boutique.id, couleur: etat.couleur, couleur2: etat.couleur2 || null, style_carte: etat.style_carte, fond_carte: etat.fond_carte });
+        if (!res.ok) throw new Error();
+        Object.assign(boutique, { couleur: etat.couleur, couleur2: etat.couleur2, style_carte: etat.style_carte, fond_carte: etat.fond_carte });
+        dire("C'est enregistré : votre carte et votre affiche ont changé.", "ok");
+      } catch (e) { dire("L'enregistrement n'a pas abouti, réessayez.", "error"); }
+      bouton.disabled = false;
+    };
+    const fermer = () => { modale.hidden = true; document.body.style.overflow = ""; };
+    document.getElementById("app-x").onclick = fermer;
+    modale.onclick = (e) => { if (e.target === modale) fermer(); };
+    modale.onkeydown = (e) => { if (e.key === "Escape") fermer(); };
+    maj();
+    modale.hidden = false;
+    document.body.style.overflow = "hidden";
+    setTimeout(() => document.getElementById("app-x").focus({ preventScroll: true }), 40);
+  }
+  // Couleurs d'un logo déjà en ligne (stockage public Supabase, lisible par le navigateur)
+  function couleursDuLogoUrl(url) {
+    return fetch(url).then((r) => r.blob()).then((b) => new Promise((ok) => { const l = new FileReader(); l.onload = () => ok(l.result); l.onerror = () => ok(""); l.readAsDataURL(b); }))
+      .then((d) => d ? couleursDuLogo(d) : []).catch(() => []);
+  }
+
   document.getElementById("lien-inscription").addEventListener("click", () => {
     afficher("pwd-err", "");
     montrerPanneau("panel-inscription");
+    allerEtapeIns(1);
     document.getElementById("ins-nom").focus();
   });
   document.getElementById("ins-retour").addEventListener("click", () => montrerPanneau("panel-login"));
@@ -928,7 +1513,6 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     const ville = document.getElementById("ins-ville").value.trim();
     const mail = document.getElementById("ins-email").value.trim();
     const mdp = document.getElementById("ins-pwd").value;
-    const couleur = document.getElementById("ins-couleur").value;
     afficher("ins-err", "");
     if (nom.length < 2) return afficher("ins-err", "Indiquez le nom de votre commerce.");
     if (ville.length < 2) return afficher("ins-err", "Indiquez votre ville.");
@@ -938,10 +1522,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     btn.disabled = true;
     btn.textContent = "Création...";
     try {
-      const res = await api({ action: "inscription", nom_commerce: nom, ville, couleur, email: mail, password: mdp, cgv: true });
+      const p = etatIns.paliers || [];
+      const res = await api({ action: "inscription", nom_commerce: nom, ville, email: mail, password: mdp, cgv: true,
+        metier: etatIns.metier || "autre", couleur: etatIns.couleur, couleur2: etatIns.couleur2 || null,
+        style_carte: etatIns.style_carte, fond_carte: etatIns.fond_carte,
+        palier_1_passages: p[0], palier_1_pourcentage: p[1], palier_2_passages: p[2] || null, palier_2_pourcentage: p[3] || null,
+        logo: etatIns.logo || null });
       const data = await res.json();
       btn.disabled = false;
-      btn.textContent = "Créer mon espace";
+      btn.textContent = "Créer ma carte ✨";
       if (res.ok && data.etape === "code") {
         DEFI_CODE = data.defi;
         PERSISTANT_CODE = true;
@@ -959,7 +1548,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
         compte_existant: "Cette adresse a déjà un espace Ancrimo. Connectez-vous, ou utilisez « Mot de passe oublié ? ».",
         email_invalide: "Saisissez une adresse email valide.",
         mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
-        nom_invalide: "Le nom du commerce doit faire entre 2 et 60 caractères.",
+        nom_invalide: "Le nom du commerce doit faire entre 2 et 60 caractères. Revenez à l'étape 1 pour le corriger.",
         ville_invalide: "La ville doit faire entre 2 et 60 caractères.",
         cgv_non_acceptees: "Acceptez les conditions générales pour continuer.",
         trop_d_inscriptions: "Trop d'inscriptions depuis cette connexion. Réessayez demain ou écrivez à contact@ancrimo.fr.",
@@ -970,7 +1559,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       afficher("ins-err", messages[data.error] || "Une erreur est survenue, réessayez dans un instant.");
     } catch (e) {
       btn.disabled = false;
-      btn.textContent = "Créer mon espace";
+      btn.textContent = "Créer ma carte ✨";
       afficher("ins-err", "Erreur de connexion. Réessayez.");
     }
   }
@@ -1007,7 +1596,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     try {
       if (sessionStorage.getItem("ancrimo_bienvenue")) {
         sessionStorage.removeItem("ancrimo_bienvenue");
-        document.getElementById("bienvenue-banner").style.display = "block";
+        if (!montrerRevelation(data)) document.getElementById("bienvenue-banner").style.display = "block";
       }
     } catch (e) {}
   }
@@ -1273,7 +1862,7 @@ const cb = document.getElementById("campaign-box");
       card.innerHTML = `
         <h3>${echapHtml(boutique.nom)}</h3>\n        <button class="paliers-toggle" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">\u2699 Paliers</button>
         <button class="poster-btn" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">🖨 Affiche</button>
-        <button class="logo-btn" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">🖼 Logo${boutique.logo_url ? " ✓" : ""}</button>
+        <button class="logo-btn" data-boutique-id="${boutique.id}" onclick="event.stopPropagation()">🎨 Apparence</button>
         <div class="shop-stats">
           <div><div class="n">${inscrits}</div><div class="l">Inscrits</div></div>
           <div><div class="n">${passages}</div><div class="l">Passages</div></div>
@@ -1286,15 +1875,6 @@ const cb = document.getElementById("campaign-box");
         <div class="bar-legend">
           <span class="l6">${palier6} au palier ${pal.p1} (−${pal.pct1}%)</span>
           ${pal.p2 ? `<span class="l10">${palier10} au palier ${pal.p2} (−${pal.pct2}%)</span>` : ""}
-        </div>
-        <div class="logo-edit" id="logo-edit-${boutique.id}">
-          <div class="logo-apercu" id="logo-apercu-${boutique.id}">Aucun logo pour l'instant</div>
-          <p class="logo-aide">Votre logo en PNG ou JPG (500 Ko maximum). Il s'affiche en haut de la carte de vos clients et sur votre affiche.</p>
-          <div class="logo-actions">
-            <label>Choisir une image<input type="file" accept="image/png,image/jpeg,image/webp" id="logo-fichier-${boutique.id}" hidden></label>
-            <button type="button" id="logo-retirer-${boutique.id}">Retirer le logo</button>
-          </div>
-          <div class="logo-msg" id="logo-msg-${boutique.id}" aria-live="polite"></div>
         </div>
         <div class="paliers-edit" id="paliers-edit-${boutique.id}">
           <div class="paliers-edit-row">
@@ -1425,68 +2005,7 @@ initOnglets();
   const LOGO_MAX_OCTETS = 500 * 1024;
   function initLogo(card, boutique) {
     const btn = card.querySelector(".logo-btn");
-    const panneau = card.querySelector(`#logo-edit-${boutique.id}`);
-    if (!btn || !panneau) return;
-    const apercu = panneau.querySelector(`#logo-apercu-${boutique.id}`);
-    const fichier = panneau.querySelector(`#logo-fichier-${boutique.id}`);
-    const retirer = panneau.querySelector(`#logo-retirer-${boutique.id}`);
-    const msg = panneau.querySelector(`#logo-msg-${boutique.id}`);
-    const afficher = (url) => {
-      apercu.textContent = "";
-      if (url) {
-        const img = document.createElement("img");
-        img.src = url; img.alt = "Logo de " + boutique.nom;
-        apercu.appendChild(img);
-      } else {
-        apercu.textContent = "Aucun logo pour l'instant";
-      }
-      retirer.disabled = !url;
-      btn.textContent = "🖼 Logo" + (url ? " ✓" : "");
-    };
-    afficher(boutique.logo_url || null);
-    btn.addEventListener("click", (e) => { e.stopPropagation(); panneau.classList.toggle("open"); });
-    panneau.addEventListener("click", (e) => e.stopPropagation());
-    const dire = (texte, classe) => { msg.textContent = texte; msg.className = "logo-msg" + (classe ? " " + classe : ""); };
-    const envoyer = async (corps) => {
-      const res = await api({ token: SESSION_TOKEN, action: "logo", boutique_id: boutique.id, ...corps });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error === "trop_lourd" ? "Image trop lourde (500 Ko maximum)."
-          : data.error === "format_invalide" ? "Format non reconnu : utilisez un PNG ou un JPG."
-          : "L'envoi n'a pas abouti, réessayez dans un instant.");
-      }
-      return data;
-    };
-    fichier.addEventListener("change", async () => {
-      const f = fichier.files && fichier.files[0];
-      fichier.value = "";
-      if (!f) return;
-      if (!/^image\/(png|jpeg|webp)$/.test(f.type)) { dire("Format non reconnu : utilisez un PNG ou un JPG.", "error"); return; }
-      dire("Préparation de l'image…");
-      try {
-        const image = await preparerLogo(f);
-        dire("Envoi…");
-        const data = await envoyer({ image });
-        boutique.logo_url = data.logo_url;
-        afficher(data.logo_url);
-        dire("Logo enregistré. Il apparaît déjà sur votre carte et sur votre affiche.", "ok");
-      } catch (err) {
-        dire(err.message || "L'envoi n'a pas abouti.", "error");
-      }
-    });
-    retirer.addEventListener("click", async () => {
-      retirer.disabled = true;
-      dire("Suppression…");
-      try {
-        await envoyer({ supprimer: true });
-        boutique.logo_url = null;
-        afficher(null);
-        dire("Logo retiré.", "ok");
-      } catch (err) {
-        retirer.disabled = false;
-        dire(err.message || "La suppression n'a pas abouti.", "error");
-      }
-    });
+    if (btn) btn.addEventListener("click", (e) => { e.stopPropagation(); ouvrirApparence(boutique); });
   }
   // Réduit l'image à 600 px de large au plus. PNG gardé en PNG (transparence), sinon JPEG.
   function preparerLogo(f) {
@@ -1531,13 +2050,15 @@ initOnglets();
     let marque = "";
     let couleur = "";
     let logoPerso = "";
+    let themeAffiche = null;
     // Paliers relus en base à l'impression : l'affiche suit toujours les derniers réglages
     try {
       const { data: frais } = await supabaseClient.from("boutiques")
-        .select("palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage, couleur, logo_url, enseignes(nom)")
+        .select("palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage, couleur, couleur2, style_carte, logo_url, enseignes(nom)")
         .eq("id", boutique.id).maybeSingle();
       marque = (frais && frais.enseignes && frais.enseignes.nom) || "";
       couleur = (frais && /^#[0-9a-fA-F]{6}$/.test(frais.couleur || "")) ? frais.couleur : "";
+      themeAffiche = calculerTheme(frais || {});
       logoPerso = (frais && /^https:\/\/xreqpkzovokiheichauf\.supabase\.co\/storage\/v1\/object\/public\/logos\//.test(frais.logo_url || "")) ? frais.logo_url : "";
       if (frais && frais.palier_1_passages) {
         pal = { p1: frais.palier_1_passages, pct1: frais.palier_1_pourcentage, p2: frais.palier_2_passages || null, pct2: frais.palier_2_pourcentage || null };
@@ -1558,6 +2079,16 @@ initOnglets();
     document.getElementById("poster-print").classList.toggle("neutre", !avecLogo);
     // Couleur choisie par le commerçant à l'inscription (rouille Ancrimo par défaut)
     document.getElementById("poster-print").style.setProperty("--ap-accent", couleur || "#b23b20");
+    // Style choisi par le commerçant : police des titres et bandeau du bas à sa couleur secondaire
+    const posterEl = document.getElementById("poster-print");
+    if (themeAffiche && couleur) {
+      posterEl.style.setProperty("--ap-police", themeAffiche.style === "classique" ? 'Georgia, "Times New Roman", serif' : themeAffiche.police);
+      posterEl.style.setProperty("--ap-h1", themeAffiche.style === "artisanal" ? "44pt" : "35pt");
+      posterEl.style.setProperty("--ap-fonce", themeAffiche.c2);
+      if (themeAffiche.style !== "classique") chargerPolicesTheme();
+    } else {
+      ["--ap-police", "--ap-h1", "--ap-fonce"].forEach((v) => posterEl.style.removeProperty(v));
+    }
     document.getElementById("poster-print-marque").textContent = "Carte de fidélité " + (marque || boutique.nom);
     const pct = (x) => String(x).replace(".", ",");
     const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pct(pal.pct2)} %</b></span>` : "";
@@ -1578,6 +2109,7 @@ initOnglets();
     } else {
       logoImg.removeAttribute("src");
     }
+    try { if (document.fonts && document.fonts.ready) await Promise.race([document.fonts.ready, new Promise((ok) => setTimeout(ok, 2500))]); } catch (e) {}
     window.print();
   }
 
