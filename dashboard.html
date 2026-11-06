@@ -22,6 +22,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 #gate .note.show,#gate .err.show{display:block}.pwd-wrap{position:relative}.pwd-wrap input{padding-right:46px!important}.pwd-wrap .eye{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px!important;height:34px;margin:0!important;padding:0!important;background:none!important;border:0;font-size:16px;cursor:pointer;opacity:.55;line-height:1;box-shadow:none}
 .pwd-wrap .eye:hover{opacity:1}.remember{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:13px;font-size:12.5px;color:var(--ink-dim);cursor:pointer}.remember input{width:auto!important;margin:0!important;padding:0!important}.gate-links{margin-top:17px}.gate-link{background:none!important;border:0;padding:0!important;margin:0!important;width:auto!important;color:var(--ink-dim)!important;font-size:12.5px!important;text-decoration:underline;cursor:pointer;box-shadow:none!important}
 #gate .stack input+input{margin-top:9px}
+#gate .stack .pwd-wrap{margin-top:9px}.ins-couleur{margin-top:14px;font-size:12.5px;color:var(--ink-dim)}.ins-pastilles{display:flex;justify-content:center;gap:8px;margin:8px 0 4px;flex-wrap:wrap}#gate .ins-pastille{width:28px;height:28px;margin:0;padding:0;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #d9ccb4;cursor:pointer}#gate .ins-pastille.choisie{box-shadow:0 0 0 2.5px var(--ink)}#gate #ins-couleur{width:46px;height:32px;padding:2px;margin-top:4px;cursor:pointer}.ins-cgv a{color:inherit}
+.bienvenue-banner{position:relative;margin:0 0 16px;padding:14px 44px 14px 16px;border-radius:14px;background:#fbf3ea;border:1px solid rgba(178,59,32,.25);font-size:13.5px;line-height:1.55}.bienvenue-banner button{position:absolute;right:10px;top:8px;background:none;border:0;font-size:20px;line-height:1;cursor:pointer;color:var(--ink-dim)}
 #gate a.cta-abo{display:block;margin-top:18px;padding:14px;border-radius:11px;background:var(--green);color:#fff;font-size:14.5px;font-weight:800;text-decoration:none}
 #gate .essai-detail{font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-top:14px}
 .essai-banner{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:-8px 0 22px;padding:12px 16px;border-radius:14px;background:#f7ead2;border:1px solid #e3c48f;font-size:13px;color:var(--ink)}
@@ -95,7 +97,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  .ap-ondes{font-size:22pt;color:#3E8E33;font-weight:700;letter-spacing:.1em}
  .ap-rond span{font-size:11pt;color:#4a4a4a;line-height:1.3;padding:0 8mm}
  .ap-tel{width:15mm;height:24mm;color:#3E8E33;display:block}
- #poster-print.neutre .ap-tel{color:#b23b20}
+ #poster-print.neutre .ap-tel{color:var(--ap-accent,#b23b20)}
  #poster-verso{display:block!important;position:relative;width:200mm;height:262mm;margin:0 auto;overflow:hidden;break-before:page;page-break-before:always;background:#fff;color:#6b5d50;font-family:Inter,Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  #poster-verso .av-consigne{position:absolute;left:16mm;right:16mm;top:12mm;font-size:10pt;line-height:1.45;text-align:center}
  #poster-verso .av-consigne b{display:block;font-size:12pt;color:#1c1712;margin-bottom:1.5mm}
@@ -108,16 +110,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  .ap-gros{font-size:22pt;font-weight:700;line-height:1.15}.ap-fin{font-size:9pt;margin-top:3mm;opacity:.85}
  /* Affiche neutre (boutique hors enseigne Pil'Vite) : couleurs Ancrimo */
  #poster-print.neutre{color:#1c1712}
- #poster-print.neutre .ap-soleil,#poster-print.neutre .ap-soleil2{background:#c98a3a}
+ #poster-print.neutre .ap-soleil,#poster-print.neutre .ap-soleil2{background:var(--ap-accent,#c98a3a)}
  #poster-print.neutre .ap-titre{margin-top:14mm}
  #poster-print.neutre .ap-petit{font-size:16pt}
  #poster-print.neutre .ap-centre{padding-top:10mm}
  #poster-print.neutre .ap-etapes{padding-top:9mm}
- #poster-print.neutre .ap-petit,#poster-print.neutre .ap-paliers b,#poster-print.neutre .ap-ondes,#poster-print.neutre .ap-etapes b{color:#b23b20}
- #poster-print.neutre .ap-paliers span,#poster-print.neutre .ap-ou{background:#efd9b0}
- #poster-print.neutre .ap-carte{border-color:#1c1712;box-shadow:0 2mm 0 #b23b20}
- #poster-print.neutre .ap-rond{border-color:#b23b20;background:#fbf3ea}
- #poster-print.neutre .ap-etapes div{border-top-color:#b23b20;background:#faf6ef}
+ #poster-print.neutre .ap-petit,#poster-print.neutre .ap-paliers b,#poster-print.neutre .ap-ondes,#poster-print.neutre .ap-etapes b{color:var(--ap-accent,#b23b20)}
+ #poster-print.neutre .ap-paliers span,#poster-print.neutre .ap-ou{background:#efd9b0;background:color-mix(in srgb,var(--ap-accent,#b23b20) 22%,#fff)}
+ #poster-print.neutre .ap-carte{border-color:#1c1712;box-shadow:0 2mm 0 var(--ap-accent,#b23b20)}
+ #poster-print.neutre .ap-rond{border-color:var(--ap-accent,#b23b20);background:#fbf3ea;background:color-mix(in srgb,var(--ap-accent,#b23b20) 7%,#fff)}
+ #poster-print.neutre .ap-etapes div{border-top-color:var(--ap-accent,#b23b20);background:#faf6ef;background:color-mix(in srgb,var(--ap-accent,#b23b20) 5%,#fff)}
  #poster-print.neutre .ap-bas{background:#1c1712;color:#f1e9d8}
  @page{size:A4;margin:12mm 5mm}
 }
@@ -227,6 +229,33 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       <div class="gate-links">
         <button type="button" class="gate-link" id="lien-oubli">Mot de passe oublié ?</button>
       </div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="lien-inscription">Pas encore d'espace ? Essai gratuit de 30 jours</button>
+      </div>
+    </div>
+
+    <div id="panel-inscription" style="display:none">
+      <h1>Essai gratuit</h1>
+      <p>30 jours offerts, sans carte bancaire. Votre carte de fidélité et votre affiche sont prêtes en 5 minutes.</p>
+      <div class="stack">
+        <input type="text" id="ins-nom" placeholder="Nom de votre commerce" maxlength="60" autocomplete="organization">
+        <input type="text" id="ins-ville" placeholder="Ville" maxlength="60" autocomplete="address-level2">
+      </div>
+      <div class="ins-couleur">
+        <span>Couleur de votre affiche</span>
+        <div class="ins-pastilles" id="ins-pastilles"></div>
+        <input type="color" id="ins-couleur" value="#b23b20" aria-label="Choisir une autre couleur">
+      </div>
+      <div class="stack">
+        <input type="email" id="ins-email" placeholder="Adresse email" autocomplete="username" style="margin-top:12px">
+        <div class="pwd-wrap"><input type="password" id="ins-pwd" placeholder="Mot de passe (8 caractères min.)" autocomplete="new-password"></div>
+      </div>
+      <label class="remember ins-cgv"><input type="checkbox" id="ins-cgv"> J'accepte les <a href="cgv.html" target="_blank" rel="noopener">conditions générales</a></label>
+      <button id="ins-btn">Créer mon espace</button>
+      <div class="err" id="ins-err"></div>
+      <div class="gate-links">
+        <button type="button" class="gate-link" id="ins-retour">J'ai déjà un espace : me connecter</button>
+      </div>
     </div>
 
     <div id="panel-oubli" style="display:none">
@@ -321,6 +350,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <p id="top-sub">Vue d'ensemble</p>
   </div>
   <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/00w7sL8CM6JQanL6fU6g80j" target="_blank" rel="noopener">Prendre l'abonnement →</a></div>
+  <div class="bienvenue-banner" id="bienvenue-banner" style="display:none"><strong>Bienvenue sur Ancrimo !</strong> Votre carte de fidélité est prête. Imprimez votre affiche avec le bouton <b>🖨 Affiche</b> de votre boutique et placez-la près de la caisse : vos clients s'inscrivent en scannant le QR code. <button type="button" id="bienvenue-fermer" aria-label="Fermer">×</button></div>
   <nav class="onglets" id="onglets" role="tablist" aria-label="Sections du tableau de bord">
 <button type="button" class="onglet actif" role="tab" data-onglet="apercu" aria-selected="true">📊 Vue d'ensemble</button>
 <button type="button" class="onglet" role="tab" data-onglet="comptoir" aria-selected="false">📇 Sans smartphone</button>
@@ -664,7 +694,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     });
   }
   function montrerPanneau(id) {
-    ["panel-login", "panel-oubli", "panel-reset", "panel-essai", "panel-code"].forEach((p) => {
+    ["panel-login", "panel-oubli", "panel-reset", "panel-essai", "panel-code", "panel-inscription"].forEach((p) => {
       const el = document.getElementById(p);
       if (el) el.style.display = (p === id ? "block" : "none");
     });
@@ -843,6 +873,89 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     document.getElementById("pwd").focus();
   });
 
+  // --- Inscription en libre-service : essai gratuit, boutique et affiche créées tout de suite ---
+  const PASTILLES = ["#b23b20", "#1f3a5f", "#2f6b3a", "#7a1f3d", "#1c1712", "#b8862e", "#5b3a8c", "#1f7a7a"];
+  (function initPastilles() {
+    const zone = document.getElementById("ins-pastilles");
+    const champ = document.getElementById("ins-couleur");
+    if (!zone || !champ) return;
+    const marquer = () => zone.querySelectorAll(".ins-pastille").forEach((b) => b.classList.toggle("choisie", b.dataset.c === champ.value.toLowerCase()));
+    PASTILLES.forEach((c) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "ins-pastille";
+      b.dataset.c = c;
+      b.style.background = c;
+      b.setAttribute("aria-label", "Couleur " + c);
+      b.addEventListener("click", () => { champ.value = c; marquer(); });
+      zone.appendChild(b);
+    });
+    champ.addEventListener("input", marquer);
+    marquer();
+  })();
+  document.getElementById("lien-inscription").addEventListener("click", () => {
+    afficher("pwd-err", "");
+    montrerPanneau("panel-inscription");
+    document.getElementById("ins-nom").focus();
+  });
+  document.getElementById("ins-retour").addEventListener("click", () => montrerPanneau("panel-login"));
+  document.getElementById("ins-btn").addEventListener("click", inscrire);
+  document.getElementById("bienvenue-fermer").addEventListener("click", () => {
+    document.getElementById("bienvenue-banner").style.display = "none";
+  });
+  async function inscrire() {
+    const btn = document.getElementById("ins-btn");
+    const nom = document.getElementById("ins-nom").value.trim();
+    const ville = document.getElementById("ins-ville").value.trim();
+    const mail = document.getElementById("ins-email").value.trim();
+    const mdp = document.getElementById("ins-pwd").value;
+    const couleur = document.getElementById("ins-couleur").value;
+    afficher("ins-err", "");
+    if (nom.length < 2) return afficher("ins-err", "Indiquez le nom de votre commerce.");
+    if (ville.length < 2) return afficher("ins-err", "Indiquez votre ville.");
+    if (!mail || mail.indexOf("@") === -1) return afficher("ins-err", "Saisissez une adresse email valide.");
+    if (mdp.length < 8) return afficher("ins-err", "Le mot de passe doit faire au moins 8 caractères.");
+    if (!document.getElementById("ins-cgv").checked) return afficher("ins-err", "Acceptez les conditions générales pour continuer.");
+    btn.disabled = true;
+    btn.textContent = "Création...";
+    try {
+      const res = await api({ action: "inscription", nom_commerce: nom, ville, couleur, email: mail, password: mdp, cgv: true });
+      const data = await res.json();
+      btn.disabled = false;
+      btn.textContent = "Créer mon espace";
+      if (res.ok && data.etape === "code") {
+        DEFI_CODE = data.defi;
+        PERSISTANT_CODE = true;
+        document.getElementById("login-email").value = mail;
+        document.getElementById("ins-pwd").value = "";
+        document.getElementById("code-email").textContent = mail;
+        document.getElementById("code-input").value = "";
+        afficher("code-err", "");
+        try { sessionStorage.setItem("ancrimo_bienvenue", "1"); } catch (e) {}
+        montrerPanneau("panel-code");
+        document.getElementById("code-input").focus();
+        return;
+      }
+      const messages = {
+        compte_existant: "Cette adresse a déjà un espace Ancrimo. Connectez-vous, ou utilisez « Mot de passe oublié ? ».",
+        email_invalide: "Saisissez une adresse email valide.",
+        mot_de_passe_trop_court: "Le mot de passe doit faire au moins 8 caractères.",
+        nom_invalide: "Le nom du commerce doit faire entre 2 et 60 caractères.",
+        ville_invalide: "La ville doit faire entre 2 et 60 caractères.",
+        cgv_non_acceptees: "Acceptez les conditions générales pour continuer.",
+        trop_d_inscriptions: "Trop d'inscriptions depuis cette connexion. Réessayez demain ou écrivez à contact@ancrimo.fr.",
+        trop_de_tentatives: "Trop de tentatives. Réessayez dans " + (data.minutes || 15) + " minutes.",
+        compte_cree_code_non_envoye: "Votre espace est créé, mais le code de confirmation n'a pas pu être envoyé. Connectez-vous dans quelques minutes pour en recevoir un.",
+        inscriptions_fermees: "Les inscriptions sont momentanément fermées. Écrivez à contact@ancrimo.fr.",
+      };
+      afficher("ins-err", messages[data.error] || "Une erreur est survenue, réessayez dans un instant.");
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = "Créer mon espace";
+      afficher("ins-err", "Erreur de connexion. Réessayez.");
+    }
+  }
+
   // Dernier jour d'essai (essai_fin = minuit qui suit le dernier jour), en toutes lettres
   function dernierJourEssai(fin) {
     return new Date(new Date(fin).getTime() - 1000).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
@@ -860,6 +973,12 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     document.getElementById("dashboard").style.display = "block";
     armerInactivite();
     renderDashboard(data);
+    try {
+      if (sessionStorage.getItem("ancrimo_bienvenue")) {
+        sessionStorage.removeItem("ancrimo_bienvenue");
+        document.getElementById("bienvenue-banner").style.display = "block";
+      }
+    } catch (e) {}
   }
 
   // --- Mot de passe oublié ---
@@ -973,7 +1092,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     if (JETON_RESET) { montrerPanneau("panel-reset"); return; }
 
     const s = lireSession();
-    if (!s) return;
+    if (!s) {
+      if (location.hash === "#inscription") montrerPanneau("panel-inscription");
+      return;
+    }
     try {
       const res = await api({ token: s.token });
       if (!res.ok) {
@@ -1266,12 +1388,14 @@ initOnglets();
   }
   async function printPoster(boutique, pal) {
     let marque = "";
+    let couleur = "";
     // Paliers relus en base à l'impression : l'affiche suit toujours les derniers réglages
     try {
       const { data: frais } = await supabaseClient.from("boutiques")
-        .select("palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage, enseignes(nom)")
+        .select("palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage, couleur, enseignes(nom)")
         .eq("id", boutique.id).maybeSingle();
       marque = (frais && frais.enseignes && frais.enseignes.nom) || "";
+      couleur = (frais && /^#[0-9a-fA-F]{6}$/.test(frais.couleur || "")) ? frais.couleur : "";
       if (frais && frais.palier_1_passages) {
         pal = { p1: frais.palier_1_passages, pct1: frais.palier_1_pourcentage, p2: frais.palier_2_passages || null, pct2: frais.palier_2_pourcentage || null };
       }
@@ -1289,6 +1413,8 @@ initOnglets();
     const avecLogo = marque.trim().toLowerCase() === "pil'vite";
     document.getElementById("poster-print-haut").style.display = avecLogo ? "" : "none";
     document.getElementById("poster-print").classList.toggle("neutre", !avecLogo);
+    // Couleur choisie par le commerçant à l'inscription (rouille Ancrimo par défaut)
+    document.getElementById("poster-print").style.setProperty("--ap-accent", couleur || "#b23b20");
     document.getElementById("poster-print-marque").textContent = "Carte de fidélité " + (marque || boutique.nom);
     const pct = (x) => String(x).replace(".", ",");
     const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pct(pal.pct2)} %</b></span>` : "";
