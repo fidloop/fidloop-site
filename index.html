@@ -920,7 +920,8 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
     document.getElementById("checkin-text").textContent = estNouveau
       ? "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !"
       : "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.";
-    updateCheckinDial(result.nb_passages_cycle_actuel);
+    const cycleTest = lireCycleTest(boutiqueId);
+    updateCheckinDial(cycleTest !== null ? cycleTest : result.nb_passages_cycle_actuel);
     await adopterCle(clientId);
     chargerReparations(clientId, boutiqueId);
     afficherBlocAnniversaire(clientId, boutiqueId);
@@ -966,6 +967,22 @@ const btn = document.getElementById("checkin-btn");
       circumference - circumference * pct;
   }
 
+  // Client testeur (simulation côté serveur, rien n'est enregistré) : sa progression de test est
+  // gardée sur son téléphone pendant 12 h. Jamais rempli pour un client normal.
+  function lireCycleTest(boutiqueId) {
+    try {
+      const v = JSON.parse(localStorage.getItem("ancrimo_cycle_test_" + boutiqueId) || "null");
+      if (v && Number.isInteger(v.c) && Date.now() - v.t < 12 * 3600000) return v.c;
+    } catch (e) {}
+    return null;
+  }
+  function ecrireCycleTest(boutiqueId, c) {
+    try { localStorage.setItem("ancrimo_cycle_test_" + boutiqueId, JSON.stringify({ c, t: Date.now() })); } catch (e) {}
+  }
+  function effacerCycleTest(boutiqueId) {
+    try { localStorage.removeItem("ancrimo_cycle_test_" + boutiqueId); } catch (e) {}
+  }
+
   async function addPoint(clientId, boutiqueId, categorie) {
     const btn = document.getElementById("checkin-btn");
     const catWrap = document.getElementById("checkin-categories");
@@ -989,6 +1006,7 @@ const btn = document.getElementById("checkin-btn");
           client_id: clientId,
           boutique_id: boutiqueId,
           categorie: categorie || null,
+          ...(lireCycleTest(boutiqueId) !== null ? { cycle_test: lireCycleTest(boutiqueId) } : {}),
           ...(position ? { latitude: position.latitude, longitude: position.longitude } : {}),
         }),
       });
@@ -1003,17 +1021,18 @@ const btn = document.getElementById("checkin-btn");
         return;
       }
 
+      if (result.simulation === true) ecrireCycleTest(boutiqueId, result.client.nb_passages_cycle_actuel);
+      else effacerCycleTest(boutiqueId);
       updateCheckinDial(result.client.nb_passages_cycle_actuel);
       document.getElementById("checkin-text").textContent =
         "Point ajouté ! Merci de votre fidélité 🎉";
       btn.style.display = "none";
       if (catWrap) catWrap.style.display = "none";
 
-      // Démonstration (boutiques.mode_test) ou client testeur (simulation côté serveur) :
-      // on peut enchaîner les points sans recharger la page
-      if (modeDemo || result.simulation === true) {
+      // Démonstration (boutiques.mode_test) : on peut enchaîner les points sans recharger la page
+      if (modeDemo) {
         btn.disabled = false;
-        btn.textContent = modeDemo ? "↻ Point suivant (démo)" : "↻ Point suivant (test)";
+        btn.textContent = "↻ Point suivant (démo)";
         btn.onclick = () => showCheckinScreen(clientId, boutiqueId, false);
         btn.style.display = "flex";
       }
