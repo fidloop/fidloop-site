@@ -1009,10 +1009,11 @@ const btn = document.getElementById("checkin-btn");
       btn.style.display = "none";
       if (catWrap) catWrap.style.display = "none";
 
-      // Démonstration (boutiques.mode_test) : on peut enchaîner les points sans recharger la page
-      if (modeDemo) {
+      // Démonstration (boutiques.mode_test) ou client testeur (simulation côté serveur) :
+      // on peut enchaîner les points sans recharger la page
+      if (modeDemo || result.simulation === true) {
         btn.disabled = false;
-        btn.textContent = "↻ Point suivant (démo)";
+        btn.textContent = modeDemo ? "↻ Point suivant (démo)" : "↻ Point suivant (test)";
         btn.onclick = () => showCheckinScreen(clientId, boutiqueId, false);
         btn.style.display = "flex";
       }
