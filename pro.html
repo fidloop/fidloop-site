@@ -260,6 +260,12 @@
   }
   #fichier .benefit h3 { color: var(--ink); }
   #fichier .benefit p { color: #5a6472; }
+  /* Section « À votre image » (06/11/2026), mêmes cartes sur fond clair, trois colonnes */
+  #a-votre-image .benefits { grid-template-columns: repeat(3, 1fr); }
+  #a-votre-image .benefit { border-top-color: var(--line-paper); border-right-color: var(--line-paper); border-bottom-color: var(--line-paper); background: #fbf7ec; }
+  #a-votre-image .benefit h3 { color: var(--ink); }
+  #a-votre-image .benefit p { color: #5a6472; }
+  @media (max-width: 720px) { #a-votre-image .benefits { grid-template-columns: 1fr; } }
 
   /* --- Statut pilote --- */
   .status-band {
@@ -672,6 +678,34 @@
   </div>
 </section>
 
+<section class="section-light" id="a-votre-image">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Nouveau</span>
+      <h2>Votre carte, à votre image, en 5 minutes</h2>
+      <p>Vous créez votre compte et vous voyez la carte de vos clients se construire en direct, pendant que vous la réglez.</p>
+    </div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="glyph">🥐</div>
+        <h3>Votre métier en un clic</h3>
+        <p>Boulangerie, fleuriste, caviste, coiffure, café, restaurant, mode, beauté… Ancrimo vous propose d'office des couleurs, un style et des paliers adaptés.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">🖼</div>
+        <h3>Votre logo, vos couleurs</h3>
+        <p>Ajoutez votre logo : Ancrimo en retrouve les couleurs tout seul. Choisissez ensuite le style des titres et le fond de votre carte.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">📱</div>
+        <h3>Testée tout de suite</h3>
+        <p>À la fin, un QR code pour essayer votre carte sur votre téléphone et votre affiche prête à imprimer. Tout se modifie ensuite depuis votre espace.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:30px;"><a class="plan-cta primary" style="display:inline-block;padding-left:28px;padding-right:28px;" href="dashboard.html#inscription">Créer ma carte gratuitement</a></p>
+  </div>
+</section>
+
 <section class="section-light" id="secteurs">
 <div class="wrap">
 <div class="section-head">
@@ -766,12 +800,12 @@
       <div class="benefit">
         <div class="glyph">🔧</div>
         <h3>Réparations et commandes, suivies sur la carte</h3>
-        <p>Vous réparez ou commandez pour vos clients ? Relié à votre logiciel de suivi, Ancrimo prévient le client par SMS quand c'est prêt, affiche ses réparations et commandes sur sa carte et ajoute son point au retrait, automatiquement.</p>
+        <p>Vous réparez ou commandez pour vos clients ? Relié à <a href="https://watchtrack-pro.fr" style="color:inherit;font-weight:700;">WatchTrack</a>, le logiciel de suivi SAV du même éditeur, Ancrimo prévient le client par SMS quand c'est prêt, affiche ses réparations et commandes sur sa carte et ajoute son point au retrait, automatiquement.</p>
       </div>
       <div class="benefit">
         <div class="glyph">🎨</div>
-        <h3>Aux couleurs de votre enseigne</h3>
-        <p>Votre logo et votre nom s'affichent en tête de la carte du client, et votre affiche reprend votre logo et votre couleur. Vos clients voient votre marque.</p>
+        <h3>À votre image</h3>
+        <p>Votre logo, vos couleurs et le style de vos titres, sur la carte de vos clients comme sur votre affiche. Vos clients voient votre marque.</p>
       </div>
       <div class="benefit">
         <div class="glyph">📲</div>
@@ -911,6 +945,7 @@
       <a href="/confidentialite.html" style="color:inherit;text-decoration:none;">Confidentialité</a>
       <a href="/accord-sous-traitance.html" style="color:inherit;text-decoration:none;">RGPD</a>
       <a href="/mentions-legales.html" style="color:inherit;text-decoration:none;">Mentions légales</a>
+      <a href="https://watchtrack-pro.fr" style="color:inherit;text-decoration:none;">WatchTrack, logiciel SAV du même éditeur</a>
       <span><a href="mailto:contact@ancrimo.fr" style="color:inherit;text-decoration:none;">contact@ancrimo.fr</a> · ancrimo.fr</span>
     </div>
   </div>
