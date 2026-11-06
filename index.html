@@ -99,6 +99,13 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
 .avis-titre{font-family:Georgia,serif;font-size:23px;font-weight:700;margin-bottom:6px;color:#fff}
 .avis-texte{font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.88);margin-bottom:18px}
 .avis-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1c1712;text-decoration:none;padding:17px 18px;border-radius:15px;font-weight:800;font-size:17px;box-shadow:0 10px 22px rgba(0,0,0,.28);animation:avisPulse 2.2s ease-in-out 1.2s infinite}
+#checkin-btn{position:relative;overflow:hidden;max-width:340px;margin:22px auto 0;padding:22px 20px;min-height:74px;border-radius:18px;background:linear-gradient(135deg,#d0502f 0%,#b23b20 45%,#7a2814 100%);color:#fff;font-size:19.5px;font-weight:900;letter-spacing:.2px;line-height:1.2;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 14px 30px rgba(178,59,32,.38),inset 0 1px 0 rgba(255,255,255,.25);animation:achatPulse 2.4s ease-in-out infinite}
+#checkin-btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-18deg);animation:achatReflet 3.2s ease-in-out infinite;pointer-events:none}
+#checkin-btn:hover:not(:disabled){box-shadow:0 18px 38px rgba(178,59,32,.46),inset 0 1px 0 rgba(255,255,255,.25)}
+#checkin-btn:disabled{opacity:.72;animation:none}#checkin-btn:disabled::after{display:none}
+@keyframes achatPulse{0%,100%{box-shadow:0 14px 30px rgba(178,59,32,.38),0 0 0 0 rgba(178,59,32,.45),inset 0 1px 0 rgba(255,255,255,.25)}55%{box-shadow:0 14px 30px rgba(178,59,32,.38),0 0 0 13px rgba(178,59,32,0),inset 0 1px 0 rgba(255,255,255,.25)}}
+@keyframes achatReflet{0%{left:-60%}55%,100%{left:130%}}
+@media (prefers-reduced-motion:reduce){#checkin-btn,#checkin-btn::after{animation:none}}
 @keyframes avisPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
 .avis-bloc .avis-plus-tard{display:block;width:auto;margin:12px auto 0;background:none;box-shadow:none;border:0;padding:8px 12px;color:rgba(255,255,255,.78);font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .avis-bloc .avis-plus-tard:hover:not(:disabled){transform:none;box-shadow:none;color:#fff}
@@ -225,7 +232,7 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
     </div>
     <h2 id="checkin-title">Content de vous revoir !</h2>
     <p id="checkin-text">Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.</p>
-    <button id="checkin-btn" style="max-width:280px; margin:0 auto;">J'ai fait un achat, +1 point</button>
+    <button id="checkin-btn">J'ai fait un achat, +1 point</button>
     <div id="checkin-categories" style="display:none; max-width:320px; margin:0 auto;">
       <p style="font-size:13px; color:var(--ink-dim); margin:18px 0 0;">Qu'est-ce que vous venez faire aujourd'hui ?</p>
       <div class="cat-grid" id="checkin-categories-grid"></div>
