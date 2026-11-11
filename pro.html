@@ -488,6 +488,36 @@
     .tabs { flex-wrap: nowrap; overflow-x: auto; margin: 0 -28px 28px; padding: 0 28px 4px; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
   }
+
+  /* --- 11/11/2026 (v3) : offre sous le bouton, FAQ, signature, barre d'essai sur téléphone --- */
+  .hero-offre { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 20px; font-size: 13.5px; color: var(--paper); }
+  .hero-offre li { display: flex; align-items: center; gap: 7px; }
+  .hero-offre li::before { content: "✓"; color: var(--mint); font-weight: 700; }
+  .faq { max-width: 760px; border-bottom: 1px dashed var(--line-paper); }
+  .faq details { border-top: 1px dashed var(--line-paper); padding: 18px 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; font-family: "Fraunces", serif; font-size: 17px; font-weight: 600; color: var(--ink-text); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-family: "IBM Plex Mono", monospace; color: var(--mint); font-size: 18px; line-height: 1; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq summary:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; }
+  .faq p { margin-top: 10px; font-size: 14.5px; line-height: 1.6; color: var(--muted-on-paper); }
+  .faq p a { color: var(--ink-text); font-weight: 600; }
+  .contact .signature { margin: 26px auto 0; font-family: "Fraunces", serif; font-style: italic; font-size: 15px; color: var(--paper); }
+  .barre-essai { display: none; }
+  @media (max-width: 720px) {
+    .barre-essai {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(28,23,18,0.96); border-top: 1px solid var(--line);
+      transform: translateY(110%); transition: transform 0.25s ease;
+    }
+    .barre-essai.visible { transform: none; }
+    .barre-essai span { display: flex; flex-direction: column; font-size: 13.5px; color: #fff; line-height: 1.3; }
+    .barre-essai small { font-size: 12px; color: var(--muted); }
+    .barre-essai a { background: var(--mint); color: #fff; font-weight: 600; font-size: 14px; padding: 11px 18px; border-radius: 8px; text-decoration: none; white-space: nowrap; }
+    body { padding-bottom: 76px; }
+  }
 </style>
 </head>
 <body>
@@ -504,6 +534,7 @@
       <a href="#pourquoi">Pourquoi Ancrimo</a>
       <a href="#fichier">Fichier clients</a>
       <a href="#tarifs">Tarifs</a>
+      <a href="#faq">Questions</a>
       <a href="#contact">Contact</a>
     </div>
     <a class="cta" href="dashboard.html#inscription">Essai gratuit</a>
@@ -515,28 +546,27 @@
   <div class="hero-grid">
   <div class="hero-text">
     <div class="eyebrow">Fidélité dématérialisée · un seul geste : scanner ou approcher son téléphone</div>
-    <h1>Toute la fidélité de votre réseau tient dans <em>un QR code</em></h1>
+    <h1>Votre carte de fidélité dans le téléphone de vos clients, <em>prête en 5 minutes</em></h1>
     <p class="sub">
-      Un QR affiché en caisse — ou un tag NFC sans contact : le client scanne ou approche simplement
-      son téléphone. Il est reconnu automatiquement à chaque passage, sa carte se met à jour en direct.
+      Faites revenir vos clients plus souvent, récupérez leurs coordonnées et récoltez des avis Google.
+      Un QR code sur le comptoir suffit : le client scanne, sa carte se met à jour à chaque passage.
       Aucune appli à installer, aucune carte plastique à imprimer, aucun boîtier en caisse.
     </p>
     <div class="actions">
       <a class="btn-primary" href="dashboard.html#inscription">Essayer gratuitement 30 jours</a>
       <a class="btn-ghost" href="#comment">Voir comment ça marche</a>
     </div>
-    <p style="font-family:'IBM Plex Mono'; font-size:12px; color:var(--muted); margin-top:18px;">
-      Bientôt : la carte aussi dans Google Wallet &amp; Apple Wallet.
-    </p>
+    <ul class="hero-offre">
+      <li>30 jours gratuits, sans carte bancaire</li>
+      <li>Ensuite 29 €/mois pour une boutique</li>
+      <li>Sans engagement, résiliable à tout moment</li>
+    </ul>
 
-    <div class="trio-label">Un seul QR code ou tag NFC, tout en 1</div>
+    <div class="trio-label">Un seul QR code, tout en 1</div>
     <div class="trio">
       <span>🎫 Carte de fidélité</span>
-      <span>📲 Sans contact NFC</span>
       <span>⭐ Avis Google intégré</span>
       <span>🎂 Cadeau d'anniversaire</span>
-      <span>🔧 Suivi des réparations et commandes</span>
-      <span>📊 Tableau de bord</span>
     </div>
   </div>
 
@@ -983,15 +1013,60 @@
   </div>
 </section>
 
+<section class="section-light" id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Questions fréquentes</span>
+      <h2>Ce que les commerçants nous demandent</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Mes clients doivent-ils installer une application ?</summary>
+        <p>Non. Ils scannent le QR code avec l'appareil photo de leur téléphone, leur carte s'ouvre aussitôt, et ils peuvent l'ajouter à leur téléphone en un geste. Rien à télécharger.</p>
+      </details>
+      <details>
+        <summary>Et mes clients qui sont moins à l'aise avec le téléphone ?</summary>
+        <p>L'inscription prend 30 secondes : un prénom, un numéro de téléphone, c'est tout. Au passage suivant, leur téléphone est reconnu tout seul. Et rien ne vous empêche de garder votre carte en carton en parallèle, le temps que tout le monde s'y mette.</p>
+      </details>
+      <details>
+        <summary>Combien de temps pour démarrer ?</summary>
+        <p>Environ 5 minutes : vous créez votre compte, choisissez votre métier, ajoutez votre logo, et votre affiche avec QR code est prête à imprimer. Vous pouvez tester votre carte sur votre propre téléphone tout de suite.</p>
+      </details>
+      <details>
+        <summary>Que se passe-t-il à la fin des 30 jours d'essai ?</summary>
+        <p>Rien n'est prélevé : l'essai se fait sans carte bancaire. Si vous souhaitez continuer, vous vous abonnez depuis votre tableau de bord (29 €/mois pour une boutique). Sinon, vous n'avez rien à résilier.</p>
+      </details>
+      <details>
+        <summary>Et si j'arrête plus tard ?</summary>
+        <p>L'abonnement est sans engagement et résiliable à tout moment. Votre fichier clients s'exporte en un clic, au format tableur : il vous appartient, sans condition.</p>
+      </details>
+      <details>
+        <summary>Et le RGPD ?</summary>
+        <p>Le client coche lui-même s'il accepte d'être recontacté, et chacun peut se désinscrire en un clic depuis chaque message. Le détail est dans notre <a href="/confidentialite.html">politique de confidentialité</a> et notre <a href="/accord-sous-traitance.html">accord de sous-traitance</a>.</p>
+      </details>
+      <details>
+        <summary>La carte va-t-elle dans Apple Wallet ou Google Wallet ?</summary>
+        <p>Bientôt : la carte aussi dans Google Wallet &amp; Apple Wallet.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <section class="section-light" id="contact">
   <div class="wrap">
     <div class="contact">
       <h2 style="color:#fff;">Voir Ancrimo tourner dans votre commerce ou réseau</h2>
       <p>Une démo rapide, sur votre téléphone, avec le vrai système — pas une maquette. Et 30 jours d'essai gratuit pour vous faire votre avis.</p>
       <a class="btn-primary" href="mailto:contact@ancrimo.fr?subject=Demande%20de%20d%C3%A9mo%20Ancrimo">Demander une démo</a>
+      <p class="signature">Créé par Xavier, commerçant lui-même.</p>
     </div>
   </div>
 </section>
+
+<div class="barre-essai" id="barre-essai">
+  <span><b>30 jours gratuits</b><small>sans carte bancaire</small></span>
+  <a href="dashboard.html#inscription">Créer ma carte</a>
+</div>
 
 <footer>
   <div class="wrap">
@@ -1245,6 +1320,18 @@
   window.addEventListener("hashchange", () => ouvrirAncre(location.hash));
 </script>
 
+
+<script>
+  // Barre d'essai (téléphone) : visible dès que le bouton du haut de page n'est plus à l'écran
+  (() => {
+    const barre = document.getElementById("barre-essai");
+    const boutons = document.querySelector(".hero .actions");
+    if (!barre || !boutons || !("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([e]) => {
+      barre.classList.toggle("visible", !e.isIntersecting && e.boundingClientRect.top < 0);
+    }).observe(boutons);
+  })();
+</script>
 
 </body>
 </html>
