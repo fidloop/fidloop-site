@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Ancrimo remplace la carte de fidelite en carton par un QR code. Le client scanne, sa carte vit dans son telephone. Aucun materiel en caisse, aucune application a installer.">
+<meta name="description" content="Créez votre carte de fidélité en quelques clics : un QR code en caisse, la carte dans le téléphone du client. Sans matériel, sans application, 30 jours d'essai gratuit.">
 <link rel="canonical" href="https://ancrimo.fr/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ancrimo.fr/">
@@ -13,7 +13,7 @@
 <meta property="og:description" content="Un QR code sur le comptoir, la carte de fidelite dans le telephone du client. Sans materiel, sans application, sans carton a tamponner.">
 <meta property="og:image" content="https://ancrimo.fr/dashboard-export.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<title>Ancrimo — La fidélité qui vit dans le téléphone</title>
+<title>Ancrimo — Créez votre carte de fidélité en quelques clics</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -251,15 +251,6 @@
   }
   .shot img { display: block; width: 100%; height: auto; }
 
-  /* Variante des cartes sur fond clair (section Fichier clients) */
-  #fichier .benefit {
-    border-top-color: var(--line-paper);
-    border-right-color: var(--line-paper);
-    border-bottom-color: var(--line-paper);
-    background: #fbf7ec;
-  }
-  #fichier .benefit h3 { color: var(--ink); }
-  #fichier .benefit p { color: #5a6472; }
   /* Section « À votre image » (06/11/2026), mêmes cartes sur fond clair, trois colonnes */
   #a-votre-image .benefits { grid-template-columns: repeat(3, 1fr); }
   #a-votre-image .benefit { border-top-color: var(--line-paper); border-right-color: var(--line-paper); border-bottom-color: var(--line-paper); background: #fbf7ec; }
@@ -451,9 +442,59 @@
   .credit-pack .cp-price { font-family: "Fraunces", serif; font-size: 24px; font-weight: 600; color: var(--ink-text); margin-top: 10px; }
   @media (max-width: 860px) { .credit-packs { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 480px) { .credit-packs { grid-template-columns: 1fr; } }
+
+  /* --- 11/11/2026 : bandeau, démo dans le hero, onglets --- */
+  .bandeau { background: var(--mint); color: #fff; font-size: 13.5px; line-height: 1.45; text-align: center; padding: 9px 16px; }
+  .bandeau b { font-weight: 600; }
+  .bandeau a { font-weight: 700; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; margin-left: 6px; }
+  section[id], .hero-demo, .tabs { scroll-margin-top: 84px; }
+  [role="tabpanel"] { scroll-margin-top: 160px; }
+  .hero { padding: 64px 0 64px; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; align-items: start; position: relative; z-index: 1; }
+  .hero h1 { font-size: clamp(32px, 4.6vw, 52px); }
+  .hero-demo { display: flex; flex-direction: column; align-items: center; }
+  .demo-head { text-align: center; margin-bottom: 14px; }
+  .demo-head .tag { font-family: "IBM Plex Mono"; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mint); display: block; }
+  .demo-head h2 { font-size: 20px; color: #fff; margin-top: 6px; }
+  .hero .demo-embed { padding: 0; }
+  .hero .demo-caption { color: var(--paper); font-size: 14px; min-height: 40px; margin-bottom: 14px; max-width: 300px; }
+  .hero .demo-dots .demo-dot { background: rgba(241,233,216,0.22); }
+  .hero .demo-dots .demo-dot.on { background: var(--mint); }
+  .demo-note { font-size: 13px; color: var(--muted); text-align: center; max-width: 320px; margin-top: 16px; line-height: 1.55; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
+  .section-light, .section-dark { padding: 76px 0; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 34px; }
+  .tab {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600; cursor: pointer;
+    padding: 10px 16px; border-radius: 100px; border: 1.5px solid var(--line-paper);
+    background: transparent; color: var(--ink-text); white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .tab:hover { border-color: var(--ink-text); }
+  .tab[aria-selected="true"] { background: var(--ink-text); border-color: var(--ink-text); color: var(--paper); }
+  .tab:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .section-dark .tab { border-color: rgba(241,233,216,0.25); color: var(--paper); }
+  .section-dark .tab:hover { border-color: var(--paper); }
+  .section-dark .tab[aria-selected="true"] { background: var(--mint); border-color: var(--mint); color: #fff; }
+  .tabpanel .section-head { margin-bottom: 30px; }
+  .tabpanel .section-head h2 { font-size: clamp(22px, 2.8vw, 28px); }
+  .section-dark .section-head p { color: var(--muted); }
+  .section-dark .section-head h2 { color: #fff; }
+  .tabpanel + .tabpanel { margin-top: 56px; }
+  html.js .tabpanel + .tabpanel { margin-top: 0; }
+  #comment .stampcard { margin-top: 44px; }
+  #fichier .shot { border-color: var(--line); }
+  @media (max-width: 720px) {
+    .tabs { flex-wrap: nowrap; overflow-x: auto; margin: 0 -28px 28px; padding: 0 28px 4px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+  }
 </style>
 </head>
 <body>
+<div class="bandeau">
+  <b>Nouveau :</b> créez votre carte de fidélité vous-même, en quelques clics. 30 jours gratuits, sans carte bancaire.
+  <a href="dashboard.html#inscription">Créer ma carte →</a>
+</div>
 
 <nav>
   <div class="wrap">
@@ -471,6 +512,8 @@
 
 <header class="hero">
   <div class="wrap">
+  <div class="hero-grid">
+  <div class="hero-text">
     <div class="eyebrow">Fidélité dématérialisée · un seul geste : scanner ou approcher son téléphone</div>
     <h1>Toute la fidélité de votre réseau tient dans <em>un QR code</em></h1>
     <p class="sub">
@@ -495,31 +538,13 @@
       <span>🔧 Suivi des réparations et commandes</span>
       <span>📊 Tableau de bord</span>
     </div>
-
-    <div class="stampcard" id="stampcard">
-      <div class="head">
-        <span class="label">Aperçu du mécanisme</span>
-        <span class="tiers">Exemple : 6 passages = <b>−10%</b> · 10 passages = <b>−15%</b></span>
-      </div>
-      <div class="stamps" id="stamps"></div>
-      <div class="result" id="stamp-result">
-        <span class="mono">✓</span> Récompense débloquée automatiquement — le client la voit sur son téléphone, en caisse, avec la date et l'heure en direct.
-      </div>
-      <div class="tiers-note">
-        <span class="mono">⚙</span> Nombre de passages et pourcentage de remise définis avec vous, selon votre commerce.
-      </div>
-    </div>
   </div>
-</header>
 
-<section class="section-light" id="demo">
-  <div class="wrap">
-    <div class="section-head">
+  <div class="hero-demo" id="demo">
+    <div class="demo-head">
       <span class="tag">Voir en action</span>
       <h2>Le parcours client, en direct</h2>
-      <p>Le vrai système, tel qu'il tourne en boutique — scan ou NFC, inscription, points, avis Google, récompense, suivi des réparations et des commandes, anniversaire.</p>
     </div>
-
     <div class="demo-embed">
       <div class="demo-caption" id="demo-caption">Le client scanne le QR affiché en caisse</div>
 
@@ -648,16 +673,25 @@
 
       <div class="demo-dots" id="demo-dots"></div>
     </div>
+    <p class="demo-note">Le vrai système, tel qu'il tourne en boutique — scan ou NFC, inscription, points, avis Google, récompense, suivi des réparations et des commandes, anniversaire.</p>
   </div>
-</section>
+  </div>
+  </div>
+</header>
 
 <section class="section-light" id="comment">
-  <div class="wrap">
+  <div class="wrap" data-tabs>
     <div class="section-head">
       <span class="tag">Le parcours</span>
       <h2>Trois étapes, zéro friction</h2>
       <p>Pensé pour fonctionner sans matériel en caisse — juste le téléphone du client.</p>
     </div>
+    <div class="tabs" role="tablist" aria-label="Comment ça marche">
+      <button type="button" class="tab" role="tab" id="tab-parcours" aria-controls="parcours">Le parcours client</button>
+      <button type="button" class="tab" role="tab" id="tab-a-votre-image" aria-controls="a-votre-image">Votre carte en 5 minutes</button>
+      <button type="button" class="tab" role="tab" id="tab-secteurs" aria-controls="secteurs">Exemples par métier</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="parcours" aria-labelledby="tab-parcours">
     <div class="steps">
       <div class="step">
         <div class="num mono">01</div>
@@ -675,11 +709,21 @@
         <p>Aux paliers, le code promo s'affiche directement sur la carte. Rien à calculer, rien à vérifier manuellement en caisse.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section-light" id="a-votre-image">
-  <div class="wrap">
+    <div class="stampcard" id="stampcard">
+      <div class="head">
+        <span class="label">Aperçu du mécanisme</span>
+        <span class="tiers">Exemple : 6 passages = <b>−10%</b> · 10 passages = <b>−15%</b></span>
+      </div>
+      <div class="stamps" id="stamps"></div>
+      <div class="result" id="stamp-result">
+        <span class="mono">✓</span> Récompense débloquée automatiquement — le client la voit sur son téléphone, en caisse, avec la date et l'heure en direct.
+      </div>
+      <div class="tiers-note">
+        <span class="mono">⚙</span> Nombre de passages et pourcentage de remise définis avec vous, selon votre commerce.
+      </div>
+    </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="a-votre-image" aria-labelledby="tab-a-votre-image">
     <div class="section-head">
       <span class="tag">Nouveau</span>
       <h2>Votre carte, à votre image, en 5 minutes</h2>
@@ -703,11 +747,8 @@
       </div>
     </div>
     <p style="text-align:center;margin-top:30px;"><a class="plan-cta primary" style="display:inline-block;padding-left:28px;padding-right:28px;" href="dashboard.html#inscription">Créer ma carte gratuitement</a></p>
-  </div>
-</section>
-
-<section class="section-light" id="secteurs">
-<div class="wrap">
+    </div>
+    <div class="tabpanel" role="tabpanel" id="secteurs" aria-labelledby="tab-secteurs">
 <div class="section-head">
 <span class="tag">Des paliers pensés pour votre activité</span>
 <h2>Le même mécanisme, une récompense qui vous ressemble</h2>
@@ -741,22 +782,25 @@
 </div>
 </div>
 <p class="sector-note"><span class="mono">⚙</span> Ces seuils et récompenses ne sont que des exemples — chaque commerçant configure librement les siens avec nous, depuis son tableau de bord.</p>
-</div>
+    </div>
+  </div>
 </section>
 
 <section class="section-dark" id="pourquoi">
-  <div class="wrap">
+  <div class="wrap" data-tabs>
     <div class="section-head">
       <span class="tag">Pourquoi Ancrimo</span>
       <h2 style="color:#fff;">Conçu pour tous les commerces, petite structure comme grand réseau</h2>
       <p style="color:var(--muted);">Que vous ayez une boutique ou plusieurs, chaque brique a été pensée pour un commerce de proximité, sans équipe technique dédiée.</p>
     </div>
+    <div class="tabs" role="tablist" aria-label="Pourquoi Ancrimo">
+      <button type="button" class="tab" role="tab" id="tab-simple" aria-controls="simple">Simple au quotidien</button>
+      <button type="button" class="tab" role="tab" id="tab-clients" aria-controls="clients">Vos clients reviennent</button>
+      <button type="button" class="tab" role="tab" id="tab-fiable" aria-controls="fiable">Fiable et à votre image</button>
+      <button type="button" class="tab" role="tab" id="tab-fichier" aria-controls="fichier">Votre fichier clients</button>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="simple" aria-labelledby="tab-simple">
     <div class="benefits">
-      <div class="benefit">
-        <div class="glyph">🔗</div>
-        <h3>Fidélité inter-boutiques</h3>
-        <p>Un client peut cumuler des points dans plusieurs boutiques du même réseau, chacune avec son propre compteur indépendant.</p>
-      </div>
       <div class="benefit">
         <div class="glyph">📷</div>
         <h3>Un seul geste : scanner</h3>
@@ -773,6 +817,15 @@
         <p>Aucun boîtier, aucune tablette, aucun terminal à installer. Le système fonctionne en pur auto-service.</p>
       </div>
       <div class="benefit">
+        <div class="glyph">📲</div>
+        <h3>QR code ou sans contact</h3>
+        <p>Votre affiche se télécharge depuis le tableau de bord, prête à imprimer avec son QR code. Ajoutez un tag NFC : le client n'a plus qu'à approcher son téléphone.</p>
+      </div>
+    </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="clients" aria-labelledby="tab-clients">
+    <div class="benefits">
+      <div class="benefit">
         <div class="glyph">🎚️</div>
         <h3>Vous fixez vos paliers</h3>
         <p>6 passages, 10 passages, le pourcentage de remise : c'est vous qui décidez. Et ça se change quand vous voulez, sans toucher à vos affiches.</p>
@@ -781,16 +834,6 @@
         <div class="glyph">📣</div>
         <h3>Relancez vos clients quand vous voulez</h3>
         <p>Depuis votre tableau de bord, vous écrivez un message et vous l'envoyez en un clic, par email ou par SMS — tout de suite, ou programmé au jour et à l'heure de votre choix. 2 campagnes email par mois sont incluses ; au-delà, et pour les SMS, 1 crédit = 1 envoi. Le nom de votre boutique et la mention de désinscription sont ajoutés automatiquement. Uniquement à ceux qui ont accepté d'être recontactés.</p>
-      </div>
-      <div class="benefit">
-        <div class="glyph">🛡️</div>
-        <h3>Anti-triche intégré</h3>
-        <p>Un point toutes les 4 heures au maximum, uniquement aux heures d'ouverture, et vérification que le client est bien dans la boutique. Personne ne cumule ses points depuis son canapé.</p>
-      </div>
-      <div class="benefit">
-        <div class="glyph">⏱️</div>
-        <h3>Une remise impossible à falsifier</h3>
-        <p>L'écran de récompense affiche la date, l'heure du déblocage et une horloge qui tourne en direct. Une capture d'écran se repère au premier coup d'œil en caisse.</p>
       </div>
       <div class="benefit">
         <div class="glyph">🎂</div>
@@ -802,22 +845,33 @@
         <h3>Réparations et commandes, suivies sur la carte</h3>
         <p>Vous réparez ou commandez pour vos clients ? Relié à <a href="https://watchtrack-pro.fr" style="color:inherit;font-weight:700;">WatchTrack</a>, le logiciel de suivi SAV du même éditeur, Ancrimo prévient le client par SMS quand c'est prêt, affiche ses réparations et commandes sur sa carte et ajoute son point au retrait, automatiquement.</p>
       </div>
+    </div>
+    </div>
+    <div class="tabpanel" role="tabpanel" id="fiable" aria-labelledby="tab-fiable">
+    <div class="benefits">
+      <div class="benefit">
+        <div class="glyph">🛡️</div>
+        <h3>Anti-triche intégré</h3>
+        <p>Un point toutes les 4 heures au maximum, uniquement aux heures d'ouverture, et vérification que le client est bien dans la boutique. Personne ne cumule ses points depuis son canapé.</p>
+      </div>
+      <div class="benefit">
+        <div class="glyph">⏱️</div>
+        <h3>Une remise impossible à falsifier</h3>
+        <p>L'écran de récompense affiche la date, l'heure du déblocage et une horloge qui tourne en direct. Une capture d'écran se repère au premier coup d'œil en caisse.</p>
+      </div>
       <div class="benefit">
         <div class="glyph">🎨</div>
         <h3>À votre image</h3>
         <p>Votre logo, vos couleurs et le style de vos titres, sur la carte de vos clients comme sur votre affiche. Vos clients voient votre marque.</p>
       </div>
       <div class="benefit">
-        <div class="glyph">📲</div>
-        <h3>QR code ou sans contact</h3>
-        <p>Votre affiche se télécharge depuis le tableau de bord, prête à imprimer avec son QR code. Ajoutez un tag NFC : le client n'a plus qu'à approcher son téléphone.</p>
+        <div class="glyph">🔗</div>
+        <h3>Fidélité inter-boutiques</h3>
+        <p>Un client peut cumuler des points dans plusieurs boutiques du même réseau, chacune avec son propre compteur indépendant.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section-light" id="fichier">
-  <div class="wrap">
+    </div>
+    <div class="tabpanel" role="tabpanel" id="fichier" aria-labelledby="tab-fichier">
     <div class="section-head">
       <span class="tag">Votre fichier clients</span>
       <h2>Vos clients arrêtent d'être des inconnus</h2>
@@ -840,8 +894,10 @@
         <p>Votre fichier s'exporte en un clic, au format tableur, quand vous voulez. Il vous appartient, sans condition.</p>
       </div>
     </div>
+    </div>
   </div>
 </section>
+
 
 <section class="section-light" id="tarifs">
   <div class="wrap">
@@ -1141,6 +1197,54 @@
   }, { threshold: 0.3 });
   demoObserver.observe(document.getElementById("scene-qr"));
 </script>
+
+<script>
+  // Onglets (11/11/2026) : sans JavaScript, tout reste affiché ; un lien vers un onglet (#fichier, #secteurs…) l'ouvre
+  document.documentElement.classList.add("js");
+  document.querySelectorAll("[data-tabs]").forEach((groupe) => {
+    const onglets = [...groupe.querySelectorAll('[role="tab"]')];
+    groupe.__ouvrir = (id) => {
+      onglets.forEach((o) => {
+        const actif = o.getAttribute("aria-controls") === id;
+        o.setAttribute("aria-selected", actif ? "true" : "false");
+        o.tabIndex = actif ? 0 : -1;
+        document.getElementById(o.getAttribute("aria-controls")).hidden = !actif;
+      });
+    };
+    onglets.forEach((o, i) => {
+      o.addEventListener("click", () => groupe.__ouvrir(o.getAttribute("aria-controls")));
+      o.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const n = onglets[(i + (e.key === "ArrowRight" ? 1 : onglets.length - 1)) % onglets.length];
+        n.focus(); n.click();
+      });
+    });
+    groupe.__ouvrir(onglets[0].getAttribute("aria-controls"));
+  });
+  function ouvrirAncre(hash) {
+    const cible = hash && hash.length > 1 ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    const panneau = cible && cible.closest('[role="tabpanel"]');
+    if (!panneau) return false;
+    panneau.closest("[data-tabs]").__ouvrir(panneau.id);
+    return true;
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    if (ouvrirAncre(a.getAttribute("href"))) {
+      e.preventDefault();
+      history.replaceState(null, "", a.getAttribute("href"));
+      a.blur();
+      document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))).closest("[data-tabs]").querySelector(".tabs").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+  if (ouvrirAncre(location.hash)) {
+    const barre = document.getElementById(decodeURIComponent(location.hash.slice(1))).closest("[data-tabs]").querySelector(".tabs");
+    window.addEventListener("load", () => setTimeout(() => window.scrollTo({ top: barre.getBoundingClientRect().top + window.scrollY - 84 }), 0));
+  }
+  window.addEventListener("hashchange", () => ouvrirAncre(location.hash));
+</script>
+
 
 </body>
 </html>
