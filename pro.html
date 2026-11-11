@@ -464,18 +464,21 @@
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
   .section-light, .section-dark { padding: 76px 0; }
   .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 34px; }
+  /* Onglets façon bouton « +1 point » de la carte (doré, bien visibles) */
   .tab {
-    font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600; cursor: pointer;
-    padding: 10px 16px; border-radius: 100px; border: 1.5px solid var(--line-paper);
-    background: transparent; color: var(--ink-text); white-space: nowrap;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    font-family: "Inter", sans-serif; font-size: 14.5px; font-weight: 700; cursor: pointer;
+    padding: 13px 22px; border-radius: 12px; border: 0;
+    background: #ead7b5; color: var(--ink-text); white-space: nowrap;
+    box-shadow: 0 2px 0 rgba(28,23,18,0.12);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   }
-  .tab:hover { border-color: var(--ink-text); }
-  .tab[aria-selected="true"] { background: var(--ink-text); border-color: var(--ink-text); color: var(--paper); }
+  .tab:hover { background: #e0c48f; transform: translateY(-1px); }
+  .tab:active { transform: scale(0.96); }
+  .tab[aria-selected="true"] { background: #c98a3a; color: var(--ink-text); box-shadow: 0 8px 18px rgba(201,138,58,0.45); }
   .tab:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
-  .section-dark .tab { border-color: rgba(241,233,216,0.25); color: var(--paper); }
-  .section-dark .tab:hover { border-color: var(--paper); }
-  .section-dark .tab[aria-selected="true"] { background: var(--mint); border-color: var(--mint); color: #fff; }
+  .section-dark .tab { background: rgba(201,138,58,0.24); color: var(--paper); box-shadow: none; }
+  .section-dark .tab:hover { background: rgba(201,138,58,0.4); }
+  .section-dark .tab[aria-selected="true"] { background: #c98a3a; color: var(--ink-text); box-shadow: 0 8px 18px rgba(201,138,58,0.35); }
   .tabpanel .section-head { margin-bottom: 30px; }
   .tabpanel .section-head h2 { font-size: clamp(22px, 2.8vw, 28px); }
   .section-dark .section-head p { color: var(--muted); }
