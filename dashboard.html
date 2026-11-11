@@ -111,6 +111,19 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 .modale h2{font-family:Georgia,serif;font-size:26px;margin-bottom:2px}
 .app-sous{color:var(--ink-dim);font-size:13.5px;margin-bottom:6px}
 .app-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.app-champ{width:100%;padding:12px 14px;border:1.5px solid #d9ccb4;border-radius:11px;background:#fdfaf4;font:inherit;font-size:14px;outline:none}
+.app-champ:focus{border-color:var(--green);background:#fff}
+.app-aide{margin-top:8px;font-size:12.5px;color:var(--ink-dim);line-height:1.5}
+.app-aide summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.app-aide ol{margin:8px 0 0 18px}.app-aide li{margin-bottom:4px}
+.app-avis-etat{margin-top:7px;font-size:12.5px;font-weight:700}.app-avis-etat a{color:var(--green)}
+.fmt-grille{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.fmt-tuile{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 14px;border-radius:16px;border:1.5px solid #e2d6c0;background:#fdfaf4;cursor:pointer;font:inherit;color:var(--ink);text-align:center;transition:transform .15s,border-color .15s}
+.fmt-tuile:hover{transform:translateY(-2px);border-color:var(--green)}
+.fmt-feuille{border:1.5px solid #1c1712;border-radius:3px;background:#fff;box-shadow:0 6px 14px rgba(28,23,18,.12);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--green)}
+.fmt-tuile b{font-size:16px}.fmt-tuile small{font-size:12.5px;color:var(--ink-dim);line-height:1.45}
+.fmt-note{margin-top:16px;font-size:12.5px;color:var(--ink-dim);line-height:1.5;text-align:center}
+@media (max-width:520px){.fmt-grille{grid-template-columns:1fr}}
 .app-msg{font-size:13px;font-weight:700}.app-msg.ok{color:#2f7a3d}.app-msg.error{color:var(--error)}
 @media (max-width:820px){
   .ins-grille,.revel-grille{grid-template-columns:1fr;gap:22px}
@@ -530,6 +543,18 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
           <div class="edt-label">Votre logo</div>
           <label class="ins-logo-zone"><input type="file" id="app-logo" accept="image/png,image/jpeg,image/webp" hidden><img id="app-logo-img" alt="Votre logo" hidden><span id="app-logo-txt">＋ Ajouter votre logo</span></label>
           <button type="button" class="lien-discret" id="app-logo-retirer" hidden>Retirer le logo</button>
+          <div class="edt-label">Avis Google</div>
+          <input type="url" class="app-champ" id="app-avis" inputmode="url" autocomplete="off" placeholder="Collez ici le lien « Demander des avis » de votre fiche Google">
+          <details class="app-aide">
+            <summary>Où trouver ce lien ?</summary>
+            <ol>
+              <li>Sur votre téléphone ou ordinateur, connecté au compte Google de votre commerce, cherchez le nom de votre commerce sur Google ou dans Google Maps.</li>
+              <li>Sur votre fiche, touchez <b>« Demander des avis »</b> (parfois « Recevoir plus d'avis »).</li>
+              <li>Touchez <b>« Copier le lien »</b>, puis collez-le ici et enregistrez.</li>
+            </ol>
+            Une fois le lien enregistré, vos clients sont invités à laisser un avis après chaque passage, jusqu'à ce qu'ils l'aient fait.
+          </details>
+          <div class="app-avis-etat" id="app-avis-etat"></div>
           <div id="app-editeur"></div>
           <div class="app-actions"><button type="button" id="app-enregistrer">Enregistrer</button><span class="app-msg" id="app-msg" aria-live="polite"></span></div>
         </div>
@@ -538,6 +563,18 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
           <div class="ins-apercu-legende">Ce que voient vos clients</div>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="modale" id="format-affiche" hidden role="dialog" aria-modal="true" aria-labelledby="fmt-titre">
+    <div class="modale-boite" style="max-width:560px">
+      <button type="button" class="modale-x" id="fmt-x" aria-label="Fermer">×</button>
+      <h2 id="fmt-titre">Imprimer votre affiche</h2>
+      <div class="app-sous">Choisissez le format de la feuille.</div>
+      <div class="fmt-grille">
+        <button type="button" class="fmt-tuile" data-format="A4"><span class="fmt-feuille" style="width:63px;height:89px">A4</span><b>A4 · 21 × 29,7 cm</b><small>Grand format, pour la vitrine ou le mur</small></button>
+        <button type="button" class="fmt-tuile" data-format="A5"><span class="fmt-feuille" style="width:45px;height:63px">A5</span><b>A5 · 14,8 × 21 cm</b><small>Format comptoir, à poser près de la caisse</small></button>
+      </div>
+      <div class="fmt-note">Dans la fenêtre d'impression, choisissez le même format de papier et laissez l'échelle à <b>100 %</b> (taille réelle), sans « ajuster à la page ». Le verso, pour coller la pastille NFC, s'imprime au même format.</div>
     </div>
   </div>
   <div class="essai-banner" id="essai-banner"><span id="essai-banner-txt"></span><a href="https://buy.stripe.com/00w7sL8CM6JQanL6fU6g80j" target="_blank" rel="noopener">S'abonner · 29 € / mois →</a></div>
@@ -1405,7 +1442,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     document.body.style.overflow = "hidden";
     document.getElementById("revel-affiche").onclick = () => {
       const pal = { p1: etat.paliers[0], pct1: etat.paliers[1], p2: etat.paliers[2], pct2: etat.paliers[3] };
-      printPoster(b, pal);
+      choisirFormatAffiche(b, pal);
     };
     const fermer = () => { boite.hidden = true; document.body.style.overflow = ""; };
     document.getElementById("revel-fermer").onclick = fermer;
@@ -1436,6 +1473,24 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       retirer.hidden = !etat.logo_url;
     };
     montrerLogo();
+    const champAvis = document.getElementById("app-avis");
+    const etatAvis = document.getElementById("app-avis-etat");
+    const montrerAvis = () => {
+      const lien = boutique.lien_avis_google || "";
+      etatAvis.innerHTML = "";
+      if (lien) {
+        etatAvis.style.color = "#2f7a3d";
+        etatAvis.append("✓ Invitation à laisser un avis active · ");
+        const a = document.createElement("a");
+        a.href = lien; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Tester le lien";
+        etatAvis.appendChild(a);
+      } else {
+        etatAvis.style.color = "var(--ink-dim)";
+        etatAvis.textContent = "Sans lien, l'invitation à laisser un avis n'apparaît pas sur la carte.";
+      }
+    };
+    champAvis.value = boutique.lien_avis_google || "";
+    montrerAvis();
     if (etat.logo_url) couleursDuLogoUrl(etat.logo_url).then((c) => editeurApp && editeurApp.proposerCouleurs(c, false));
     const dire = (t, cl) => { msg.textContent = t; msg.className = "app-msg" + (cl ? " " + cl : ""); };
     const envoyerLogo = async (corps) => {
@@ -1474,11 +1529,17 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       const bouton = document.getElementById("app-enregistrer");
       bouton.disabled = true; dire("Enregistrement…");
       try {
-        const res = await api({ token: SESSION_TOKEN, action: "apparence", boutique_id: boutique.id, couleur: etat.couleur, couleur2: etat.couleur2 || null, style_carte: etat.style_carte, fond_carte: etat.fond_carte });
-        if (!res.ok) throw new Error();
-        Object.assign(boutique, { couleur: etat.couleur, couleur2: etat.couleur2, style_carte: etat.style_carte, fond_carte: etat.fond_carte });
+        const lienAvis = champAvis.value.trim();
+        if (lienAvis && !lienAvisValide(lienAvis)) throw new Error("avis");
+        const res = await api({ token: SESSION_TOKEN, action: "apparence", boutique_id: boutique.id, couleur: etat.couleur, couleur2: etat.couleur2 || null, style_carte: etat.style_carte, fond_carte: etat.fond_carte, lien_avis_google: lienAvis });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error === "avis_invalide" ? "avis" : "");
+        Object.assign(boutique, { couleur: etat.couleur, couleur2: etat.couleur2, style_carte: etat.style_carte, fond_carte: etat.fond_carte, lien_avis_google: lienAvis || null });
+        montrerAvis();
         dire("C'est enregistré : votre carte et votre affiche ont changé.", "ok");
-      } catch (e) { dire("L'enregistrement n'a pas abouti, réessayez.", "error"); }
+      } catch (e) {
+        dire(e.message === "avis" ? "Ce lien d'avis ne vient pas de Google. Copiez le lien « Demander des avis » de votre fiche." : "L'enregistrement n'a pas abouti, réessayez.", "error");
+      }
       bouton.disabled = false;
     };
     const fermer = () => { modale.hidden = true; document.body.style.overflow = ""; };
@@ -1489,6 +1550,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     modale.hidden = false;
     document.body.style.overflow = "hidden";
     setTimeout(() => document.getElementById("app-x").focus({ preventScroll: true }), 40);
+  }
+  // Lien d'avis : uniquement une adresse Google (fiche d'établissement, Maps, lien court g.page)
+  function lienAvisValide(lien) {
+    try {
+      const u = new URL(lien);
+      const hote = u.hostname.toLowerCase();
+      return u.protocol === "https:" && lien.length <= 500 &&
+        ["g.page", "goo.gl", "maps.app.goo.gl", "g.co", "google.com", "www.google.com", "maps.google.com", "search.google.com", "business.google.com", "www.google.fr", "google.fr"].includes(hote);
+    } catch (e) { return false; }
   }
   // Couleurs d'un logo déjà en ligne (stockage public Supabase, lisible par le navigateur)
   function couleursDuLogoUrl(url) {
@@ -1921,7 +1991,7 @@ const cb = document.getElementById("campaign-box");
       if (posterBtn) {
         posterBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          printPoster(boutique, pal);
+          choisirFormatAffiche(boutique, pal);
         });
       }
       initLogo(card, boutique);
@@ -2046,7 +2116,23 @@ initOnglets();
     }
     return s;
   }
-  async function printPoster(boutique, pal) {
+  // Choix du format avant impression : A4 (vitrine) ou A5 (comptoir)
+  function choisirFormatAffiche(boutique, pal) {
+    const modale = document.getElementById("format-affiche");
+    if (!modale) { printPoster(boutique, pal, "A4"); return; }
+    const fermer = () => { modale.hidden = true; document.body.style.overflow = ""; };
+    modale.querySelectorAll(".fmt-tuile").forEach((b) => {
+      b.onclick = () => { fermer(); printPoster(boutique, pal, b.dataset.format); };
+    });
+    document.getElementById("fmt-x").onclick = fermer;
+    modale.onclick = (e) => { if (e.target === modale) fermer(); };
+    modale.onkeydown = (e) => { if (e.key === "Escape") fermer(); };
+    modale.hidden = false;
+    document.body.style.overflow = "hidden";
+    setTimeout(() => modale.querySelector(".fmt-tuile").focus({ preventScroll: true }), 40);
+  }
+
+  async function printPoster(boutique, pal, format) {
     let marque = "";
     let couleur = "";
     let logoPerso = "";
@@ -2110,6 +2196,12 @@ initOnglets();
       logoImg.removeAttribute("src");
     }
     try { if (document.fonts && document.fonts.ready) await Promise.race([document.fonts.ready, new Promise((ok) => setTimeout(ok, 2500))]); } catch (e) {}
+    // Format de feuille : affiche réduite à 94 % et centrée sur A4, ou à 66 % sur A5, avec des marges sûres pour les imprimantes de bureau
+    let formatCss = document.getElementById("format-impression");
+    if (!formatCss) { formatCss = document.createElement("style"); formatCss.id = "format-impression"; document.head.appendChild(formatCss); }
+    formatCss.textContent = format === "A5"
+      ? "@media print{@page{size:A5;margin:18.5mm 8mm}#poster-print,#poster-verso{zoom:.66}}"
+      : "@media print{@page{size:A4;margin:25.3mm 11mm}#poster-print,#poster-verso{zoom:.94}}";
     window.print();
   }
 
