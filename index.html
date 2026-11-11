@@ -961,6 +961,8 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
   // refuse ou ne répond pas dans les 5s : le point reste possible, juste non vérifié.
   function obtenirPositionGPS() {
     return new Promise((resolve) => {
+      // Boutique de démonstration (mode_test) : pas de demande de localisation, aucun contrôle de distance
+      if (modeDemo) { resolve(null); return; }
       if (!navigator.geolocation) {
         resolve(null);
         return;
