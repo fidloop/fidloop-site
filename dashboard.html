@@ -21,7 +21,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 #gate .err{color:var(--error);font-size:12.5px;margin-top:11px;display:none}#gate .note{color:var(--green);font-size:12.5px;margin-top:11px;display:none;line-height:1.5}
 #gate .note.show,#gate .err.show{display:block}.pwd-wrap{position:relative}.pwd-wrap input{padding-right:46px!important}.pwd-wrap .eye{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:34px!important;height:34px;margin:0!important;padding:0!important;background:none!important;border:0;font-size:16px;cursor:pointer;opacity:.55;line-height:1;box-shadow:none}
 .pwd-wrap .eye:hover{opacity:1}.remember{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:13px;font-size:12.5px;color:var(--ink-dim);cursor:pointer}.remember input{width:auto!important;margin:0!important;padding:0!important}.gate-links{margin-top:17px}.gate-link{background:none!important;border:0;padding:0!important;margin:0!important;width:auto!important;color:var(--ink-dim)!important;font-size:12.5px!important;text-decoration:underline;cursor:pointer;box-shadow:none!important}
-#gate .stack input+input{margin-top:9px}
+#gate .stack input+input{margin-top:9px}#gate .stack select{width:100%;margin-top:9px;padding:12px 15px;background:#fdfaf4;border:1.5px solid #d9ccb4;border-radius:11px;font:inherit;font-size:15px;text-align:center;text-align-last:center;outline:none}#gate .stack select:focus{border-color:var(--green)}
 #gate .stack .pwd-wrap{margin-top:9px}.ins-couleur{margin-top:14px;font-size:12.5px;color:var(--ink-dim)}.ins-pastilles{display:flex;justify-content:center;gap:8px;margin:8px 0 4px;flex-wrap:wrap}#gate .ins-pastille{width:28px;height:28px;margin:0;padding:0;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #d9ccb4;cursor:pointer}#gate .ins-pastille.choisie{box-shadow:0 0 0 2.5px var(--ink)}#gate #ins-couleur{width:46px;height:32px;padding:2px;margin-top:4px;cursor:pointer}.ins-cgv a{color:inherit}
 
 /* ===== Inscription à l'image du commerçant + aperçu + révélation + apparence (06/11/2026) ===== */
@@ -389,6 +389,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
             <div class="stack">
               <input type="text" id="ins-nom" placeholder="Nom de votre commerce" maxlength="60" autocomplete="organization">
               <input type="text" id="ins-ville" placeholder="Ville" maxlength="60" autocomplete="address-level2">
+              <select id="ins-zone" aria-label="Pays ou région de votre commerce"><option value="fr">France (métropole)</option><option value="re">La Réunion</option><option value="gp">Guadeloupe</option><option value="mq">Martinique</option><option value="gf">Guyane</option><option value="yt">Mayotte</option><option value="be">Belgique</option><option value="ch">Suisse</option><option value="lu">Luxembourg</option><option value="es">Espagne</option><option value="it">Italie</option></select>
             </div>
             <div class="edt-label">Votre activité</div>
             <div class="ins-metiers" id="ins-metiers"></div>
@@ -552,6 +553,9 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
           <div class="edt-label">Votre logo</div>
           <label class="ins-logo-zone"><input type="file" id="app-logo" accept="image/png,image/jpeg,image/webp" hidden><img id="app-logo-img" alt="Votre logo" hidden><span id="app-logo-txt">＋ Ajouter votre logo</span></label>
           <button type="button" class="lien-discret" id="app-logo-retirer" hidden>Retirer le logo</button>
+          <div class="edt-label">Pays / région de la boutique</div>
+          <select class="app-champ" id="app-zone" aria-label="Pays ou région de la boutique"><option value="fr">France (métropole)</option><option value="re">La Réunion</option><option value="gp">Guadeloupe</option><option value="mq">Martinique</option><option value="gf">Guyane</option><option value="yt">Mayotte</option><option value="be">Belgique</option><option value="ch">Suisse</option><option value="lu">Luxembourg</option><option value="es">Espagne</option><option value="it">Italie</option></select>
+          <div style="font-size:12px;color:var(--ink-dim);margin-top:5px">Pour le format des numéros de téléphone de vos clients et l'heure locale.</div>
           <div class="edt-label">Avis Google</div>
           <input type="url" class="app-champ" id="app-avis" inputmode="url" autocomplete="off" placeholder="Collez ici le lien « Demander des avis » de votre fiche Google">
           <details class="app-aide">
@@ -1500,6 +1504,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     };
     champAvis.value = boutique.lien_avis_google || "";
     montrerAvis();
+    // Pays / région (20/11/2026) : déduit du pays et du fuseau horaire de la boutique
+    const champZone = document.getElementById("app-zone");
+    const zoneOutreMer = { "Indian/Reunion": "re", "America/Guadeloupe": "gp", "America/Martinique": "mq", "America/Cayenne": "gf", "Indian/Mayotte": "yt" };
+    const zonePays = { BE: "be", CH: "ch", LU: "lu", ES: "es", IT: "it" };
+    champZone.value = (boutique.pays || "FR") === "FR" ? (zoneOutreMer[boutique.fuseau] || "fr") : (zonePays[boutique.pays] || "fr");
     if (etat.logo_url) couleursDuLogoUrl(etat.logo_url).then((c) => editeurApp && editeurApp.proposerCouleurs(c, false));
     const dire = (t, cl) => { msg.textContent = t; msg.className = "app-msg" + (cl ? " " + cl : ""); };
     const envoyerLogo = async (corps) => {
@@ -1540,10 +1549,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       try {
         const lienAvis = champAvis.value.trim();
         if (lienAvis && !lienAvisValide(lienAvis)) throw new Error("avis");
-        const res = await api({ token: SESSION_TOKEN, action: "apparence", boutique_id: boutique.id, couleur: etat.couleur, couleur2: etat.couleur2 || null, style_carte: etat.style_carte, fond_carte: etat.fond_carte, lien_avis_google: lienAvis });
+        const res = await api({ token: SESSION_TOKEN, action: "apparence", boutique_id: boutique.id, couleur: etat.couleur, couleur2: etat.couleur2 || null, style_carte: etat.style_carte, fond_carte: etat.fond_carte, lien_avis_google: lienAvis, zone: champZone.value });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error === "avis_invalide" ? "avis" : "");
         Object.assign(boutique, { couleur: etat.couleur, couleur2: etat.couleur2, style_carte: etat.style_carte, fond_carte: etat.fond_carte, lien_avis_google: lienAvis || null });
+        if (data.pays) Object.assign(boutique, { pays: data.pays, fuseau: data.fuseau });
         montrerAvis();
         dire("C'est enregistré : votre carte et votre affiche ont changé.", "ok");
       } catch (e) {
@@ -1566,7 +1576,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       const u = new URL(lien);
       const hote = u.hostname.toLowerCase();
       return u.protocol === "https:" && lien.length <= 500 &&
-        ["g.page", "goo.gl", "maps.app.goo.gl", "g.co", "google.com", "www.google.com", "maps.google.com", "search.google.com", "business.google.com", "www.google.fr", "google.fr"].includes(hote);
+        ["g.page", "goo.gl", "maps.app.goo.gl", "g.co", "google.com", "www.google.com", "maps.google.com", "search.google.com", "business.google.com", "www.google.fr", "google.fr", "www.google.be", "google.be", "www.google.ch", "google.ch", "www.google.lu", "google.lu", "www.google.es", "google.es", "www.google.it", "google.it"].includes(hote);
     } catch (e) { return false; }
   }
   // Couleurs d'un logo déjà en ligne (stockage public Supabase, lisible par le navigateur)
@@ -1603,6 +1613,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     try {
       const p = etatIns.paliers || [];
       const res = await api({ action: "inscription", nom_commerce: nom, ville, email: mail, password: mdp, cgv: true,
+        zone: document.getElementById("ins-zone").value,
         metier: etatIns.metier || "autre", couleur: etatIns.couleur, couleur2: etatIns.couleur2 || null,
         style_carte: etatIns.style_carte, fond_carte: etatIns.fond_carte,
         palier_1_passages: p[0], palier_1_pourcentage: p[1], palier_2_passages: p[2] || null, palier_2_pourcentage: p[3] || null,
