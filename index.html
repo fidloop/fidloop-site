@@ -773,10 +773,41 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     });
   }
 
+  // --- Téléphones selon le pays de la boutique (20/11/2026) ---
+  // Même règle que les fonctions serveur (sav-event, send-campaign) : en France, les numéros
+  // d'outre-mer (0692…, 0690…, 0696…) sont reconnus ; ailleurs, le format local du pays.
+  const paysDe = {};
+  const EXEMPLES_TEL = { FR: "06 12 34 56 78", BE: "0470 12 34 56", CH: "079 123 45 67", LU: "621 123 456", ES: "612 345 678", IT: "333 123 4567" };
+  function paysBoutique() { return paysDe[boutiqueSelect.value] || "FR"; }
+  function telInternational(brut, pays) {
+    let t = String(brut || "").replace(/[^\d+]/g, "");
+    if (!t) return null;
+    if (t.startsWith("00")) t = "+" + t.slice(2);
+    if (t.startsWith("+")) {
+      t = "+" + t.slice(1).replace(/\+/g, "");
+      const zero = t.match(/^\+(33|32|41|352|34|262|590|594|596)0(\d+)$/);
+      if (zero) t = "+" + zero[1] + zero[2];
+      if (t.startsWith("+33") && !/^\+33[1-9]\d{8}$/.test(t)) return null;
+      return /^\+[1-9]\d{7,14}$/.test(t) ? t : null;
+    }
+    const p = String(pays || "FR").toUpperCase();
+    if (p === "FR") return /^0[1-9]\d{8}$/.test(t) ? t : null;
+    if (p === "BE") { if (/^4\d{8}$/.test(t)) t = "0" + t; return /^0[1-9]\d{7,8}$/.test(t) ? t : null; }
+    if (p === "CH") { if (/^7\d{8}$/.test(t)) t = "0" + t; return /^0[1-9]\d{8}$/.test(t) ? t : null; }
+    if (p === "LU") return /^\d{6,11}$/.test(t) && !t.startsWith("0") ? t : null;
+    if (p === "ES") return /^[6789]\d{8}$/.test(t) ? t : null;
+    if (p === "IT") return /^3\d{8,9}$/.test(t) || /^0\d{5,10}$/.test(t) ? t : null;
+    return null;
+  }
+  function majExempleTel() {
+    const champ = document.getElementById("telephone");
+    if (champ) champ.placeholder = EXEMPLES_TEL[paysBoutique()] || EXEMPLES_TEL.FR;
+  }
+
   async function loadBoutiques() {
     const { data, error } = await supabaseClient
       .from("boutiques")
-      .select("id, nom, enseignes(nom, couleur, couleur_texte, hero_url)")
+      .select("id, nom, pays, enseignes(nom, couleur, couleur_texte, hero_url)")
       .eq("actif", true)
       .order("nom");
 
@@ -787,7 +818,7 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     }
 
     const enseigneDe = {};
-    data.forEach((b) => { enseigneDe[b.id] = b.enseignes || null; });
+    data.forEach((b) => { enseigneDe[b.id] = b.enseignes || null; paysDe[b.id] = b.pays || "FR"; });
 
     // Le QR fixe la boutique : on n affiche que celles de la meme enseigne.
     const enseigneActive = preselectedBoutique ? enseigneDe[preselectedBoutique] : null;
@@ -804,6 +835,7 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     });
 
     appliquerEnseigne(enseigneActive || nomSansEnseigne(data, preselectedBoutique));
+    majExempleTel();
   }
 
   // --- Point d'entrée : ce téléphone est-il déjà reconnu ? ---
@@ -874,6 +906,7 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     }
   }
   boutiqueSelect.addEventListener("change", majChampAnniversaire);
+  boutiqueSelect.addEventListener("change", majExempleTel);
   init();
 
   // --- Parcours 1 : première inscription ---
@@ -881,15 +914,19 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     e.preventDefault();
     errorMsg.style.display = "none";
 
-    // Numéro exploitable pour les SMS : 10 chiffres commençant par 0, ou format international (+33…).
-    // Même règle que côté serveur (send-campaign). On vérifie sans modifier ce que le client a tapé.
+    // Numéro exploitable pour les SMS, selon le pays de la boutique (format local ou international +XX).
+    // Même règle que côté serveur (sav-event, send-campaign). On vérifie sans modifier ce que le client a tapé.
     const telSaisi = document.getElementById("telephone").value.trim();
     const telNettoye = telSaisi.replace(/[\s.\-()]/g, "");
-    const telValide = /^0[1-9]\d{8}$/.test(telNettoye) || /^\+33[1-9]\d{8}$/.test(telNettoye) || /^\+(?!33)\d{8,15}$/.test(telNettoye);
+    const pays = paysBoutique();
+    const telValide = !!telInternational(telNettoye, pays);
     if (!telValide) {
-      errorMsg.textContent = /^[67]\d{8}$/.test(telNettoye)
+      const exemple = EXEMPLES_TEL[pays] || EXEMPLES_TEL.FR;
+      errorMsg.textContent = pays === "FR" && /^[67]\d{8}$/.test(telNettoye)
         ? "Il manque le 0 au début de votre numéro : tapez-le en entier, par exemple 06 12 34 56 78."
-        : "Numéro de téléphone incomplet ou incorrect. Tapez vos 10 chiffres, par exemple 06 12 34 56 78.";
+        : pays === "FR"
+          ? "Numéro de téléphone incomplet ou incorrect. Tapez vos 10 chiffres, par exemple 06 12 34 56 78."
+          : "Numéro de téléphone incomplet ou incorrect. Par exemple : " + exemple + " (ou au format international, +…).";
       errorMsg.style.display = "block";
       document.getElementById("telephone").focus();
       return;
