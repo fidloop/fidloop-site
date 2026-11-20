@@ -805,11 +805,19 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
   }
 
   async function loadBoutiques() {
-    const { data, error } = await supabaseClient
+    let { data, error } = await supabaseClient
       .from("boutiques")
       .select("id, nom, pays, enseignes(nom, couleur, couleur_texte, hero_url)")
       .eq("actif", true)
       .order("nom");
+    // Si le pays n'est pas lisible (droits de la base), on charge la liste sans lui : numéros au format français
+    if (error) {
+      ({ data, error } = await supabaseClient
+        .from("boutiques")
+        .select("id, nom, enseignes(nom, couleur, couleur_texte, hero_url)")
+        .eq("actif", true)
+        .order("nom"));
+    }
 
     if (error || !data) {
       errorMsg.textContent = "Impossible de charger la liste des boutiques. Réessayez dans un instant.";
