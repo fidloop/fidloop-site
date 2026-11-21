@@ -729,6 +729,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous"></script>
+<script src="dashboard-i18n.js"></script>
 <script>
   const SUPABASE_URL = "https://xreqpkzovokiheichauf.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_ur4bRIDpnPAyaLffnN2xIg_ZnfNLNRn";
@@ -812,7 +813,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   }
   function frDateHeure(iso) {
     const d = new Date(iso);
-    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+    const L = (window.ancrimoLocale ? window.ancrimoLocale() : "fr-FR");
+    return d.toLocaleDateString(L, { weekday: "long", day: "numeric", month: "long" }) + ({ "es-ES": " a las ", "it-IT": " alle " }[L] || " à ") + d.toLocaleTimeString(L, { hour: "2-digit", minute: "2-digit" }).replace(":", L === "fr-FR" ? "h" : ":");
   }
   function majQuand() {
     const later = programmeActif();
@@ -827,7 +829,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
       ? "Les SMS ne peuvent partir que du lundi au samedi, entre 8h et 19h45 (pas le dimanche ni les jours fériés). L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint."
       : "L'envoi part à l'heure choisie (à 5 minutes près), même si votre ordinateur est éteint.";
     const btn = document.getElementById("campaign-send-btn");
-    if (btn && !btn.textContent.startsWith("Envoi") && !btn.textContent.startsWith("Programmation")) btn.textContent = libelleEnvoi();
+    const libBtn = btn ? (window.ancrimoFr ? window.ancrimoFr(btn) : btn.textContent) : "";
+    if (btn && !libBtn.startsWith("Envoi") && !libBtn.startsWith("Programmation")) btn.textContent = libelleEnvoi();
   }
   async function refreshProgrammees() {
     const box = document.getElementById("prog-box");
@@ -901,7 +904,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     compteur.style.display = "block";
     document.getElementById("sms-apercu-texte").textContent = (SMS_PREFIXE || "") + (net || "…") + "\nSTOP au 3xxxx";
     apercu.style.display = "block";
-    if (sendBtnSms && !sendBtnSms.textContent.startsWith("Envoi")) {
+    if (sendBtnSms && !(window.ancrimoFr ? window.ancrimoFr(sendBtnSms) : sendBtnSms.textContent).startsWith("Envoi")) {
       sendBtnSms.disabled = trop;
       if (trop) sendBtnSms.dataset.bloqueSms = "1"; else delete sendBtnSms.dataset.bloqueSms;
     }
@@ -1668,7 +1671,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
   // Dernier jour d'essai (essai_fin = minuit qui suit le dernier jour), en toutes lettres
   function dernierJourEssai(fin) {
-    return new Date(new Date(fin).getTime() - 1000).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
+    return new Date(new Date(fin).getTime() - 1000).toLocaleDateString((window.ancrimoLocale ? window.ancrimoLocale() : "fr-FR"), { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
   }
   // Lien de paiement Stripe personnalisé : client_reference_id = id de l'accès, pour que l'abonnement
   // débloque ce compte automatiquement (webhook stripe-credits-webhook), e-mail prérempli.
@@ -1832,6 +1835,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   })();
 
   function renderDashboard(data) {
+    // Langue du tableau de bord selon le pays de la boutique (espagnol, italien, sinon français)
+    if (window.ancrimoLangue) {
+      const b0 = (data.boutiques || [])[0] || {};
+      window.ancrimoLangue(b0.langue || ({ ES: "es", IT: "it" })[b0.pays] || "fr", true);
+    }
     // L'accès renvoyé par le serveur fait foi : identité, périmètre et droits.
     const acces = data.acces || {};
     // Essai gratuit en cours : bandeau discret avec le nombre de jours restants
@@ -2006,7 +2014,7 @@ const cb = document.getElementById("campaign-box");
                     (a) => `
             <div class="detail-row">
               <span class="name">${echapHtml((clientsById[a.client_id] && clientsById[a.client_id].prenom) || "?")}<span class="st-badge" data-st="${a.client_id}|${boutique.id}" hidden></span></span>
-              <span class="cycle">${a.nb_passages_cycle_actuel}/${pal.p2 && a.nb_passages_cycle_actuel > pal.p1 ? pal.p2 : pal.p1} · inscrit le ${new Date(a.date_inscription).toLocaleDateString("fr-FR")}</span>
+              <span class="cycle">${a.nb_passages_cycle_actuel}/${pal.p2 && a.nb_passages_cycle_actuel > pal.p1 ? pal.p2 : pal.p1} · inscrit le ${new Date(a.date_inscription).toLocaleDateString((window.ancrimoLocale ? window.ancrimoLocale() : "fr-FR"))}</span>
             </div>`
                   )
                   .join("")
@@ -2285,7 +2293,7 @@ initOnglets();
         boutiqueNomById[a.boutique_id] || "",
         a.nb_passages_total || 0,
         a.nb_passages_cycle_actuel || 0,
-        a.date_inscription ? new Date(a.date_inscription).toLocaleDateString("fr-FR") : "",
+        a.date_inscription ? new Date(a.date_inscription).toLocaleDateString((window.ancrimoLocale ? window.ancrimoLocale() : "fr-FR")) : "",
         c.consentement_marketing ? "Oui" : "Non",
       ].map(csvEscape);
       // Le téléphone est inséré tel quel (format formule Excel ="0612345678"),
