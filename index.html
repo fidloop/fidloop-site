@@ -334,6 +334,256 @@ button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.55;cu
   const CLIENT_STATUS_URL = SUPABASE_URL + "/functions/v1/get-client-status";
   const SAV_URL = SUPABASE_URL + "/functions/v1/sav-event";
 
+  // --- Langue de la carte (21/11/2026) : français par défaut ; espagnol ou italien selon boutiques.langue ---
+  // Les textes sont écrits en français dans la page ; on les remplace à l'affichage (textes fixes, puis
+  // tout texte ajouté ensuite, grâce à un observateur). Les textes avec une partie variable passent par MOTIFS.
+  let LANGUE = "fr";
+  function LOCALE() { return { fr: "fr-FR", es: "es-ES", it: "it-IT" }[LANGUE] || "fr-FR"; }
+  const MOIS_TRAD = {
+    es: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    it: ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+  };
+  const MOIS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const moisTraduit = (m) => { const i = MOIS_FR.indexOf(m); return i >= 0 && MOIS_TRAD[LANGUE] ? MOIS_TRAD[LANGUE][i] : m; };
+  const TRAD = {
+    es: {
+      "Version test · démonstration": "Versión de prueba · demostración",
+      "Votre commerçant": "Tu comercio",
+      "Votre carte de fidélité": "Tu tarjeta de fidelidad",
+      "Ajoutez-la à votre téléphone en 30 secondes": "Añádela a tu móvil en 30 segundos",
+      "POINTS": "PUNTOS",
+      "Prénom": "Nombre",
+      "Votre prénom": "Tu nombre",
+      "Téléphone": "Teléfono",
+      "Email (facultatif)": "Email (opcional)",
+      "vous@exemple.fr": "tu@ejemplo.es",
+      "Votre anniversaire (facultatif)": "Tu cumpleaños (opcional)",
+      "Jour": "Día",
+      "Mois": "Mes",
+      "🎂 Un petit cadeau vous attend par SMS le jour de votre anniversaire.": "🎂 Te espera un pequeño regalo por SMS el día de tu cumpleaños.",
+      "Votre boutique": "Tu tienda",
+      "Choisir une boutique": "Elige una tienda",
+      "Créer ma carte de fidélité": "Crear mi tarjeta de fidelidad",
+      "Content de vous revoir !": "¡Hola de nuevo!",
+      "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.": "¿Acabas de hacer una compra? Pulsa abajo para añadir tu punto.",
+      "J'ai fait un achat, +1 point": "He hecho una compra, +1 punto",
+      "Qu'est-ce que vous venez faire aujourd'hui ?": "¿Qué vienes a hacer hoy?",
+      "Mes réparations et commandes": "Mis reparaciones y pedidos",
+      "🎂 Un cadeau pour votre anniversaire": "🎂 Un regalo por tu cumpleaños",
+      "Indiquez votre date : le jour J, vous recevrez un SMS avec un cadeau offert par la boutique.": "Indica tu fecha: ese día recibirás un SMS con un regalo de la tienda.",
+      "Enregistrer ma date": "Guardar mi fecha",
+      "🔔 Être prévenu sur ce téléphone": "🔔 Recibir avisos en este móvil",
+      "Recevez une notification gratuite quand votre réparation est prête, sans attendre de SMS.": "Recibe una notificación gratuita cuando tu reparación esté lista, sin esperar un SMS.",
+      "Activer les notifications": "Activar las notificaciones",
+      "Récompense débloquée": "Recompensa desbloqueada",
+      "Offre de bienvenue": "Oferta de bienvenida",
+      "Montrez cet écran en caisse": "Muestra esta pantalla en caja",
+      "Heure en direct": "Hora en directo",
+      "Valable aujourd'hui uniquement": "Válido solo hoy",
+      ", sur votre achat en cours. Montrez cet écran au vendeur avant de le fermer : il n'apparaîtra plus ensuite.": ", en tu compra actual. Enseña esta pantalla al vendedor antes de cerrarla: después ya no volverá a aparecer.",
+      "J'ai compris": "Entendido",
+      "Vous êtes satisfait ?": "¿Te ha gustado?",
+      "Votre avis Google aide énormément la boutique.": "Tu reseña en Google ayuda muchísimo a la tienda.",
+      "Ça prend 30 secondes.": "Solo te llevará 30 segundos.",
+      "⭐ Laisser un avis Google": "⭐ Dejar una reseña en Google",
+      "Plus tard": "Más tarde",
+      "Ce programme de fidélité est terminé": "Este programa de fidelidad ha terminado",
+      "Merci pour votre fidélité ! Pour toute question, adressez-vous directement à l'équipe en boutique.": "¡Gracias por tu fidelidad! Para cualquier duda, dirígete directamente al equipo de la tienda.",
+      "Votre carte est prête": "Tu tarjeta está lista",
+      "Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.": "Pulsa abajo para añadirla a tu móvil. Se actualizará automáticamente en cada visita a la tienda.",
+      "Ajouter ma carte à mon téléphone": "Añadir mi tarjeta al móvil",
+      "Logo du commerçant": "Logo del comercio",
+      "Carte de fidélité": "Tarjeta de fidelidad",
+      "Notifications activées sur ce téléphone ✅": "Notificaciones activadas en este móvil ✅",
+      "Notifications non autorisées. Vous pourrez les activer plus tard dans les réglages du navigateur.": "Notificaciones no autorizadas. Podrás activarlas más tarde en los ajustes del navegador.",
+      "C'est activé ! Une notification de test vient de vous être envoyée.": "¡Activado! Te acabamos de enviar una notificación de prueba.",
+      "Impossible d'activer les notifications sur ce téléphone.": "No se pueden activar las notificaciones en este móvil.",
+      "Vos réparations s'affichent sur le téléphone avec lequel vous avez créé votre carte.": "Tus reparaciones aparecen en el móvil con el que creaste tu tarjeta.",
+      "Prête, à récupérer": "Lista para recoger",
+      "Récupérée": "Recogida",
+      "En cours": "En curso",
+      "Réparation": "Reparación",
+      "Cette date n'existe pas, vérifiez le jour.": "Esta fecha no existe, revisa el día.",
+      "Choisissez le jour et le mois.": "Elige el día y el mes.",
+      "Impossible d'enregistrer ici : utilisez le téléphone avec lequel vous avez créé votre carte, ou réessayez plus tard.": "No se puede guardar aquí: usa el móvil con el que creaste tu tarjeta o inténtalo más tarde.",
+      "Impossible de charger la liste des boutiques. Réessayez dans un instant.": "No se puede cargar la lista de tiendas. Inténtalo de nuevo en un momento.",
+      "Cette date d'anniversaire n'existe pas : vérifiez le jour.": "Esta fecha de cumpleaños no existe: revisa el día.",
+      "Pour votre anniversaire, choisissez le jour et le mois (ou laissez les deux vides).": "Para tu cumpleaños, elige el día y el mes (o deja ambos vacíos).",
+      "Création de votre carte...": "Creando tu tarjeta...",
+      "Une erreur est survenue.": "Se ha producido un error.",
+      "Ce numéro a déjà une carte de fidélité. Ouvrez-la sur le téléphone avec lequel vous l'avez créée. Nouveau téléphone ? Demandez en caisse : le commerçant peut ajouter vos passages.": "Este número ya tiene una tarjeta de fidelidad. Ábrela en el móvil con el que la creaste. ¿Móvil nuevo? Pregunta en caja: el comercio puede añadir tus visitas.",
+      "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.": "No se puede crear tu tarjeta en este momento. Inténtalo de nuevo o pregunta al equipo de la tienda.",
+      "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !": "Tu tarjeta está creada. ¡No olvides añadir tu primer punto antes de salir de la tienda!",
+      "Une erreur est survenue. Demandez à l'équipe en boutique.": "Se ha producido un error. Pregunta al equipo de la tienda.",
+      "Point ajouté ! Merci de votre fidélité 🎉": "¡Punto añadido! Gracias por tu fidelidad 🎉",
+      "Une erreur est survenue. Réessayez ou demandez à l'équipe en boutique.": "Se ha producido un error. Inténtalo de nuevo o pregunta al equipo de la tienda.",
+      "Vous semblez loin de la boutique. Revenez sur place pour valider votre passage.": "Parece que estás lejos de la tienda. Vuelve allí para validar tu visita.",
+      "Client introuvable. Vérifiez le QR code scanné.": "Cliente no encontrado. Revisa el código QR escaneado.",
+      "Vous n'êtes pas encore inscrit dans cette boutique.": "Todavía no estás registrado en esta tienda.",
+      "Une erreur est survenue, réessayez dans un instant.": "Se ha producido un error, inténtalo de nuevo en un momento.",
+      "Vous êtes commerçant ? Découvrir Ancrimo →": "¿Tienes un comercio? Descubre Ancrimo →",
+    },
+    it: {
+      "Version test · démonstration": "Versione di prova · dimostrazione",
+      "Votre commerçant": "Il tuo esercente",
+      "Votre carte de fidélité": "La tua carta fedeltà",
+      "Ajoutez-la à votre téléphone en 30 secondes": "Aggiungila al tuo telefono in 30 secondi",
+      "POINTS": "PUNTI",
+      "Prénom": "Nome",
+      "Votre prénom": "Il tuo nome",
+      "Téléphone": "Telefono",
+      "Email (facultatif)": "Email (facoltativa)",
+      "vous@exemple.fr": "tu@esempio.it",
+      "Votre anniversaire (facultatif)": "Il tuo compleanno (facoltativo)",
+      "Jour": "Giorno",
+      "Mois": "Mese",
+      "🎂 Un petit cadeau vous attend par SMS le jour de votre anniversaire.": "🎂 Un piccolo regalo ti aspetta via SMS il giorno del tuo compleanno.",
+      "Votre boutique": "Il tuo negozio",
+      "Choisir une boutique": "Scegli un negozio",
+      "Créer ma carte de fidélité": "Crea la mia carta fedeltà",
+      "Content de vous revoir !": "Che piacere rivederti!",
+      "Vous venez de faire un achat ? Appuyez ci-dessous pour ajouter votre point.": "Hai appena fatto un acquisto? Premi qui sotto per aggiungere il tuo punto.",
+      "J'ai fait un achat, +1 point": "Ho fatto un acquisto, +1 punto",
+      "Qu'est-ce que vous venez faire aujourd'hui ?": "Per cosa sei qui oggi?",
+      "Mes réparations et commandes": "Le mie riparazioni e ordini",
+      "🎂 Un cadeau pour votre anniversaire": "🎂 Un regalo per il tuo compleanno",
+      "Indiquez votre date : le jour J, vous recevrez un SMS avec un cadeau offert par la boutique.": "Indica la tua data: quel giorno riceverai un SMS con un regalo offerto dal negozio.",
+      "Enregistrer ma date": "Salva la mia data",
+      "🔔 Être prévenu sur ce téléphone": "🔔 Ricevi avvisi su questo telefono",
+      "Recevez une notification gratuite quand votre réparation est prête, sans attendre de SMS.": "Ricevi una notifica gratuita quando la tua riparazione è pronta, senza aspettare un SMS.",
+      "Activer les notifications": "Attiva le notifiche",
+      "Récompense débloquée": "Premio sbloccato",
+      "Offre de bienvenue": "Offerta di benvenuto",
+      "Montrez cet écran en caisse": "Mostra questa schermata alla cassa",
+      "Heure en direct": "Ora in diretta",
+      "Valable aujourd'hui uniquement": "Valido solo oggi",
+      ", sur votre achat en cours. Montrez cet écran au vendeur avant de le fermer : il n'apparaîtra plus ensuite.": ", sul tuo acquisto in corso. Mostra questa schermata al venditore prima di chiuderla: dopo non apparirà più.",
+      "J'ai compris": "Ho capito",
+      "Vous êtes satisfait ?": "Ti è piaciuto?",
+      "Votre avis Google aide énormément la boutique.": "La tua recensione su Google aiuta moltissimo il negozio.",
+      "Ça prend 30 secondes.": "Ci vogliono 30 secondi.",
+      "⭐ Laisser un avis Google": "⭐ Lascia una recensione su Google",
+      "Plus tard": "Più tardi",
+      "Ce programme de fidélité est terminé": "Questo programma fedeltà è terminato",
+      "Merci pour votre fidélité ! Pour toute question, adressez-vous directement à l'équipe en boutique.": "Grazie per la tua fedeltà! Per qualsiasi domanda, rivolgiti direttamente al personale del negozio.",
+      "Votre carte est prête": "La tua carta è pronta",
+      "Cliquez ci-dessous pour l'ajouter à votre téléphone. Elle se mettra à jour automatiquement à chaque passage en boutique.": "Premi qui sotto per aggiungerla al tuo telefono. Si aggiornerà automaticamente a ogni visita in negozio.",
+      "Ajouter ma carte à mon téléphone": "Aggiungi la mia carta al telefono",
+      "Logo du commerçant": "Logo del negozio",
+      "Carte de fidélité": "Carta fedeltà",
+      "Notifications activées sur ce téléphone ✅": "Notifiche attivate su questo telefono ✅",
+      "Notifications non autorisées. Vous pourrez les activer plus tard dans les réglages du navigateur.": "Notifiche non autorizzate. Potrai attivarle più tardi nelle impostazioni del browser.",
+      "C'est activé ! Une notification de test vient de vous être envoyée.": "Attivate! Ti abbiamo appena inviato una notifica di prova.",
+      "Impossible d'activer les notifications sur ce téléphone.": "Impossibile attivare le notifiche su questo telefono.",
+      "Vos réparations s'affichent sur le téléphone avec lequel vous avez créé votre carte.": "Le tue riparazioni compaiono sul telefono con cui hai creato la tua carta.",
+      "Prête, à récupérer": "Pronta da ritirare",
+      "Récupérée": "Ritirata",
+      "En cours": "In corso",
+      "Réparation": "Riparazione",
+      "Cette date n'existe pas, vérifiez le jour.": "Questa data non esiste, controlla il giorno.",
+      "Choisissez le jour et le mois.": "Scegli il giorno e il mese.",
+      "Impossible d'enregistrer ici : utilisez le téléphone avec lequel vous avez créé votre carte, ou réessayez plus tard.": "Impossibile salvare qui: usa il telefono con cui hai creato la tua carta o riprova più tardi.",
+      "Impossible de charger la liste des boutiques. Réessayez dans un instant.": "Impossibile caricare l'elenco dei negozi. Riprova tra un momento.",
+      "Cette date d'anniversaire n'existe pas : vérifiez le jour.": "Questa data di compleanno non esiste: controlla il giorno.",
+      "Pour votre anniversaire, choisissez le jour et le mois (ou laissez les deux vides).": "Per il tuo compleanno, scegli il giorno e il mese (o lasciali entrambi vuoti).",
+      "Création de votre carte...": "Creazione della tua carta...",
+      "Une erreur est survenue.": "Si è verificato un errore.",
+      "Ce numéro a déjà une carte de fidélité. Ouvrez-la sur le téléphone avec lequel vous l'avez créée. Nouveau téléphone ? Demandez en caisse : le commerçant peut ajouter vos passages.": "Questo numero ha già una carta fedeltà. Aprila sul telefono con cui l'hai creata. Telefono nuovo? Chiedi alla cassa: il negozio può aggiungere le tue visite.",
+      "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.": "Impossibile creare la tua carta al momento. Riprova o chiedi al personale del negozio.",
+      "Votre carte est créée. N'oubliez pas d'ajouter votre premier point avant de quitter la boutique !": "La tua carta è stata creata. Non dimenticare di aggiungere il tuo primo punto prima di lasciare il negozio!",
+      "Une erreur est survenue. Demandez à l'équipe en boutique.": "Si è verificato un errore. Chiedi al personale del negozio.",
+      "Point ajouté ! Merci de votre fidélité 🎉": "Punto aggiunto! Grazie per la tua fedeltà 🎉",
+      "Une erreur est survenue. Réessayez ou demandez à l'équipe en boutique.": "Si è verificato un errore. Riprova o chiedi al personale del negozio.",
+      "Vous semblez loin de la boutique. Revenez sur place pour valider votre passage.": "Sembri lontano dal negozio. Torna sul posto per convalidare la tua visita.",
+      "Client introuvable. Vérifiez le QR code scanné.": "Cliente non trovato. Controlla il codice QR scansionato.",
+      "Vous n'êtes pas encore inscrit dans cette boutique.": "Non sei ancora iscritto in questo negozio.",
+      "Une erreur est survenue, réessayez dans un instant.": "Si è verificato un errore, riprova tra un momento.",
+      "Vous êtes commerçant ? Découvrir Ancrimo →": "Hai un negozio? Scopri Ancrimo →",
+    },
+  };
+  const MOTIFS = {
+    es: [
+      [/^(\d+) passages = −(.+)$/, "$1 visitas = −$2"],
+      [/^J'accepte de recevoir des offres et actualités (.+) par SMS et\/ou email\. Vous pouvez vous désinscrire à tout moment\.$/, "Acepto recibir ofertas y novedades de $1 por SMS y/o email. Puedes darte de baja en cualquier momento."],
+      [/^En vous inscrivant, vos données \(prénom, téléphone, email et date d'anniversaire le cas échéant\) sont utilisées par (.+) pour gérer votre programme de fidélité\.\s+Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique\.$/, "Al registrarte, tus datos (nombre, teléfono, email y, en su caso, fecha de cumpleaños) son utilizados por $1 para gestionar tu programa de fidelidad. Puedes ejercer en cualquier momento tus derechos de acceso, rectificación y supresión ante tu tienda."],
+      [/^Content de vous revoir, (.+) !$/, "¡Hola de nuevo, $1!"],
+      [/^Merci, c'est noté pour le (1er|\d+) (\S+) ! 🎉$/, (m, j, mo) => `¡Gracias, apuntado para el ${j === "1er" ? "1" : j} de ${moisTraduit(mo)}! 🎉`],
+      [/^Débloquée le (.+) à (.+)$/, "Desbloqueada el $1 a las $2"],
+      [/^(Déposée|Prête|Rendue) le (.+)$/, (m, e, d) => ({ "Déposée": "Entregada el ", "Prête": "Lista el ", "Rendue": "Recogida el " })[e] + d],
+      [/^Numéro de téléphone incomplet ou incorrect\. Par exemple : (.+) \(ou au format international, \+…\)\.$/, "Número de teléfono incompleto o incorrecto. Por ejemplo: $1 (o en formato internacional, +…)."],
+      [/^Les points ne peuvent être ajoutés qu'aux heures d'ouverture \((.+)\)\.$/, "Los puntos solo se pueden añadir en horario de apertura ($1)."],
+      [/^Vous avez déjà gagné un point récemment\. Revenez dans (.+)\.$/, "Ya has ganado un punto hace poco. Vuelve dentro de $1."],
+      [/^Carte de fidélité (.+)$/, "Tarjeta de fidelidad $1"],
+    ],
+    it: [
+      [/^(\d+) passages = −(.+)$/, "$1 visite = −$2"],
+      [/^J'accepte de recevoir des offres et actualités (.+) par SMS et\/ou email\. Vous pouvez vous désinscrire à tout moment\.$/, "Accetto di ricevere offerte e novità da $1 via SMS e/o email. Puoi annullare l'iscrizione in qualsiasi momento."],
+      [/^En vous inscrivant, vos données \(prénom, téléphone, email et date d'anniversaire le cas échéant\) sont utilisées par (.+) pour gérer votre programme de fidélité\.\s+Vous disposez d'un droit d'accès, de rectification et de suppression de vos données à tout moment auprès de votre boutique\.$/, "Iscrivendoti, i tuoi dati (nome, telefono, email ed eventualmente data di compleanno) sono utilizzati da $1 per gestire il tuo programma fedeltà. Puoi esercitare in qualsiasi momento i tuoi diritti di accesso, rettifica e cancellazione presso il tuo negozio."],
+      [/^Content de vous revoir, (.+) !$/, "Che piacere rivederti, $1!"],
+      [/^Merci, c'est noté pour le (1er|\d+) (\S+) ! 🎉$/, (m, j, mo) => `Grazie, segnato per il ${j === "1er" ? "1º" : j} ${moisTraduit(mo)}! 🎉`],
+      [/^Débloquée le (.+) à (.+)$/, "Sbloccato $1 alle $2"],
+      [/^(Déposée|Prête|Rendue) le (.+)$/, (m, e, d) => ({ "Déposée": "Consegnata il ", "Prête": "Pronta il ", "Rendue": "Ritirata il " })[e] + d],
+      [/^Numéro de téléphone incomplet ou incorrect\. Par exemple : (.+) \(ou au format international, \+…\)\.$/, "Numero di telefono incompleto o errato. Per esempio: $1 (oppure in formato internazionale, +…)."],
+      [/^Les points ne peuvent être ajoutés qu'aux heures d'ouverture \((.+)\)\.$/, "I punti possono essere aggiunti solo negli orari di apertura ($1)."],
+      [/^Vous avez déjà gagné un point récemment\. Revenez dans (.+)\.$/, "Hai già guadagnato un punto di recente. Torna tra $1."],
+      [/^Carte de fidélité (.+)$/, "Carta fedeltà $1"],
+    ],
+  };
+  function traduireTexte(s) {
+    if (LANGUE === "fr" || !s) return s;
+    const t = s.trim();
+    if (!t) return s;
+    let r = TRAD[LANGUE][t];
+    if (r === undefined && MOIS_FR.includes(t)) r = moisTraduit(t);
+    if (r === undefined) {
+      for (const [motif, remplacement] of MOTIFS[LANGUE]) {
+        if (motif.test(t)) { r = t.replace(motif, remplacement); break; }
+      }
+    }
+    return r === undefined ? s : s.replace(t, () => r);
+  }
+  function traduireDans(racine) {
+    if (LANGUE === "fr" || !racine) return;
+    if (racine.nodeType === 3) {
+      const v = traduireTexte(racine.nodeValue);
+      if (v !== racine.nodeValue) racine.nodeValue = v;
+      return;
+    }
+    if (racine.nodeType !== 1) return;
+    if (racine.tagName === "SCRIPT" || racine.tagName === "STYLE") return;
+    const marcheur = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    let n = racine;
+    do {
+      if (n.nodeType === 3) {
+        const p = n.parentElement;
+        if (p && (p.tagName === "SCRIPT" || p.tagName === "STYLE")) continue;
+        const v = traduireTexte(n.nodeValue);
+        if (v !== n.nodeValue) n.nodeValue = v;
+      } else {
+        for (const a of ["placeholder", "aria-label", "alt"]) {
+          if (n.hasAttribute && n.hasAttribute(a)) {
+            const v = traduireTexte(n.getAttribute(a));
+            if (v !== n.getAttribute(a)) n.setAttribute(a, v);
+          }
+        }
+      }
+    } while ((n = marcheur.nextNode()));
+  }
+  function appliquerLangue(l) {
+    if (!TRAD[l] || LANGUE === l) return;
+    LANGUE = l;
+    document.documentElement.lang = l;
+    document.title = traduireTexte(document.title);
+    traduireDans(document.body);
+    new MutationObserver((liste) => {
+      for (const m of liste) {
+        if (m.type === "characterData") traduireDans(m.target);
+        else if (m.type === "attributes") traduireDans(m.target);
+        else m.addedNodes.forEach((x) => traduireDans(x));
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["placeholder", "aria-label", "alt"] });
+  }
+
   // Clé de la carte (audit de sécurité du 06/10/2026) : prouve que ce téléphone est celui qui a créé
   // la carte. Sans elle, on voit ses points mais pas ses réparations, et on ne peut pas changer sa date.
   const CLE_CARTE = "fidloop_cle_carte";
@@ -437,7 +687,7 @@ msg.className = "anniv-msg err"; msg.style.display = "block"; btn.disabled = fal
           const x = new Date(d);
           const opts = { day: "numeric", month: "long" };
           if (x.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
-          return x.toLocaleDateString("fr-FR", opts).replace(/^1 /, "1er ");
+          return LANGUE === "fr" ? x.toLocaleDateString("fr-FR", opts).replace(/^1 /, "1er ") : x.toLocaleDateString(LOCALE(), opts);
         };
         const depot = jourMois(r.date_creation);
         const fin = jourMois(r.statut_depuis);
@@ -735,6 +985,7 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
 
   // --- Habillage aux couleurs de l enseigne ---
   const ENSEIGNE_PAR_DEFAUT = "Votre commerçant";
+  const DEFAUTS_ENSEIGNE = [ENSEIGNE_PAR_DEFAUT, "Tu comercio", "Il tuo esercente"];
 
   // Boutique sans enseigne : on affiche simplement le nom de la boutique
   function nomSansEnseigne(liste, id) {
@@ -746,17 +997,17 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     if (!e || !e.nom) return;
 
     if (e.nom !== ENSEIGNE_PAR_DEFAUT) {
-      document.title = "Carte de fidélité " + e.nom;
+      document.title = traduireTexte("Carte de fidélité " + e.nom);
       const marcheur = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       const aChanger = [];
       let n;
       while ((n = marcheur.nextNode())) {
-        if (n.nodeValue.indexOf(ENSEIGNE_PAR_DEFAUT) === -1) continue;
+        if (!DEFAUTS_ENSEIGNE.some((d) => n.nodeValue.indexOf(d) !== -1)) continue;
         if (n.parentElement && n.parentElement.closest("select")) continue;
         aChanger.push(n);
       }
       aChanger.forEach((t) => {
-        t.nodeValue = t.nodeValue.split(ENSEIGNE_PAR_DEFAUT).join(e.nom);
+        t.nodeValue = DEFAUTS_ENSEIGNE.reduce((v, d) => v.split(d).join(e.nom), t.nodeValue);
       });
     }
 
@@ -852,9 +1103,12 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
     if (preselectedBoutique) {
       const { data: boutique } = await supabaseClient
         .from("boutiques")
-        .select("actif, mode_test, nom, logo_url, couleur, couleur2, style_carte, fond_carte, enseignes(nom), palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
+        .select("actif, mode_test, nom, langue, logo_url, couleur, couleur2, style_carte, fond_carte, enseignes(nom), palier_1_passages, palier_1_pourcentage, palier_2_passages, palier_2_pourcentage")
         .eq("id", preselectedBoutique)
         .maybeSingle();
+
+      // Langue de la boutique (espagnol, italien) : la carte s'affiche dans cette langue
+      if (boutique && boutique.langue && boutique.langue !== "fr") appliquerLangue(boutique.langue);
 
       if (boutique && boutique.palier_1_passages) {
         PAL = { p1: boutique.palier_1_passages, pct1: boutique.palier_1_pourcentage, p2: boutique.palier_2_passages || null, pct2: boutique.palier_2_pourcentage || null };
@@ -1260,11 +1514,11 @@ const btn = document.getElementById("checkin-btn");
   let horlogeRecompense = null;
   function demarrerHorlogeRecompense() {
     const debloqueeLe = new Date();
-    const jour = debloqueeLe.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    const heure = debloqueeLe.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+    const jour = debloqueeLe.toLocaleDateString(LOCALE(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const heure = LANGUE === "fr" ? debloqueeLe.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h") : debloqueeLe.toLocaleTimeString(LOCALE(), { hour: "2-digit", minute: "2-digit" });
     document.getElementById("reward-overlay-date").textContent = "Débloquée le " + jour + " à " + heure;
     const horloge = document.getElementById("reward-overlay-clock");
-    const tic = () => { horloge.textContent = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+    const tic = () => { horloge.textContent = new Date().toLocaleTimeString(LOCALE(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
     tic();
     clearInterval(horlogeRecompense);
     horlogeRecompense = setInterval(tic, 1000);
