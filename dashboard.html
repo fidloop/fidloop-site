@@ -229,7 +229,21 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
  #poster-verso{display:block!important;position:relative;width:200mm;height:262mm;margin:0 auto;overflow:hidden;break-before:page;page-break-before:always;background:#fff;color:#6b5d50;font-family:Inter,Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  #poster-verso .av-consigne{position:absolute;left:16mm;right:16mm;top:12mm;font-size:10pt;line-height:1.45;text-align:center}
  #poster-verso .av-consigne b{display:block;font-size:12pt;color:#1c1712;margin-bottom:1.5mm}
- #poster-verso .av-cible{position:absolute;left:33.76mm;top:99mm;width:40mm;height:40mm;border-radius:50%;border:0.8mm dashed #b23b20;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9.5pt;line-height:1.3;color:#1c1712}
+ #poster-verso .av-cible{position:absolute;left:80mm;top:102mm;width:40mm;height:40mm;border-radius:50%;border:0.8mm dashed #b23b20;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9.5pt;line-height:1.3;color:#1c1712}
+ /* QR code et NFC réunis sur une seule carte (21/11/2026) ; la pastille NFC se colle au verso, derrière le QR code */
+ .ap-centre.ap-fusion{display:flex;justify-content:center;padding:6mm 18mm 0}
+ #poster-print.neutre .ap-centre.ap-fusion{padding-top:6mm}
+ .ap-fusion .ap-carte{width:120mm;padding:4mm 6mm 5mm}
+ #poster-print .ap-fusion #poster-print-qr{width:56mm;height:56mm}
+ #poster-print .ap-fusion #poster-print-qr img,#poster-print .ap-fusion #poster-print-qr canvas{width:56mm!important;height:56mm!important}
+ #poster-print.neutre.avec-logo-perso .ap-centre.ap-fusion{padding-top:3mm}
+ #poster-print.avec-logo-perso .ap-fusion #poster-print-qr{width:50mm;height:50mm}
+ #poster-print.avec-logo-perso .ap-fusion #poster-print-qr img,#poster-print.avec-logo-perso .ap-fusion #poster-print-qr canvas{width:50mm!important;height:50mm!important}
+ #poster-verso.avec-logo-perso .av-cible{top:112mm}
+ .ap-mode{display:flex;align-items:center;justify-content:center;gap:3mm;font-size:13pt;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3mm}
+ .ap-mode i{font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;opacity:.7}
+ .ap-mode .ap-ondes{font-size:12pt;letter-spacing:.04em}
+ .ap-fusion .ap-lib{font-size:14pt;margin-top:3mm;white-space:nowrap}
  .ap-ou{grid-column:2;grid-row:1;margin:28.5mm auto 0;transform:translateX(5.2mm);background:#F6D94A;width:13mm;height:13mm;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11pt}
  .ap-etapes{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;padding:7mm 16mm 4mm}
  .ap-etapes div{background:#fafafa;border-radius:4mm;padding:5mm 4mm;text-align:center;border-top:1.4mm solid #5BB24A}
@@ -334,10 +348,8 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
     <p>Gratuite, sans appli, en 30 secondes.</p>
     <div class="ap-paliers" id="poster-print-paliers"></div>
   </div>
-  <div class="ap-centre">
-    <div class="ap-carte"><div id="poster-print-qr"></div><div class="ap-lib">Scannez-moi</div></div>
-    <div class="ap-nfc"><div class="ap-rond"><svg class="ap-tel" viewBox="0 0 30 48" aria-hidden="true"><rect x="2" y="2" width="26" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="2.6"/><line x1="11" y1="7.5" x2="19" y2="7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="15" cy="40" r="2" fill="currentColor"/></svg><div class="ap-ondes">((( ● )))</div></div><div class="ap-lib">ou approchez<br>votre téléphone</div></div>
-    <div class="ap-ou">ou</div>
+  <div class="ap-centre ap-fusion">
+    <div class="ap-carte"><div class="ap-mode"><span class="ap-ondes">((( ● )))</span> QR code <i>ou</i> NFC</div><div id="poster-print-qr"></div><div class="ap-lib">Scannez ou approchez votre téléphone</div></div>
   </div>
   <div class="ap-etapes">
     <div><b>1</b><p>Scannez le QR code ou approchez votre téléphone</p></div>
@@ -351,7 +363,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
   </div>
 </div>
 <div id="poster-verso" class="poster-verso" aria-hidden="true">
-  <div class="av-consigne"><b>Verso de l'affiche (facultatif)</b>Imprimez en recto verso, retournement sur le bord long, puis collez la pastille NFC dans le cercle ci-dessous : elle se trouvera juste derrière le rond de l'affiche. Sans pastille NFC, imprimez seulement la page 1.</div>
+  <div class="av-consigne"><b>Verso de l'affiche (facultatif)</b>Imprimez en recto verso, retournement sur le bord long, puis collez la pastille NFC dans le cercle ci-dessous : elle se trouvera juste derrière le QR code de l'affiche. Sans pastille NFC, imprimez seulement la page 1.</div>
   <div class="av-cible">Collez ici<br>la pastille NFC</div>
 </div>
 <div id="gate">
@@ -2154,11 +2166,11 @@ initOnglets();
 
   // Textes fixes de l'affiche en espagnol et en italien (21/11/2026) ; le français d'origine est gardé pour y revenir
   const AFFICHE_TEXTES = {
-    es: { h1: "Tu tarjeta de fidelidad<br>está en tu móvil", sous: "Gratis, sin app, en 30 segundos.", lib: "Escanéame", nfc: "o acerca<br>tu móvil", ou: "o",
+    es: { h1: "Tu tarjeta de fidelidad<br>está en tu móvil", sous: "Gratis, sin app, en 30 segundos.", lib: "Escanea o acerca tu móvil", mode: "<span class=\"ap-ondes\">((( ● )))</span> Código QR <i>o</i> NFC",
       etapes: ["Escanea el código QR o acerca tu móvil", "Indica tu nombre y tu teléfono", "En cada visita, se añade tu punto"],
       gros: "Pregúntanos en caja,<br>¡te la activamos al momento!", fin: " · tus datos nunca se venden",
       propulse: "Tarjeta ofrecida por <b>Ancrimo</b> · comercios, cread la vuestra en ancrimo.fr" },
-    it: { h1: "La tua carta fedeltà<br>è nel tuo telefono", sous: "Gratuita, senza app, in 30 secondi.", lib: "Scansionami", nfc: "o avvicina<br>il telefono", ou: "o",
+    it: { h1: "La tua carta fedeltà<br>è nel tuo telefono", sous: "Gratuita, senza app, in 30 secondi.", lib: "Scansiona o avvicina il telefono", mode: "<span class=\"ap-ondes\">((( ● )))</span> Codice QR <i>o</i> NFC",
       etapes: ["Scansiona il codice QR o avvicina il telefono", "Inserisci il tuo nome e il tuo telefono", "A ogni visita, il tuo punto viene aggiunto"],
       gros: "Chiedi alla cassa,<br>te la attiviamo subito!", fin: " · i tuoi dati non vengono mai venduti",
       propulse: "Carta offerta da <b>Ancrimo</b> · esercenti, create la vostra su ancrimo.fr" },
@@ -2166,7 +2178,7 @@ initOnglets();
   let afficheFr = null;
   function traduireAffiche(langue) {
     const p = document.getElementById("poster-print");
-    const el = { h1: p.querySelector(".ap-titre h1"), sous: p.querySelector(".ap-titre p"), lib: p.querySelector(".ap-carte .ap-lib"), nfc: p.querySelector(".ap-nfc .ap-lib"), ou: p.querySelector(".ap-ou"),
+    const el = { h1: p.querySelector(".ap-titre h1"), sous: p.querySelector(".ap-titre p"), lib: p.querySelector(".ap-carte .ap-lib"), mode: p.querySelector(".ap-mode"),
       gros: p.querySelector(".ap-gros"), propulse: p.querySelector(".ap-propulse") };
     const etapes = [...p.querySelectorAll(".ap-etapes p")];
     const fin = p.querySelector(".ap-fin").lastChild;
@@ -2235,6 +2247,7 @@ initOnglets();
     const logoImg = document.querySelector("#poster-print-logo-perso img");
     const avecLogoPerso = !avecLogo && !!logoPerso;
     document.getElementById("poster-print").classList.toggle("avec-logo-perso", avecLogoPerso);
+    document.getElementById("poster-verso").classList.toggle("avec-logo-perso", avecLogoPerso);
     if (avecLogoPerso) {
       await new Promise((ok) => {
         const fin = () => { clearTimeout(minuteur); ok(); };
