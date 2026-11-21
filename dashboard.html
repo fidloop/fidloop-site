@@ -2152,6 +2152,33 @@ initOnglets();
     setTimeout(() => modale.querySelector(".fmt-tuile").focus({ preventScroll: true }), 40);
   }
 
+  // Textes fixes de l'affiche en espagnol et en italien (21/11/2026) ; le français d'origine est gardé pour y revenir
+  const AFFICHE_TEXTES = {
+    es: { h1: "Tu tarjeta de fidelidad<br>está en tu móvil", sous: "Gratis, sin app, en 30 segundos.", lib: "Escanéame", nfc: "o acerca<br>tu móvil", ou: "o",
+      etapes: ["Escanea el código QR o acerca tu móvil", "Indica tu nombre y tu teléfono", "En cada visita, se añade tu punto"],
+      gros: "Pregúntanos en caja,<br>¡te la activamos al momento!", fin: " · tus datos nunca se venden",
+      propulse: "Tarjeta ofrecida por <b>Ancrimo</b> · comercios, cread la vuestra en ancrimo.fr" },
+    it: { h1: "La tua carta fedeltà<br>è nel tuo telefono", sous: "Gratuita, senza app, in 30 secondi.", lib: "Scansionami", nfc: "o avvicina<br>il telefono", ou: "o",
+      etapes: ["Scansiona il codice QR o avvicina il telefono", "Inserisci il tuo nome e il tuo telefono", "A ogni visita, il tuo punto viene aggiunto"],
+      gros: "Chiedi alla cassa,<br>te la attiviamo subito!", fin: " · i tuoi dati non vengono mai venduti",
+      propulse: "Carta offerta da <b>Ancrimo</b> · esercenti, create la vostra su ancrimo.fr" },
+  };
+  let afficheFr = null;
+  function traduireAffiche(langue) {
+    const p = document.getElementById("poster-print");
+    const el = { h1: p.querySelector(".ap-titre h1"), sous: p.querySelector(".ap-titre p"), lib: p.querySelector(".ap-carte .ap-lib"), nfc: p.querySelector(".ap-nfc .ap-lib"), ou: p.querySelector(".ap-ou"),
+      gros: p.querySelector(".ap-gros"), propulse: p.querySelector(".ap-propulse") };
+    const etapes = [...p.querySelectorAll(".ap-etapes p")];
+    const fin = p.querySelector(".ap-fin").lastChild;
+    if (!afficheFr) {
+      afficheFr = { etapes: etapes.map((e) => e.innerHTML), fin: fin.nodeValue };
+      for (const k in el) afficheFr[k] = el[k].innerHTML;
+    }
+    const t = AFFICHE_TEXTES[langue] || afficheFr;
+    for (const k in el) el[k].innerHTML = t[k];
+    etapes.forEach((e, i) => { e.innerHTML = t.etapes[i]; });
+    fin.nodeValue = t.fin;
+  }
   async function printPoster(boutique, pal, format) {
     let marque = "";
     let couleur = "";
@@ -2195,11 +2222,15 @@ initOnglets();
     } else {
       ["--ap-police", "--ap-h1", "--ap-fonce"].forEach((v) => posterEl.style.removeProperty(v));
     }
-    document.getElementById("poster-print-marque").textContent = "Carte de fidélité " + (marque || boutique.nom);
+    // Langue de l'affiche (21/11/2026) : espagnol ou italien selon le pays de la boutique, français sinon
+    const langueAff = boutique.pays === "ES" ? "es" : boutique.pays === "IT" ? "it" : "fr";
+    traduireAffiche(langueAff);
+    document.getElementById("poster-print-marque").textContent = ({ es: "Tarjeta de fidelidad ", it: "Carta fedeltà " }[langueAff] || "Carte de fidélité ") + (marque || boutique.nom);
     const pct = (x) => String(x).replace(".", ",");
-    const ligne2 = pal.p2 ? `<span>${pal.p2} passages = <b>−${pct(pal.pct2)} %</b></span>` : "";
+    const motPassages = { es: "visitas", it: "visite" }[langueAff] || "passages";
+    const ligne2 = pal.p2 ? `<span>${pal.p2} ${motPassages} = <b>−${pct(pal.pct2)} %</b></span>` : "";
     document.getElementById("poster-print-paliers").innerHTML =
-      `<span>${pal.p1} passages = <b>−${pct(pal.pct1)} %</b></span>` + ligne2;
+      `<span>${pal.p1} ${motPassages} = <b>−${pct(pal.pct1)} %</b></span>` + ligne2;
     // Logo du commerçant (affiche neutre seulement) : on attend qu'il soit chargé avant d'imprimer
     const logoImg = document.querySelector("#poster-print-logo-perso img");
     const avecLogoPerso = !avecLogo && !!logoPerso;
