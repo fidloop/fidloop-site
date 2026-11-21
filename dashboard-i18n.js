@@ -595,11 +595,9 @@
     appliquer(langueDepart());
     const zone = document.getElementById("ins-zone");
     if (zone) zone.addEventListener("change", () => appliquer(zone.value === "es" ? "es" : zone.value === "it" ? "it" : "fr"));
-    // venant de la page espagnole ou italienne (?lang=es / ?lang=it) : pays de l'inscription déjà choisi
-    try {
-      const q = new URLSearchParams(location.search).get("lang");
-      if (zone && (q === "es" || q === "it") && zone.value === "fr") { zone.value = q; zone.dispatchEvent(new Event("change", { bubbles: true })); }
-    } catch (e) {}
+    // page en espagnol ou en italien (?lang=, langue du téléphone ou dernière langue utilisée) :
+    // pays de l'inscription déjà choisi (Espagne / Italie), modifiable dans la liste
+    if (zone && (LANGUE === "es" || LANGUE === "it") && zone.value === "fr") { zone.value = LANGUE; zone.dispatchEvent(new Event("change", { bubbles: true })); }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", demarrer); else demarrer();
 })();
