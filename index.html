@@ -958,6 +958,8 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
       email: document.getElementById("email").value.trim() || null,
       boutique_id: boutiqueSelect.value,
       consentement_marketing: document.getElementById("consentement_marketing").checked,
+      // Clé de la carte déjà présente sur ce téléphone : seule preuve acceptée pour rouvrir un numéro déjà inscrit
+      cle: lireCle() || undefined,
     };
 
     try {
@@ -989,7 +991,9 @@ input:focus,select:focus{box-shadow:0 0 0 4px rgba(${th.rgb1},.12)!important}
       // est mis de côté : Google Wallet n'existe pas sur iPhone et l'erreur prêtait à confusion)
       showCheckinScreen(result.clientId, boutiqueSelect.value, true);
     } catch (err) {
-      errorMsg.textContent = "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.";
+      errorMsg.textContent = err && err.message === "numero_deja_inscrit"
+        ? "Ce numéro a déjà une carte de fidélité. Ouvrez-la sur le téléphone avec lequel vous l'avez créée. Nouveau téléphone ? Demandez en caisse : le commerçant peut ajouter vos passages."
+        : "Impossible de créer votre carte pour le moment. Réessayez ou demandez à l'équipe en boutique.";
       errorMsg.style.display = "block";
       submitBtn.disabled = false;
       submitBtn.textContent = "Créer ma carte de fidélité";
