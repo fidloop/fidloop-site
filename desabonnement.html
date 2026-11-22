@@ -22,17 +22,37 @@
   </div>
 <script>
   (function () {
-    var etat = new URLSearchParams(location.search).get("etat");
-    var titre = document.getElementById("titre"), texte = document.getElementById("texte"), suite = document.getElementById("suite");
-    if (etat === "invalide") {
-      titre.textContent = "Lien incomplet";
-      texte.textContent = "Ce lien de désabonnement est incomplet. Utilisez le lien reçu dans l'e-mail, ou demandez directement à votre boutique de vous désinscrire.";
-      suite.textContent = "";
-    } else if (etat === "erreur") {
-      titre.textContent = "Une erreur est survenue";
-      texte.textContent = "Votre demande n'a pas pu être enregistrée. Merci de réessayer un peu plus tard, ou de demander directement à votre boutique de vous désinscrire.";
-      suite.textContent = "";
-    }
+    var q = new URLSearchParams(location.search);
+    var etat = q.get("etat");
+    // Langue de l'e-mail reçu (espagnol, italien : 22/11/2026), sinon français
+    var langue = q.get("lang");
+    var T = {
+      fr: {
+        page: "Désabonnement – Ancrimo",
+        ok: ["Désabonnement confirmé", "Vous ne recevrez plus d'offres promotionnelles de la boutique, ni par e-mail ni par SMS.", "Votre carte de fidélité reste active : vous continuez à cumuler vos points à chaque passage."],
+        invalide: ["Lien incomplet", "Ce lien de désabonnement est incomplet. Utilisez le lien reçu dans l'e-mail, ou demandez directement à votre boutique de vous désinscrire.", ""],
+        erreur: ["Une erreur est survenue", "Votre demande n'a pas pu être enregistrée. Merci de réessayer un peu plus tard, ou de demander directement à votre boutique de vous désinscrire.", ""]
+      },
+      es: {
+        page: "Darse de baja – Ancrimo",
+        ok: ["Baja confirmada", "Ya no recibirás ofertas promocionales de la tienda, ni por email ni por SMS.", "Tu tarjeta de fidelidad sigue activa: sigues acumulando puntos en cada visita."],
+        invalide: ["Enlace incompleto", "Este enlace de baja está incompleto. Utiliza el enlace recibido en el email, o pide directamente a tu tienda que te dé de baja.", ""],
+        erreur: ["Se ha producido un error", "No se ha podido registrar tu solicitud. Inténtalo de nuevo más tarde, o pide directamente a tu tienda que te dé de baja.", ""]
+      },
+      it: {
+        page: "Disiscrizione – Ancrimo",
+        ok: ["Disiscrizione confermata", "Non riceverai più offerte promozionali dal negozio, né via email né via SMS.", "La tua carta fedeltà resta attiva: continui ad accumulare punti a ogni visita."],
+        invalide: ["Link incompleto", "Questo link di disiscrizione è incompleto. Usa il link ricevuto nell'email, oppure chiedi direttamente al tuo negozio di cancellare l'iscrizione.", ""],
+        erreur: ["Si è verificato un errore", "Non è stato possibile registrare la tua richiesta. Riprova più tardi, oppure chiedi direttamente al tuo negozio di cancellare l'iscrizione.", ""]
+      }
+    };
+    var L = T[langue] ? langue : "fr";
+    var t = T[L][etat === "invalide" || etat === "erreur" ? etat : "ok"];
+    document.documentElement.lang = L;
+    document.title = T[L].page;
+    document.getElementById("titre").textContent = t[0];
+    document.getElementById("texte").textContent = t[1];
+    document.getElementById("suite").textContent = t[2];
   })();
 </script>
 </body>
