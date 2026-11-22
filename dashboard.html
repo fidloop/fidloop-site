@@ -687,7 +687,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
   <div class="credits-box" id="credits-box">
     <h2>Crédits d'envoi</h2>
-    <div class="sub">1 crédit = 1 envoi SMS, ou 1 envoi email au-delà des 2 campagnes gratuites du mois. Plus le pack est grand, moins le crédit coûte cher.</div>
+    <div class="sub">1 crédit = 1 envoi SMS (2 à 4 crédits vers la Belgique, le Luxembourg et l'outre-mer), ou 1 envoi email au-delà des 2 campagnes gratuites du mois. Plus le pack est grand, moins le crédit coûte cher.</div>
     <div class="credits-balance"><span class="n" id="credits-solde">—</span><span class="l">crédit(s) disponible(s)</span></div>
     <div class="credits-packs">
       
@@ -712,14 +712,14 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,
 
   <div class="credits-box" id="anniv-box">
     <h2>🎂 SMS d'anniversaire</h2>
-    <div class="sub">Le jour de leur anniversaire, vers 10 h, vos clients reçoivent un SMS avec l'offre que vous écrivez ci-dessous, valable 15 jours (sans offre écrite, le SMS annonce « un cadeau vous attend en boutique »). 1 crédit par SMS, pris sur cet accès. Seuls les clients qui ont donné leur date sur leur carte, et qui n'ont pas demandé STOP, le reçoivent.</div>
+    <div class="sub">Le jour de leur anniversaire, vers 10 h, vos clients reçoivent un SMS avec l'offre que vous écrivez ci-dessous, valable 15 jours (sans offre écrite, le SMS annonce « un cadeau vous attend en boutique »). 1 crédit par SMS (2 à 4 vers la Belgique, le Luxembourg et l'outre-mer), pris sur cet accès. Seuls les clients qui ont donné leur date sur leur carte, et qui n'ont pas demandé STOP, le reçoivent.</div>
     <div id="anniv-liste"><div class="campaign-count">Chargement…</div></div>
     <div class="credits-msg" id="anniv-msg"></div>
 </div>
 
 <div class="credits-box" id="auto-box">
 <h2>🔁 Relance des clients &amp; 🎁 offre de bienvenue</h2>
-<div class="sub"><strong>Relance « client perdu »</strong> : vers 10 h 30, du lundi au samedi (hors jours fériés), les clients qui ne sont pas revenus depuis le délai choisi reçoivent un SMS avec une remise sur leur prochain passage, valable 15 jours. Un seul SMS par client tant qu'il ne revient pas. 1 crédit par SMS, pris sur cet accès. Seuls les clients qui ont accepté les offres, et qui n'ont pas demandé STOP, le reçoivent.<br><strong>Offre de bienvenue</strong> : au tout premier passage, la carte du client affiche une remise à utiliser tout de suite en caisse. Gratuit.</div>
+<div class="sub"><strong>Relance « client perdu »</strong> : vers 10 h 30, du lundi au samedi (hors jours fériés), les clients qui ne sont pas revenus depuis le délai choisi reçoivent un SMS avec une remise sur leur prochain passage, valable 15 jours. Un seul SMS par client tant qu'il ne revient pas. 1 crédit par SMS (2 à 4 vers la Belgique, le Luxembourg et l'outre-mer), pris sur cet accès. Seuls les clients qui ont accepté les offres, et qui n'ont pas demandé STOP, le reçoivent.<br><strong>Offre de bienvenue</strong> : au tout premier passage, la carte du client affiche une remise à utiliser tout de suite en caisse. Gratuit.</div>
 <div id="auto-liste"><div class="campaign-count">Chargement…</div></div>
 <div class="credits-msg" id="auto-msg"></div>
 </div>
@@ -2563,6 +2563,7 @@ initOnglets();
         majCompteurSms();
       }
       countBox.innerHTML = `<strong>${count}</strong> destinataire${count > 1 ? "s" : ""} recevront ${quoi} (consentement + ${champ} renseigné).`;
+      if (CAMPAIGN_CANAL === "sms" && data.credits_sms > count) countBox.innerHTML += `<br><span>Coût : ${data.credits_sms} crédits (2 à 4 par SMS vers la Belgique, le Luxembourg et l'outre-mer).</span>`;
       if (data.solde_credits !== undefined) updateCreditsSolde(data.solde_credits);
     } catch (e) {
       if (requestId !== PREVIEW_REQUEST_ID) return;
